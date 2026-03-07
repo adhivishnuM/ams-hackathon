@@ -1,0 +1,544 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Agrotalk Assist - Premium White & Green Design System */
+
+@layer base {
+  :root {
+    /* Primary Green Spectrum - NVIDIA Green #76B900 */
+    --primary: 82 100% 36%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary Green */
+    --secondary: 82 90% 45%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Accent - NVIDIA Green */
+    --accent: 82 100% 40%;
+    --accent-foreground: 0 0% 100%;
+
+    /* White & Neutral Background */
+    --background: 0 0% 98%;
+    --foreground: 221 39% 11%;
+
+    /* Elevated surfaces */
+    --card: 0 0% 100%;
+    --card-foreground: 221 39% 11%;
+
+    /* Popover */
+    --popover: 0 0% 100%;
+    --popover-foreground: 221 39% 11%;
+
+    /* Muted surfaces */
+    --muted: 210 20% 96%;
+    --muted-foreground: 220 9% 46%;
+
+    /* Semantic Colors */
+    --success: 82 100% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 221 39% 11%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Offline */
+    --offline: 220 9% 46%;
+    --offline-foreground: 0 0% 100%;
+
+    /* Green Tints - Using NVIDIA Hue 82 */
+    --green-tint: 82 80% 85%;
+    --green-subtle: 82 75% 90%;
+    --green-wash: 82 70% 95%;
+
+    /* Borders & Inputs */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 82 100% 36%;
+
+    --radius: 1rem;
+
+    /* Glass Effects */
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(209, 213, 219, 0.3);
+    --glass-green-bg: rgba(118, 185, 0, 0.1);
+
+    /* Shadows */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.08);
+    --shadow-green: 0 8px 24px rgba(118, 185, 0, 0.2);
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 221 39% 11%;
+    --sidebar-primary: 82 100% 36%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 82 80% 85%;
+    --sidebar-accent-foreground: 221 39% 11%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 82 100% 36%;
+  }
+
+  .dark {
+    --primary: 82 100% 45%;
+    --primary-foreground: 221 39% 5%;
+
+    --secondary: 82 40% 25%;
+    --secondary-foreground: 0 0% 100%;
+
+    --accent: 82 100% 40%;
+    --accent-foreground: 0 0% 100%;
+
+    --background: 221 39% 4%;
+    --foreground: 210 20% 98%;
+
+    --card: 221 39% 7%;
+    --card-foreground: 210 20% 98%;
+
+    --popover: 221 39% 7%;
+    --popover-foreground: 210 20% 98%;
+
+    --muted: 221 39% 10%;
+    --muted-foreground: 220 9% 65%;
+
+    --green-tint: 82 40% 12%;
+    --green-subtle: 82 35% 10%;
+    --green-wash: 82 30% 8%;
+
+    --border: 221 39% 12%;
+    --input: 221 39% 12%;
+    --ring: 82 100% 45%;
+
+    /* Glass Effects Dark */
+    --glass-bg: rgba(15, 23, 42, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-green-bg: rgba(118, 185, 0, 0.15);
+
+    --sidebar-background: 221 39% 5%;
+    --sidebar-foreground: 210 20% 98%;
+    --sidebar-primary: 82 100% 45%;
+    --sidebar-primary-foreground: 221 39% 5%;
+    --sidebar-accent: 82 40% 12%;
+    --sidebar-accent-foreground: 210 20% 98%;
+    --sidebar-border: 221 39% 12%;
+    --sidebar-ring: 82 100% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply scroll-smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  body {
+    @apply bg-background text-foreground selection:bg-primary/20;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.47;
+    overflow-x: hidden;
+  }
+
+  /* Touch targets */
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+  }
+}
+
+@layer components {
+
+  /* Apple-style animations */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-out {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    to {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+  }
+
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slide-in-right {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-in-left {
+    from {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes pulse-glow {
+
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+
+    50% {
+      transform: scale(1.08);
+      opacity: 1;
+    }
+  }
+
+  @keyframes pulse-ring-active {
+
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    50% {
+      transform: scale(1.25);
+      opacity: 0.6;
+    }
+  }
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(-3px);
+    }
+
+    50% {
+      transform: translateY(3px);
+    }
+  }
+
+  @keyframes breathing {
+
+    0%,
+    100% {
+      transform: scale(1);
+    }
+
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes waveform {
+
+    0%,
+    100% {
+      transform: scaleY(0.3);
+    }
+
+    50% {
+      transform: scaleY(1);
+    }
+  }
+
+  @keyframes ripple-expand {
+    from {
+      transform: scale(1);
+      opacity: 0.4;
+    }
+
+    to {
+      transform: scale(2.5);
+      opacity: 0;
+    }
+  }
+
+  @keyframes spin-smooth {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes scan-line {
+    0% {
+      top: 0%;
+    }
+
+    100% {
+      top: 100%;
+    }
+  }
+
+  @keyframes vocal-vibe-1 {
+
+    0%,
+    100% {
+      height: 40%;
+    }
+
+    50% {
+      height: 100%;
+    }
+  }
+
+  @keyframes vocal-vibe-2 {
+
+    0%,
+    100% {
+      height: 60%;
+    }
+
+    50% {
+      height: 30%;
+    }
+  }
+
+  @keyframes vocal-vibe-3 {
+
+    0%,
+    100% {
+      height: 20%;
+    }
+
+    50% {
+      height: 80%;
+    }
+  }
+
+  /* Animation classes */
+  .animate-vocal-1 {
+    animation: vocal-vibe-1 0.6s ease-in-out infinite;
+  }
+
+  .animate-vocal-2 {
+    animation: vocal-vibe-2 0.8s ease-in-out infinite;
+  }
+
+  .animate-vocal-3 {
+    animation: vocal-vibe-3 0.7s ease-in-out infinite;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .animate-slide-in-right {
+    animation: slide-in-right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .animate-slide-in-left {
+    animation: slide-in-left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2.5s ease-in-out infinite;
+  }
+
+  .animate-pulse-ring-active {
+    animation: pulse-ring-active 1s ease-in-out infinite;
+  }
+
+  .animate-float {
+    animation: float 2.5s ease-in-out infinite;
+  }
+
+  .animate-breathing {
+    animation: breathing 3s ease-in-out infinite;
+  }
+
+  .animate-waveform {
+    animation: waveform 0.5s ease-in-out infinite;
+  }
+
+  .animate-ripple {
+    animation: ripple-expand 1s ease-out forwards;
+  }
+
+  .animate-spin-smooth {
+    animation: spin-smooth 1.2s linear infinite;
+  }
+
+  .animate-scan-line {
+    animation: scan-line 2.5s linear infinite;
+  }
+
+  /* Glass morphism */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
+  }
+
+  .dark .glass-card {
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .glass-green {
+    background: var(--glass-green-bg);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(118, 185, 0, 0.2);
+  }
+
+  .backdrop-blur-apple {
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+  }
+
+  /* Shadows */
+  .shadow-apple-sm {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 0 1px rgba(0, 0, 0, 0.04);
+  }
+
+  .shadow-apple {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 0 1px rgba(0, 0, 0, 0.04);
+  }
+
+  .shadow-apple-lg {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  }
+
+  .shadow-green {
+    box-shadow: 0 8px 24px rgba(118, 185, 0, 0.35);
+  }
+
+  .shadow-green-lg {
+    box-shadow: 0 12px 32px rgba(118, 185, 0, 0.5);
+  }
+}
+
+@layer utilities {
+
+  /* Green tint backgrounds */
+  .bg-green-tint {
+    background-color: hsl(var(--green-tint));
+  }
+
+  .bg-green-subtle {
+    background-color: hsl(var(--green-subtle));
+  }
+
+  .bg-green-wash {
+    background-color: hsl(var(--green-wash));
+  }
+
+  /* Touch target helper */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Apple radius */
+  .rounded-apple {
+    border-radius: 16px;
+  }
+
+  .rounded-apple-lg {
+    border-radius: 20px;
+  }
+
+  /* Transition */
+  .transition-apple {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Press feedback */
+  .press-scale {
+    @apply active:scale-[0.96] transition-transform duration-100;
+  }
+
+  /* Hover lift */
+  .hover-lift {
+    @apply hover:-translate-y-0.5 hover:shadow-apple-lg transition-all duration-200;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

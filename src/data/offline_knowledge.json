@@ -1,0 +1,2756 @@
+[
+    {
+        "id": "rice_blast",
+        "category": "Rice",
+        "keywords": [
+            "rice",
+            "blast",
+            "disease",
+            "leaf spots",
+            "spots"
+        ],
+        "question": {
+            "en": "How to treat Rice Blast disease?",
+            "hi": "धान के ब्लास्ट रोग का उपचार कैसे करें?",
+            "ta": "நெல் குலை நோய் சிகிச்சை?",
+            "te": "వరి అగ్గి తెగులు నివారణ?",
+            "mr": "भातावरील करपा रोगाचे नियंत्रण?"
+        },
+        "answer": {
+            "en": "Spray Tricyclazole 75 WP (0.6g/L) or Isoprothiolane 40 EC (1.5ml/L). Maintain water level.",
+            "hi": "ट्राइसाइक्लाजोल 75 डब्ल्यूपी (0.6 ग्राम/लीटर) या आइसोप्रोटियोलेन 40 ईसी (1.5 मिली/लीटर) का छिड़काव करें।",
+            "ta": "ட்ரைசைக்ளோசோல் (Tricyclazole) அல்லது ஐசோப்ரோதியோலேன் (Isoprothiolane) தெளிக்கவும்.",
+            "te": "ట్రైసైక్లాజోల్ లేదా ఐసోప్రోథియోలేన్ పిచికారీ చేయండి.",
+            "mr": "ट्रायसायक्लाझोल किंवा आयसोप्रोथिओलेन फवारणी करा."
+        }
+    },
+    {
+        "id": "rice_stem_borer",
+        "category": "Rice",
+        "keywords": [
+            "rice",
+            "stem borer",
+            "insect",
+            "dead heart",
+            "white ear"
+        ],
+        "question": {
+            "en": "Control for Stem Borer in Rice?",
+            "hi": "धान में तना छेदक का नियंत्रण?",
+            "ta": "நெல் தண்டு துளைப்பான் கட்டுப்பாடு?",
+            "te": "వరి కాండం తొలిచే పురుగు నివారణ?",
+            "mr": "भातावरील खोड किडीचे नियंत्रण?"
+        },
+        "answer": {
+            "en": "Install pheromone traps (5/acre). Apply Cartap Hydrochloride 4G granules (10kg/acre) or spray Chlorantraniliprole.",
+            "hi": "फेरोमोन ट्रैप (5/एकड़) लगाएं। कार्टाप हाइड्रोक्लोराइड 4जी दाने (10 किग्रा/एकड़) डालें।",
+            "ta": "பெரோமோன் பொறிகளை வைக்கவும். கார்டாப் ஹைட்ரோகுளோரைடு பயன்படுத்தவும்.",
+            "te": "లింగాకర్షక బుట్టలు పెట్టాలి. కార్టాప్ హైడ్రోక్లోరైడ్ గుళికలు వేయాలి.",
+            "mr": "फेरोमोन सापळे लावा. कार्टॅप हायड्रोक्लोराईड 4G दाणे वापरा."
+        }
+    },
+    {
+        "id": "rice_brown_spot",
+        "category": "Rice",
+        "keywords": [
+            "rice",
+            "brown spot",
+            "disease",
+            "spots"
+        ],
+        "question": {
+            "en": "Management of Brown Spot in Rice?",
+            "hi": "धान में भूरा धब्बा रोग का प्रबंधन?",
+            "ta": "நெல் பழுப்பு புள்ளி நோய்?",
+            "te": "వరి గోధుమ రంగు మచ్చ తెగులు?",
+            "mr": "भातावरील तपकिरी ठिपके रोग?"
+        },
+        "answer": {
+            "en": "Apply balanced fertilizers. Spray Propiconazole 25 EC (1ml/L) or Mancozeb.",
+            "hi": "संतुलित उर्वरक डालें। प्रोपिकोनाजोल 25 ईसी (1 मिली/लीटर) या मैंकोजेब का छिड़काव करें।",
+            "ta": "சீராக உரமிடவும். ப்ரோபிகோனசோல் அல்லது மேன்கோசெப் தெளிக்கவும்.",
+            "te": "సమతుల్య ఎరువులు వాడండి. ప్రోపికోనజోల్ లేదా మాంకోజెబ్ పిచికారీ చేయండి.",
+            "mr": "संतुलित खते वापरा. प्रोपिकोनाझोल किंवा मॅनकोझेब फवारणी करा."
+        }
+    },
+    {
+        "id": "rice_hispa",
+        "category": "Rice",
+        "keywords": [
+            "rice",
+            "hispa",
+            "insect",
+            "black beetle",
+            "spiny"
+        ],
+        "question": {
+            "en": "How to control Rice Hispa?",
+            "hi": "धान के हिस्पा कीट का नियंत्रण कैसे करें?"
+        },
+        "answer": {
+            "en": "Clip off leaf tips before transplanting. Spray Chlorpyriphos 20 EC (2.5ml/L) or Quinalphos.",
+            "hi": "रोपाई से पहले पत्तियों की युक्तियों को काट लें। क्लोरपायरीफॉस 20 ईसी (2.5 मिली/लीटर) या क्विनालफॉस का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "rice_sheath_blight",
+        "category": "Rice",
+        "keywords": [
+            "rice",
+            "sheath blight",
+            "disease",
+            "snake skin"
+        ],
+        "question": {
+            "en": "Control of Sheath Blight in Rice?",
+            "hi": "धान में शीथ ब्लाइट (पर्णच्छद अंगमारी) का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Avoid excess nitrogen. Spray Hexaconazole 5 EC (2ml/L) or Validamycin 3L (2.5ml/L).",
+            "hi": "अतिरिक्त नाइट्रोजन से बचें। हेक्साकोनाजोल 5 ईसी (2 मिली/लीटर) या वैलिडामाइसिन 3 एल (2.5 मिली/लीटर) का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "rice_gundhi_bug",
+        "category": "Rice",
+        "keywords": [
+            "rice",
+            "gundhi bug",
+            "sucking pest",
+            "milky stage",
+            "smell"
+        ],
+        "question": {
+            "en": "Management of Gundhi Bug in Rice?",
+            "hi": "धान में गंधी बग का प्रबंधन?"
+        },
+        "answer": {
+            "en": "Remove weeds. Dust Malathion 5% DP (10kg/acre) during evening hours.",
+            "hi": "खरपतवार हटा दें। शाम के समय मैलाथियान 5% डीपी (10 किग्रा/एकड़) का बुरकाव करें।"
+        }
+    },
+    {
+        "id": "rice_bacterial_leaf_blight",
+        "category": "Rice",
+        "keywords": [
+            "rice",
+            "blb",
+            "bacterial leaf blight",
+            "drying leaves"
+        ],
+        "question": {
+            "en": "Treatment for Bacterial Leaf Blight in Rice?",
+            "hi": "धान में जीवाणु झुलसा रोग का उपचार?"
+        },
+        "answer": {
+            "en": "Avoid nitrogen application. Spray Streptocycline (0.1g) + Copper Oxychloride (1g) per liter.",
+            "hi": "नाइट्रोजन प्रयोग से बचें। प्रति लीटर स्ट्रेप्टोसाइक्लिन (0.1 ग्राम) + कॉपर ऑक्सीक्लोराइड (1 ग्राम) का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "rice_false_smut",
+        "category": "Rice",
+        "keywords": [
+            "rice",
+            "false smut",
+            "yellow balls",
+            "fungus"
+        ],
+        "question": {
+            "en": "Control of False Smut in Rice?",
+            "hi": "धान में आभासी कंडुआ (फॉल्स स्मट) रोग का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Spray Copper Hydroxide 77 WP (2.5g/L) or Propiconazole at 50% panicle emergence.",
+            "hi": "50% बालियां निकलने पर कॉपर हाइड्रॉक्साइड 77 डब्ल्यूपी (2.5 ग्राम/लीटर) या प्रोपिकोनाजोल का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "wheat_rust_yellow",
+        "category": "Wheat",
+        "keywords": [
+            "wheat",
+            "yellow rust",
+            "stripe rust",
+            "disease",
+            "powder"
+        ],
+        "question": {
+            "en": "How to manage Yellow Rust in Wheat?",
+            "hi": "गेहूं में पीला रतुआ का प्रबंधन कैसे करें?",
+            "ta": "கோதுமை மஞ்சள் துரு நோய்?",
+            "te": "గోధుమలో పసుపు కుంకుమ తెగులు?"
+        },
+        "answer": {
+            "en": "Grow resistant varieties like HD 2967. Spray Propiconazole 25 EC (1ml/L) immediately.",
+            "hi": "एचडी 2967 जैसी प्रतिरोधी किस्में उगाएं। तुरंत प्रोपिकोनाजोल 25 ईसी (1 मिली/लीटर) का छिड़काव करें。",
+            "ta": "எதிர்ப்புத் திறன் கொண்ட ரகங்களை வளர்க்கவும். ப்ரோபிகோனசோல் தெளிக்கவும்.",
+            "te": "వ్యాధి నిరోధక రకాలను సాగు చేయండి. ప్రోపికోనజోల్ పిచికారీ చేయండి."
+        }
+    },
+    {
+        "id": "wheat_loose_smut",
+        "category": "Wheat",
+        "keywords": [
+            "wheat",
+            "loose smut",
+            "black ears",
+            "seed borne"
+        ],
+        "question": {
+            "en": "Control for Loose Smut of Wheat?",
+            "hi": "गेहूं के अनावृत कंडुआ (लूज स्मट) का नियंत्रण?"
+        },
+        "answer": {
+            "en": "It is internally seed-borne. Treat seeds with Carboxin (Vitavax) 2g/kg or Tebuconazole 1g/kg.",
+            "hi": "यह बीज जनित रोग है। बीजों को कार्बोक्सिन (विटावैक्स) 2 ग्राम/किग्रा या टेबुकोनाजोल 1 ग्राम/किग्रा से उपचारित करें।"
+        }
+    },
+    {
+        "id": "wheat_karnal_bunt",
+        "category": "Wheat",
+        "keywords": [
+            "wheat",
+            "karnal bunt",
+            "disease",
+            "black grain"
+        ],
+        "question": {
+            "en": "Management of Karnal Bunt in Wheat?",
+            "hi": "गेहूं में करनाल बंट का प्रबंधन?"
+        },
+        "answer": {
+            "en": "Use certified disease-free seeds. Spray Propiconazole (1ml/L) at ear head emergence.",
+            "hi": "प्रमाणित रोग मुक्त बीज का प्रयोग करें। बालियां निकलने पर प्रोपिकोनाजोल (1 मिली/लीटर) का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "wheat_aphid",
+        "category": "Wheat",
+        "keywords": [
+            "wheat",
+            "aphid",
+            "chepa",
+            "sucking pest"
+        ],
+        "question": {
+            "en": "Control of Aphids in Wheat?",
+            "hi": "गेहूं में माहू (चेपा) का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Spray Thiamethoxam 25 WG (0.2g/L) or Imidacloprid 17.8 SL (0.5ml/L).",
+            "hi": "थियामेथोक्साम 25 डब्ल्यूजी (0.2 ग्राम/लीटर) या इमिडाक्लोप्रिड 17.8 एसएल (0.5 मिली/लीटर) का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "wheat_termite",
+        "category": "Wheat",
+        "keywords": [
+            "wheat",
+            "termite",
+            "roots",
+            "drying"
+        ],
+        "question": {
+            "en": "Termite control in Wheat crop?",
+            "hi": "गेहूं की फसल में दीमक नियंत्रण?"
+        },
+        "answer": {
+            "en": "Treat seeds with Chlorpyriphos 20 EC (4ml/kg). Apply Chlorpyriphos with irrigation water (1L/acre).",
+            "hi": "बीजों को क्लोरपायरीफॉस 20 ईसी (4 मिली/किग्रा) से उपचारित करें। सिंचाई जल (1 लीटर/एकड़) के साथ क्लोरपायरीफॉस का प्रयोग करें।"
+        }
+    },
+    {
+        "id": "cotton_bollworm_pink",
+        "category": "Cotton",
+        "keywords": [
+            "cotton",
+            "pink bollworm",
+            "worm",
+            "insect",
+            "flower"
+        ],
+        "question": {
+            "en": "Pink Bollworm control in Cotton?",
+            "hi": "कपास में गुलाबी सुंडी का नियंत्रण?",
+            "ta": "பருத்தி இளஞ்சிவப்பு காய்ப்புழு?",
+            "te": "పత్తిలో గులాబీ రంగు పురుగు?",
+            "mr": "करडई वरील गुलाबी बोंड अळी?"
+        },
+        "answer": {
+            "en": "Use Bt Cotton. Install pheromone traps. Spray Profenofos 50 EC (2ml/L) or Emamectin Benzoate.",
+            "hi": "बीटी कपास का प्रयोग करें। फेरोमोन ट्रैप लगाएं। प्रोफेनोफोस 50 ईसी (2 मिली/लीटर) या इमामेक्टिन बेंजोएट का छिड़काव करें。",
+            "ta": "Bt பருத்தியைப் பயன்படுத்தவும். பெரோமோன் பொறிகளை வைக்கவும்.",
+            "te": "Bt పత్తిని వాడండి. లింగాకర్షక బుట్టలు అమర్చండి.",
+            "mr": "बीजी कापूस वापरा. फेरोमोन सापळे लावा."
+        }
+    },
+    {
+        "id": "cotton_whitefly",
+        "category": "Cotton",
+        "keywords": [
+            "cotton",
+            "whitefly",
+            "sucking pest",
+            "leaf curl",
+            "sticky"
+        ],
+        "question": {
+            "en": "Whitefly management in Cotton?",
+            "hi": "कपास में सफेद मक्खी का प्रबंधन?",
+            "mr": "कापसावरील पांढरी माशी?"
+        },
+        "answer": {
+            "en": "Install yellow sticky traps. Spray Diafenthiuron 50 WP (1g/L) or Afidopyropen.",
+            "hi": "पीले चिपचिपे जाल लगाएं। डायफेन्थिउरॉन 50 डब्ल्यूपी (1 ग्राम/लीटर) या एफिडोपाइरोपिन का छिड़काव करें。",
+            "mr": "पिवळे चिकट सापळे लावा. डायफेन्थिउरॉन फवारणी करा."
+        }
+    },
+    {
+        "id": "cotton_jassid",
+        "category": "Cotton",
+        "keywords": [
+            "cotton",
+            "jassid",
+            "leaf hopper",
+            "yellowing margins"
+        ],
+        "question": {
+            "en": "How to control Jassids in Cotton?",
+            "hi": "कपास में जैसिड (हरा तेला) को कैसे नियंत्रित करें?"
+        },
+        "answer": {
+            "en": "Use resistant varieties. Spray Imidacloprid (0.3ml/L) or Flonicamid (0.3g/L).",
+            "hi": "प्रतिरोधी किस्मों का प्रयोग करें। इमिडाक्लोप्रिड (0.3 मिली/लीटर) या फ्लोनिकामिड (0.3 ग्राम/लीटर) का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "cotton_thrips",
+        "category": "Cotton",
+        "keywords": [
+            "cotton",
+            "thrips",
+            "leaf curling",
+            "silvery"
+        ],
+        "question": {
+            "en": "Thrips control in Cotton?",
+            "hi": "कपास में थ्रिप्स का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Seed treatment with Imidacloprid. Spray Fipronil 5 SC (2ml/L) or Spinosad.",
+            "hi": "इमिडाक्लोप्रिड से बीज उपचार। फिप्रोनिल 5 एससी (2 मिली/लीटर) या स्पिनोसैड का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "sugarcane_red_rot_treat",
+        "category": "Sugarcane",
+        "keywords": [
+            "sugarcane",
+            "red rot",
+            "red inside",
+            "disease",
+            "alcohol smell"
+        ],
+        "question": {
+            "en": "Treatment for Red Rot in Sugarcane?",
+            "hi": "गन्ने में लाल सड़न रोग का उपचार?",
+            "ta": "கரும்பு செவ்வழுகல் நோய்?",
+            "te": "చెరకు ఎర్ర కుళ్ళు తెగులు?"
+        },
+        "answer": {
+            "en": "Use healthy setts. Treat setts with Carbendazim (1g/L). Crop rotation is essential.",
+            "hi": "स्वस्थ गन्नों का प्रयोग करें। कार्बेन्डाजिम (1 ग्राम/लीटर) से उपचारित करें। फसल चक्र आवश्यक है।",
+            "ta": "ஆரோக்கியமான கரணைகளை பயன்படுத்தவும். கார்பென்டாசிம் மூலம் விதை நேர்த்தி செய்யவும்.",
+            "te": "ఆరోగ్యకరమైన విత్తనాలను వాడండి. కార్బెండాజిమ్ తో విత్తన శుద్ధి చేయండి."
+        }
+    },
+    {
+        "id": "sugarcane_early_shoot_borer",
+        "category": "Sugarcane",
+        "keywords": [
+            "sugarcane",
+            "shoot borer",
+            "dead heart",
+            "insect"
+        ],
+        "question": {
+            "en": "Control of Early Shoot Borer in Sugarcane?",
+            "hi": "गन्ने में अगेती तना छेदक का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Trash mulching. Release Trichogramma chilonis parasite. Spray Chlorantraniliprole.",
+            "hi": "कचरा मल्चिंग। ट्राइकोग्रामा चिलोनीस परजीवी छोड़ें। क्लोरेंट्रानिलिप्रोल का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "sugarcane_woolly_aphid",
+        "category": "Sugarcane",
+        "keywords": [
+            "sugarcane",
+            "woolly aphid",
+            "white powder",
+            "insect"
+        ],
+        "question": {
+            "en": "Management of Woolly Aphid in Sugarcane?",
+            "hi": "गन्ने में ऊनी एफिड का प्रबंधन?"
+        },
+        "answer": {
+            "en": "Encourage natural predators like Dipha aphidivora. Spray Acephate if severe.",
+            "hi": "दीफा एफिडिवोरा जैसे प्राकृतिक शिकारियों को प्रोत्साहित करें। गंभीर होने पर एसफेट का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "tomato_leaf_curl_virus",
+        "category": "Tomato",
+        "keywords": [
+            "tomato",
+            "leaf curl",
+            "virus",
+            "whitefly",
+            "curling"
+        ],
+        "question": {
+            "en": "Control for Tomato Leaf Curl Virus?",
+            "hi": "टमाटर लीफ कर्ल वायरस का नियंत्रण?",
+            "ta": "தக்காளி இலை சுருள் வைரஸ்?",
+            "te": "టొమాటో ఆకు ముడత వైరస్?"
+        },
+        "answer": {
+            "en": "Vector is Whitefly. Spray Imidacloprid 17.8 SL (0.3ml/L) or Acetamiprid. Use resistant hybrids.",
+            "hi": "वाहक सफेद मक्खी है। इमिडाक्लोप्रिड 17.8 एसएल (0.3 मिली/लीटर) या एसिटामिप्रिड का छिड़काव करें। प्रतिरोधी संकरों का प्रयोग करें।",
+            "ta": "வெள்ளை ஈக்களை கட்டுப்படுத்தவும். இமிவாக்லோப்ரிட் தெளிக்கவும்.",
+            "te": "తెల్ల దోమను నివారించండి. ఇమిడాక్లోప్రిడ్ పిచికారీ చేయండి."
+        }
+    },
+    {
+        "id": "tomato_early_blight",
+        "category": "Tomato",
+        "keywords": [
+            "tomato",
+            "early blight",
+            "concentric rings",
+            "spots"
+        ],
+        "question": {
+            "en": "Treatment for Early Blight in Tomato?",
+            "hi": "टमाटर में अगेती अंगमारी का उपचार?"
+        },
+        "answer": {
+            "en": "Spray Mancozeb (2.5g/L) or Chlorothalonil (2g/L). Repeat every 10-15 days.",
+            "hi": "मैंकोजेब (2.5 ग्राम/लीटर) या क्लोरोथलोनिल (2 ग्राम/लीटर) का छिड़काव करें। हर 10-15 दिनों में दोहराएं।"
+        }
+    },
+    {
+        "id": "tomato_fruit_borer",
+        "category": "Tomato",
+        "keywords": [
+            "tomato",
+            "fruit borer",
+            "worm",
+            "holes in fruit"
+        ],
+        "question": {
+            "en": "Control of Fruit Borer in Tomato?",
+            "hi": "टमाटर में फल छेदक का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Spray Indoxacarb 14.5 SC (1ml/L) or Flubendiamide (0.5ml/L). Install pheromone traps.",
+            "hi": "इंडोक्साकार्ब 14.5 एससी (1 मिली/लीटर) या फ्लुबेंडियामाइड (0.5 मिली/लीटर) का छिड़काव करें। फेरोमोन ट्रैप लगाएं।"
+        }
+    },
+    {
+        "id": "potato_late_blight",
+        "category": "Potato",
+        "keywords": [
+            "potato",
+            "late blight",
+            "black spots",
+            "disease",
+            "rotting"
+        ],
+        "question": {
+            "en": "Late Blight management in Potato?",
+            "hi": "आलू में पछेती अंगमारी का प्रबंधन?",
+            "ta": "உருளைக்கிழங்கு கருகல் நோய்?",
+            "te": "బంగాళాదుంపలో లేట్ బ్లైట్?"
+        },
+        "answer": {
+            "en": "Apply Mancozeb 75 WP (2g/L) as preventive. If disease appears, spray Cymoxanil + Mancozeb.",
+            "hi": "निवारक के रूप में मैंकोजेब 75 डब्ल्यूपी (2 ग्राम/लीटर) का प्रयोग करें। रोग दिखने पर साइमोक्सानिल + मैंकोजेब का छिड़काव करें。",
+            "ta": "மேன்கோசெப் முன்னெச்சரிக்கையாக தெளிக்கவும்.",
+            "te": "ముందస్తుగా మాంకోజెబ్ పిచికారీ చేయండి."
+        }
+    },
+    {
+        "id": "potato_scab",
+        "category": "Potato",
+        "keywords": [
+            "potato",
+            "common scab",
+            "rough skin",
+            "spots"
+        ],
+        "question": {
+            "en": "How to control Common Scab of Potato?",
+            "hi": "आलू के सामान्य स्कैब (खुरदरापन) को कैसे नियंत्रित करें?"
+        },
+        "answer": {
+            "en": "Use healthy seeds. Treat seed tubers with Boric acid (3%). Irrigate frequently during tuber formation.",
+            "hi": "स्वस्थ बीजों का प्रयोग करें। बीज कंदों को बोरिक एसिड (3%) से उपचारित करें। कंद बनने के दौरान बार-बार सिंचाई करें।"
+        }
+    },
+    {
+        "id": "chilli_leaf_curl_complex",
+        "category": "Chilli",
+        "keywords": [
+            "chilli",
+            "leaf curl",
+            "upward curling",
+            "mirchi",
+            "virus"
+        ],
+        "question": {
+            "en": "Remedy for Chilli Leaf Curl (Upward)?",
+            "hi": "मिर्च में पत्ती मरोड़ (ऊपर की ओर) का उपाय?"
+        },
+        "answer": {
+            "en": "Control Thrips vector. Spray Fipronil 5 SC (1.5ml/L) or Spinosad 45 SC (0.3ml/L).",
+            "hi": "थ्रिप्स को नियंत्रित करें। फिप्रोनिल 5 एससी (1.5 मिली/लीटर) या स्पिनोसैड 45 एससी (0.3 मिली/लीटर) का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "chilli_dieback",
+        "category": "Chilli",
+        "keywords": [
+            "chilli",
+            "die back",
+            "fruit rot",
+            "anthracnose"
+        ],
+        "question": {
+            "en": "Control of Die-back and Fruit Rot in Chilli?",
+            "hi": "मिर्च में डाई-बैक और फल सड़न का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Use disease-free seeds. Spray Azoxystrobin 23 SC (1ml/L) or Captan 50 WP.",
+            "hi": "रोग मुक्त बीज का प्रयोग करें। एज़ोक्सीस्ट्रोबिन 23 एससी (1 मिली/लीटर) या कैप्टन 50 डब्ल्यूपी का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "onion_thrips_blight",
+        "category": "Onion",
+        "keywords": [
+            "onion",
+            "thrips",
+            "tips burning",
+            "white spots",
+            "purple blotch"
+        ],
+        "question": {
+            "en": "How to control Thrips in Onion?",
+            "hi": "प्याज में थ्रिप्स को कैसे नियंत्रित करें?"
+        },
+        "answer": {
+            "en": "Spray Profenofos (2ml/L) or Fipronil. Use blue sticky traps.",
+            "hi": "प्रोफेनोफोस (2 मिली/लीटर) या फिप्रोनिल का छिड़काव करें। नीले चिपचिपे जाल का प्रयोग करें।"
+        }
+    },
+    {
+        "id": "onion_purple_blotch",
+        "category": "Onion",
+        "keywords": [
+            "onion",
+            "purple blotch",
+            "purple spots",
+            "drying"
+        ],
+        "question": {
+            "en": "Management of Purple Blotch in Onion?",
+            "hi": "प्याज में बैंगनी धब्बा रोग का प्रबंधन?"
+        },
+        "answer": {
+            "en": "Spray Mancozeb (2.5g/L) mixed with adhesive (Tipol).",
+            "hi": "चिपकने वाले पदार्थ (टिपोल) के साथ मिलाकर मैंकोजेब (2.5 ग्राम/लीटर) का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "maize_fall_armyworm_control",
+        "category": "Maize",
+        "keywords": [
+            "maize",
+            "corn",
+            "armyworm",
+            "worm",
+            "leaves eaten",
+            "faw"
+        ],
+        "question": {
+            "en": "Fall Armyworm control in Maize?",
+            "hi": "मक्का में फॉल आर्मीवॉर्म का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Install pheromone traps. Spray Emamectin Benzoate 5 SG (0.4g/L) or Spinetoram (0.5ml/L).",
+            "hi": "फेरोमोन ट्रैप लगाएं। इमामेक्टिन बेंजोएट 5 एसजी (0.4 ग्राम/लीटर) या स्पिनेटोरम (0.5 मिली/लीटर) का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "maize_stem_borer",
+        "category": "Maize",
+        "keywords": [
+            "maize",
+            "stem borer",
+            "shot hole",
+            "dead heart"
+        ],
+        "question": {
+            "en": "Control of Maize Stem Borer (Chilo partellus)?",
+            "hi": "मक्का तना छेदक का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Apply Carbofuran 3G granules (12kg/acre) in leaf whorls.",
+            "hi": "पत्तियों के बीच में कार्बोफ्यूरान 3जी दाने (12 किग्रा/एकड़) डालें।"
+        }
+    },
+    {
+        "id": "brinjal_shoot_fruit_borer",
+        "category": "Brinjal",
+        "keywords": [
+            "brinjal",
+            "eggplant",
+            "shoot borer",
+            "fruit borer",
+            "worm"
+        ],
+        "question": {
+            "en": "Control of Shoot and Fruit Borer in Brinjal?",
+            "hi": "बैंगन में तना और फल छेदक का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Remove infested shoots/fruits promptly. Spray Emamectin Benzoate 5 SG (0.4g/L) or Chlorantraniliprole.",
+            "hi": "संक्रमित टहनियों/फलों को तुरंत हटा दें। इमामेक्टिन बेंजोएट 5 एसजी (0.4 ग्राम/लीटर) या क्लोरेंट्रानिलिप्रोल का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "brinjal_little_leaf",
+        "category": "Brinjal",
+        "keywords": [
+            "brinjal",
+            "little leaf",
+            "small leaves",
+            "bushy"
+        ],
+        "question": {
+            "en": "Management of Little Leaf of Brinjal?",
+            "hi": "बैंगन के छोटी पत्ती रोग का प्रबंधन?"
+        },
+        "answer": {
+            "en": "Caused by Phytoplasma, transmitted by Leaf Hopper. Remove infected plants. Spray Dimethoate.",
+            "hi": "फाइटोप्लाज्मा के कारण होता है, जो लीफ हॉपर द्वारा फैलता है। संक्रमित पौधों को हटा दें। डाइमेथोएट का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "okra_yvmv_virus",
+        "category": "Okra",
+        "keywords": [
+            "okra",
+            "bhindi",
+            "yellow vein",
+            "mosaic",
+            "virus"
+        ],
+        "question": {
+            "en": "Yellow Vein Mosaic Virus in Okra?",
+            "hi": "भिंडी में पीला शिरा मोजेक वायरस?"
+        },
+        "answer": {
+            "en": "Use resistant varieties (e.g., Arka Anamika, Parbhani Kranti). Control whitefly using Acetamiprid.",
+            "hi": "प्रतिरोधी किस्मों (जैसे, अर्का अनामिका, परभणी क्रांति) का प्रयोग करें। एसिटामिप्रिड का उपयोग करके सफेद मक्खी को नियंत्रित करें।"
+        }
+    },
+    {
+        "id": "gram_pod_borer_chana",
+        "category": "Pulses",
+        "keywords": [
+            "gram",
+            "chana",
+            "chickpea",
+            "pod borer",
+            "caterpillar"
+        ],
+        "question": {
+            "en": "Pod Borer control in Bengal Gram (Chana)?",
+            "hi": "चने में फली छेदक का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Install bird perches (50/ha). Spray HaNPV (250 LE/ha) or Indoxacarb 14.5 SC (0.5ml/L).",
+            "hi": "पक्षियों के बैठने के लिए मचान (50/हेक्टेयर) लगाएं। एचएएनपीवी (250 एलई/हेक्टेयर) या इंडोक्साकार्ब 14.5 एससी (0.5 मिली/लीटर) का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "gram_wilt",
+        "category": "Pulses",
+        "keywords": [
+            "gram",
+            "wilt",
+            "drying",
+            "roots black"
+        ],
+        "question": {
+            "en": "Management of Wilt in Chickpea (Gram)?",
+            "hi": "चने में उकठा (विल्ट) रोग का प्रबंधन?"
+        },
+        "answer": {
+            "en": "Deep summer ploughing. Seed treatment with Trichoderma viride (4g/kg). Use resistant varieties.",
+            "hi": "गर्मियों में गहरी जुताई। ट्राइकोडर्मा विरिडे (4 ग्राम/किग्रा) से बीज उपचार। प्रतिरोधी किस्मों का प्रयोग करें।"
+        }
+    },
+    {
+        "id": "mustard_aphid_sarso",
+        "category": "Oilseeds",
+        "keywords": [
+            "mustard",
+            "sarso",
+            "aphid",
+            "sticky plant",
+            "insect"
+        ],
+        "question": {
+            "en": "Mustard Aphid control?",
+            "hi": "सरसों के माहू का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Spray Dimethoate 30 EC (1ml/L) or Oxydemeton methyl. Avoid late sowing.",
+            "hi": "डाइमेथोएट 30 ईसी (1 मिली/लीटर) या ऑक्सीडेमेटन मिथाइल का छिड़काव करें। देर से बुवाई न करें।"
+        }
+    },
+    {
+        "id": "mustard_white_rust",
+        "category": "Oilseeds",
+        "keywords": [
+            "mustard",
+            "white rust",
+            "white spots",
+            "leaves"
+        ],
+        "question": {
+            "en": "Control of White Rust in Mustard?",
+            "hi": "सरसों में सफेद रतुआ का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Seed treatment with Metalaxyl (6g/kg). Spray Mancozeb (2g/L) if needed.",
+            "hi": "मेटालेक्सिल (6 ग्राम/किग्रा) से बीज उपचार। आवश्यकता होने पर मैंकोजेब (2 ग्राम/लीटर) का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "soybean_rust",
+        "category": "Oilseeds",
+        "keywords": [
+            "soybean",
+            "rust",
+            "brown spots",
+            "disease"
+        ],
+        "question": {
+            "en": "Management of Soybean Rust?",
+            "hi": "सोयाबीन रतुआ का प्रबंधन?"
+        },
+        "answer": {
+            "en": "Spray Hexaconazole 5 EC (1ml/L) or Propiconazole 25 EC (1ml/L).",
+            "hi": "हेक्साकोनाजोल 5 ईसी (1 मिली/लीटर) या प्रोपिकोनाजोल 25 ईसी (1 मिली/लीटर) का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "groundnut_tikka",
+        "category": "Oilseeds",
+        "keywords": [
+            "groundnut",
+            "peanut",
+            "tikka",
+            "leaf spot",
+            "spots"
+        ],
+        "question": {
+            "en": "Control of Tikka Disease (Leaf Spot) in Groundnut?",
+            "hi": "मूंगफली में टिक्का रोग का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Spray Carbendazim 50 WP (1g/L) or Mancozeb 75 WP (2g/L).",
+            "hi": "कार्बेन्डाजिम 50 डब्ल्यूपी (1 ग्राम/लीटर) या मैंकोजेब 75 डब्ल्यूपी (2 ग्राम/लीटर) का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "citrus_canker_lemon",
+        "category": "Fruits",
+        "keywords": [
+            "citrus",
+            "lemon",
+            "lime",
+            "canker",
+            "cork spots",
+            "rough"
+        ],
+        "question": {
+            "en": "Management of Citrus Canker?",
+            "hi": "नींबू में कैंकर रोग का प्रबंधन?"
+        },
+        "answer": {
+            "en": "Prune infected twigs. Spray Streptocycline (1g) + Copper Oxychloride (30g) in 10L water.",
+            "hi": "संक्रमित टहनियों की छंटाई करें। 10 लीटर पानी में स्ट्रेप्टोसाइक्लिन (1 ग्राम) + कॉपर ऑक्सीक्लोराइड (30 ग्राम) मिलाकर छिड़काव करें।"
+        }
+    },
+    {
+        "id": "citrus_psylla",
+        "category": "Fruits",
+        "keywords": [
+            "citrus",
+            "psylla",
+            "greening",
+            "insect"
+        ],
+        "question": {
+            "en": "Control of Citrus Psylla?",
+            "hi": "साइट्रस साइला का नियंत्रण?"
+        },
+        "answer": {
+            "en": "It spreads Greening disease. Spray Imidacloprid (0.5ml/L) or Dimethoate.",
+            "hi": "यह ग्रीनिंग रोग फैलाता है। इमिडाक्लोप्रिड (0.5 मिली/लीटर) या डाइमेथोएट का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "banana_sigatoka_spray",
+        "category": "Fruits",
+        "keywords": [
+            "banana",
+            "leaf spot",
+            "sigatoka",
+            "yellow streaks",
+            "drying leaves"
+        ],
+        "question": {
+            "en": "Control of Sigatoka Leaf Spot in Banana?",
+            "hi": "केले में सिगाटोका पत्ती धब्बा रोग का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Remove infected leaves. Spray Propiconazole (1ml/L) or Carbendazim mixed with mineral oil.",
+            "hi": "संक्रमित पत्तियों को हटा दें। खनिज तेल में मिलाकर प्रोपिकोनाजोल (1 मिली/लीटर) या कार्बेन्डाजिम का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "banana_weevil",
+        "category": "Fruits",
+        "keywords": [
+            "banana",
+            "rhizome weevil",
+            "stem weevil",
+            "borer"
+        ],
+        "question": {
+            "en": "Control of Banana Weevil/Borer?",
+            "hi": "केले के घुन/छेदक का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Use healthy suckers. Dip suckers in Chlorpyriphos (0.1%) before planting. Trap adult weevils.",
+            "hi": "स्वस्थ सकर्स का प्रयोग करें। रोपण से पहले सकर्स को क्लोरपायरीफॉस (0.1%) में डुबोएं। वयस्क घुन को फंसाएं।"
+        }
+    },
+    {
+        "id": "mango_powdery_mildew",
+        "category": "Fruits",
+        "keywords": [
+            "mango",
+            "powdery mildew",
+            "white powder",
+            "flowers"
+        ],
+        "question": {
+            "en": "Treatment for Powdery Mildew in Mango?",
+            "hi": "आम में पाउडरी मिल्ड्यू (चूर्णिल आसिता) का उपचार?"
+        },
+        "answer": {
+            "en": "Spray Wettable Sulphur (2g/L) or Hexaconazole (1ml/L) before flowering.",
+            "hi": "फूल आने से पहले वेटेबल सल्फर (2 ग्राम/लीटर) या हेक्साकोनाजोल (1 मिली/लीटर) का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "mango_fruit_fly",
+        "category": "Fruits",
+        "keywords": [
+            "mango",
+            "fruit fly",
+            "rotting inside",
+            "maggots"
+        ],
+        "question": {
+            "en": "Control of Fruit Fly in Mango?",
+            "hi": "आम में फल मक्खी का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Install Methyl Eugenol traps (6-8/acre). Collect and destroy fallen fruits.",
+            "hi": "मिथाइल यूजेनॉल ट्रैप (6-8/एकड़) लगाएं। गिरे हुए फलों को इकट्ठा कर नष्ट करें।"
+        }
+    },
+    {
+        "id": "pomegranate_bacterial_blight",
+        "category": "Fruits",
+        "keywords": [
+            "pomegranate",
+            "oily spot",
+            "bacterial blight",
+            "black spots"
+        ],
+        "question": {
+            "en": "Management of Bacterial Blight (Oily Spot) in Pomegranate?",
+            "hi": "अनार में जीवाणु झुलसा (तेलीय धब्बा) का प्रबंधन?"
+        },
+        "answer": {
+            "en": "Spray Streptocycline (0.5g) + Copper Oxychloride (2g) per liter. Prune infected parts.",
+            "hi": "स्ट्रेप्टोसाइक्लिन (0.5 ग्राम) + कॉपर ऑक्सीक्लोराइड (2 ग्राम) प्रति लीटर का छिड़काव करें। संक्रमित भागों की छंटाई करें।"
+        }
+    },
+    {
+        "id": "apple_scab",
+        "category": "Fruits",
+        "keywords": [
+            "apple",
+            "scab",
+            "black spots",
+            "fungus"
+        ],
+        "question": {
+            "en": "Control of Apple Scab?",
+            "hi": "सेब में स्कैब रोग का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Spray Difenoconazole or Kresoxim-methyl during fruit development.",
+            "hi": "फल विकास के दौरान डिफेनोकोनाजोल या क्रेसॉक्सिम-मिथाइल का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "soil_acidic_treatment",
+        "category": "Soil",
+        "keywords": [
+            "soil",
+            "acidic",
+            "ph low",
+            "lime"
+        ],
+        "question": {
+            "en": "How to correct acidic soil?",
+            "hi": "अम्लीय मिट्टी को कैसे सुधारें?",
+            "ta": "அமில மண்ணை சரி செய்வது எப்படி?",
+            "te": "ఆమ్ల నేలలను ఎలామి బాగుచేయాలి?"
+        },
+        "answer": {
+            "en": "Apply Lime (Calcium Carbonate) or Dolomite based on soil test. Avoid acidic fertilizers.",
+            "hi": "मिट्टी परीक्षण के आधार पर चूना (कैल्शियम कार्बोनेट) या डोलोमाइट डालें। अम्लीय उर्वरकों से बचें。",
+            "ta": "சுண்ணாம்பு இடவும்.",
+            "te": "సున్నం (కాల్షియం కార్బోనేట్) వేయాలి."
+        }
+    },
+    {
+        "id": "soil_alkaline_treatment",
+        "category": "Soil",
+        "keywords": [
+            "soil",
+            "alkaline",
+            "sodic",
+            "gypsum",
+            "ph high"
+        ],
+        "question": {
+            "en": "How to reclaim Alkaline/Sodic soil?",
+            "hi": "क्षारीय/सोडिक मिट्टी को कैसे सुधारें?"
+        },
+        "answer": {
+            "en": "Apply Gypsum followed by plenty of water (leaching). Grow Green Manure crops.",
+            "hi": "जिप्सम डालें और उसके बाद भरपूर पानी (लीचिंग) दें। हरी खाद वाली फसलें उगाएं।"
+        }
+    },
+    {
+        "id": "organic_jeevamrut",
+        "category": "Organic",
+        "keywords": [
+            "jeevamrut",
+            "organic",
+            "liquid fertilizer",
+            "cow dung"
+        ],
+        "question": {
+            "en": "How to prepare Jeevamrut?",
+            "hi": "जीवामृत कैसे तैयार करें?"
+        },
+        "answer": {
+            "en": "Mix 10kg Cow Dung, 10L Cow Urine, 2kg Jaggery, 2kg Pulse Flour, and soil in 200L water. Ferment for 5-7 days.",
+            "hi": "200 लीटर पानी में 10 किलो गाय का गोबर, 10 लीटर गोमूत्र, 2 किलो गुड़, 2 किलो दाल का आटा और मिट्टी मिलाएं। 5-7 दिनों के लिए किण्वन करें।"
+        }
+    },
+    {
+        "id": "organic_neemastra",
+        "category": "Organic",
+        "keywords": [
+            "neemastra",
+            "organic pesticide",
+            "neem"
+        ],
+        "question": {
+            "en": "How to prepare Neemastra?",
+            "hi": "नीमास्त्र कैसे तैयार करें?"
+        },
+        "answer": {
+            "en": "Crush 5kg Neem leaves/fruits in 100L water + 5L Cow urine. Keep for 24 hours. Filter and spray.",
+            "hi": "100 लीटर पानी + 5 लीटर गोमूत्र में 5 किलो नीम की पत्तियां/फल कुचलें। 24 घंटे रखें। छानकर छिड़काव करें।"
+        }
+    },
+    {
+        "id": "drip_subsidy_pmksy",
+        "category": "General",
+        "keywords": [
+            "subsidy",
+            "drip",
+            "government scheme",
+            "pmksy"
+        ],
+        "question": {
+            "en": "Government subsidy for drip irrigation?",
+            "hi": "ड्रिप सिंचाई के लिए सरकारी सब्सिडी?"
+        },
+        "answer": {
+            "en": "Subsidy is available under PMKSY (Pradhan Mantri Krishi Sinchayee Yojana). It ranges from 45% to 70-100% depending on the state.",
+            "hi": "पीएमकेएसवाई (प्रधानमंत्री कृषि सिंचाई योजना) के तहत सब्सिडी उपलब्ध है। यह राज्य के आधार पर 45% से 70-100% तक होती है।"
+        }
+    },
+    {
+        "id": "kcc_scheme",
+        "category": "General",
+        "keywords": [
+            "kcc",
+            "loan",
+            "kisan credit card",
+            "interest"
+        ],
+        "question": {
+            "en": "Benefits of Kisan Credit Card (KCC)?",
+            "hi": "किसान क्रेडिट कार्ड (केसीसी) के लाभ?"
+        },
+        "answer": {
+            "en": "Provides timely credit at low interest rate (7%). crop insurance coverage is often included.",
+            "hi": "कम ब्याज दर (7%) पर समय पर ऋण प्रदान करता है। फसल बीमा कवरेज अक्सर शामिल होता है।"
+        }
+    },
+    {
+        "id": "pm_fby",
+        "category": "General",
+        "keywords": [
+            "insurance",
+            "pmfby",
+            "fasal bima",
+            "crop loss"
+        ],
+        "question": {
+            "en": "What is Pradhan Mantri Fasal Bima Yojana?",
+            "hi": "प्रधानमंत्री फसल बीमा योजना क्या है?"
+        },
+        "answer": {
+            "en": "Crop insurance scheme to provide financial support in case of crop failure due to natural calamities.",
+            "hi": "प्राकृतिक आपदाओं के कारण फसल खराब होने की स्थिति में वित्तीय सहायता प्रदान करने के लिए फसल बीमा योजना।"
+        }
+    },
+    {
+        "id": "npk_19_19_19",
+        "category": "Nutrient",
+        "keywords": [
+            "fertilizer",
+            "19:19:19",
+            "soluble",
+            "growth"
+        ],
+        "question": {
+            "en": "When to apply 19:19:19 NPK?",
+            "hi": "19:19:19 एनपीके कब डालें?"
+        },
+        "answer": {
+            "en": "It is a water-soluble fertilizer used during the vegetative growth stage to boost overall growth.",
+            "hi": "यह एक पानी में घुलनशील उर्वरक है जिसका उपयोग वनस्पति विकास चरण के दौरान समग्र विकास को बढ़ाने के लिए किया जाता है।"
+        }
+    },
+    {
+        "id": "zinc_deficiency",
+        "category": "Nutrient",
+        "keywords": [
+            "zinc",
+            "deficiency",
+            "khaira",
+            "rice",
+            "yellowing"
+        ],
+        "question": {
+            "en": "Symptoms of Zinc Deficiency?",
+            "hi": "जिंक की कमी के लक्षण?"
+        },
+        "answer": {
+            "en": "Leaves become dusty brown or bronze patches appear. Common in Rice (Khaira disease). Apply Zinc Sulphate.",
+            "hi": "पत्तियां धूलभरी भूरी हो जाती हैं या कांस्य धब्बे दिखाई देते हैं। चावल में आम (खैरा रोग)। जिंक सल्फेट डालें।"
+        }
+    },
+    {
+        "id": "boron_deficiency",
+        "category": "Nutrient",
+        "keywords": [
+            "boron",
+            "deficiency",
+            "fruit cracking",
+            "tomato"
+        ],
+        "question": {
+            "en": "Boron deficiency symptoms?",
+            "hi": "बोरॉन की कमी के लक्षण?"
+        },
+        "answer": {
+            "en": "Causes fruit cracking (e.g., in Tomato, Pomegranate) and hollow stems. Apply Borax.",
+            "hi": "फलों के फटने (जैसे, टमाटर, अनार में) और तनों के खोखले होने का कारण बनता है। बोरेक्स डालें।"
+        }
+    },
+    {
+        "id": "vermicompost_benefits",
+        "category": "General",
+        "keywords": [
+            "vermicompost",
+            "earthworm",
+            "manure"
+        ],
+        "question": {
+            "en": "Why use Vermicompost?",
+            "hi": "वर्मीकम्पोस्ट का उपयोग क्यों करें?"
+        },
+        "answer": {
+            "en": "Rich in NPK and micronutrients. Improves soil porosity and microbial activity.",
+            "hi": "एनपीके और सूक्ष्म पोषक तत्वों से भरपूर। मिट्टी की सरंध्रता और सूक्ष्मजीव गतिविधि में सुधार करता है।"
+        }
+    },
+    {
+        "id": "mulching_film",
+        "category": "General",
+        "keywords": [
+            "mulching",
+            "plastic mulch",
+            "silver black"
+        ],
+        "question": {
+            "en": "Benefits of Plastic Mulching?",
+            "hi": "प्लास्टिक मल्चिंग के फायदे?"
+        },
+        "answer": {
+            "en": "Conserves moisture, controls weeds, and regulates soil temperature. Silver-black mulch is commonly used.",
+            "hi": "नमी बचाता है, खरपतवारों को नियंत्रित करता है, और मिट्टी के तापमान को नियंत्रित करता है। सिल्वर-ब्लैक मल्च का आमतौर पर उपयोग किया जाता है।"
+        }
+    },
+    {
+        "id": "general_weed_control",
+        "category": "Weeds",
+        "keywords": [
+            "weed",
+            "control",
+            "herbicide",
+            "glyphosate"
+        ],
+        "question": {
+            "en": "How to control weeds generally?",
+            "hi": "खरपतवारों को आमतौर पर कैसे नियंत्रित करें?"
+        },
+        "answer": {
+            "en": "Use deep ploughing. Manual weeding. Pre-emergence herbicides like Pendimethalin. Post-emergence like Glyphosate (non-crop areas).",
+            "hi": "गहरी जुताई करें। हाथ से निराई। पेंडिमेथालिन जैसे अंकुरण पूर्व शाकनाशी। ग्लाइफोसेट (गैर-फसल वाले क्षेत्र) जैसे अंकुरण के बाद।"
+        }
+    },
+    {
+        "id": "rat_control",
+        "category": "Pests",
+        "keywords": [
+            "rat",
+            "rodent",
+            "control",
+            "zinc phosphide"
+        ],
+        "question": {
+            "en": "Rat control in fields?",
+            "hi": "खेतों में चूहों का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Use Zinc Phosphide bait or Aluminum Phosphide tablets in burrows. maintain clean bunds.",
+            "hi": "जस्ता फास्फाइड चारा या एल्यूमीनियम फास्फाइड की गोलियों का प्रयोग बिलों में करें। मेंड़ों को साफ रखें।"
+        }
+    },
+    {
+        "id": "papaya_ring_spot",
+        "category": "Fruits",
+        "keywords": [
+            "papaya",
+            "ring spot",
+            "virus",
+            "mosaic"
+        ],
+        "question": {
+            "en": "Management of Papaya Ring Spot Virus?",
+            "hi": "पपीता रिंग स्पॉट वायरस का प्रबंधन?"
+        },
+        "answer": {
+            "en": "Use disease-free seedlings. Control aphids. Remove infected plants. Intercrop with maize.",
+            "hi": "रोग मुक्त पौध का प्रयोग करें। एफिड्स को नियंत्रित करें। संक्रमित पौधों को हटा दें। मक्का के साथ अंतर्वर्ती खेती करें।"
+        }
+    },
+    {
+        "id": "papaya_mealybug",
+        "category": "Fruits",
+        "keywords": [
+            "papaya",
+            "mealybug",
+            "white cotton",
+            "insect"
+        ],
+        "question": {
+            "en": "Control of Papaya Mealybug?",
+            "hi": "पपीता मिलीबग का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Release parasitic wasp Acerophagus papayae. Spray Profenofos if necessary.",
+            "hi": "परजीवी ततैया एसेरोफैगस पपائے छोड़ें। यदि आवश्यक हो तो प्रोफेनोफोस का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "turmeric_rhizome_rot",
+        "category": "Spices",
+        "keywords": [
+            "turmeric",
+            "haldi",
+            "rhizome rot",
+            "disease"
+        ],
+        "question": {
+            "en": "Control of Rhizome Rot in Turmeric?",
+            "hi": "हल्दी में प्रकंद सड़न का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Good drainage is key. Drench soil with Copper Oxychloride (3g/L) or Ridomil Gold.",
+            "hi": "अच्छी जल निकासी महत्वपूर्ण है। मिट्टी को कॉपर ऑक्सीक्लोराइड (3 ग्राम/लीटर) या रिडोमिल गोल्ड से भिगोएं।"
+        }
+    },
+    {
+        "id": "ginger_soft_rot",
+        "category": "Spices",
+        "keywords": [
+            "ginger",
+            "adrak",
+            "soft rot",
+            "rotting"
+        ],
+        "question": {
+            "en": "Management of Soft Rot in Ginger?",
+            "hi": "अदरक में मृदु सड़न का प्रबंधन?"
+        },
+        "answer": {
+            "en": "Treat seed rhizomes with Mancozeb + Carbendazim. Avoid waterlogging.",
+            "hi": "बीज प्रकंदों को मैंकोजेब + कार्बेन्डाजिम से उपचारित करें। जलभराव से बचें।"
+        }
+    },
+    {
+        "id": "coconut_rhinoceros_beetle",
+        "category": "Plantation",
+        "keywords": [
+            "coconut",
+            "beetle",
+            "rhinoceros",
+            "crown"
+        ],
+        "question": {
+            "en": "Control Rhinoceros Beetle in Coconut?",
+            "hi": "नारियल में राइनोसेरस बीटल का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Hook out beetles. Place Napthalene balls in leaf axils. Use Pheromone traps.",
+            "hi": "बीटल को हुक से बाहर निकालें। पत्ती की धुरी में नेफ़थलीन की गोलियां रखें। फेरोमोन ट्रैप का प्रयोग करें।"
+        }
+    },
+    {
+        "id": "coconut_eriophyid_mite",
+        "category": "Plantation",
+        "keywords": [
+            "coconut",
+            "mite",
+            "eriophyid",
+            "small nuts"
+        ],
+        "question": {
+            "en": "Control of Eriophyid Mite in Coconut?",
+            "hi": "नारियल में एरियोफिड माइट का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Root feeding with Azadirachtin (10ml + 10ml water). Apply neem cake.",
+            "hi": "अजाडिरेक्टिन (10 मिली + 10 मिली पानी) के साथ जड़ खिलाना। नीम की खली डालें।"
+        }
+    },
+    {
+        "id": "dairy_mastitis",
+        "category": "Animal Husbandry",
+        "keywords": [
+            "cow",
+            "buffalo",
+            "mastitis",
+            "udder",
+            "swelling",
+            "milk"
+        ],
+        "question": {
+            "en": "Treatment for Mastitis in Cows/Buffaloes?",
+            "hi": "गाय/भैंस में थनैला रोग का उपचार?"
+        },
+        "answer": {
+            "en": "Clean udder with Potassium Permanganate. Use antibiotics like Penicillin under vet supervision. Milk infected quarter last.",
+            "hi": "पोटेशियम परमैंगनेट से थन साफ करें। पशु चिकित्सक की देखरेख में पेनिसिलिन जैसे एंटीबायोटिक्स का प्रयोग करें। संक्रमित थन का दूध सबसे अंत में निकालें।"
+        }
+    },
+    {
+        "id": "dairy_fmd",
+        "category": "Animal Husbandry",
+        "keywords": [
+            "cow",
+            "fmd",
+            "foot and mouth",
+            "blisters",
+            "fever"
+        ],
+        "question": {
+            "en": "Control of Foot and Mouth Disease (FMD)?",
+            "hi": "खुरपका-मुंहपका रोग (FMD) का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Isolate infected animals. Wash lesions with washing soda solution. Vaccination is the only prevention.",
+            "hi": "संक्रमित पशुओं को अलग रखें। घावों को धोने के सोडे के घोल से धोएं। टीकाकरण ही एकमात्र बचाव है।"
+        }
+    },
+    {
+        "id": "dairy_bloat",
+        "category": "Animal Husbandry",
+        "keywords": [
+            "cow",
+            "bloat",
+            "gas",
+            "stomach",
+            "swollen"
+        ],
+        "question": {
+            "en": "Home remedy for Bloat (Afara) in animals?",
+            "hi": "पशुओं में अफरा (गैस) का घरेलू उपचार?"
+        },
+        "answer": {
+            "en": "Give mixture of Asafoetida (Heeng), Turpentine oil (50ml), and Linseed oil (500ml).",
+            "hi": "हींग, तारपीन का तेल (50 मिली) और अलसी का तेल (500 मिली) का मिश्रण दें।"
+        }
+    },
+    {
+        "id": "poultry_ranikhet",
+        "category": "Poultry",
+        "keywords": [
+            "chicken",
+            "poultry",
+            "ranikhet",
+            "newcastle disease",
+            "green droppings"
+        ],
+        "question": {
+            "en": "Prevention of Ranikhet (Newcastle) Disease?",
+            "hi": "रानीखेत रोग से बचाव?"
+        },
+        "answer": {
+            "en": "Vaccinate birds with F1 strain at 5-7 days and LaSota strain at 28 days.",
+            "hi": "पक्षियों को 5-7 दिनों पर F1 स्ट्रेन और 28 दिनों पर लासोटा स्ट्रेन का टीका लगाएं।"
+        }
+    },
+    {
+        "id": "poultry_coccidiosis",
+        "category": "Poultry",
+        "keywords": [
+            "chicken",
+            "bloody diarrhea",
+            "coccidiosis"
+        ],
+        "question": {
+            "en": "Treatment for Bloody Diarrhea (Coccidiosis) in Poultry?",
+            "hi": "मुर्गियों में खूनी दस्त (कॉक्सीडियोसिस) का उपचार?"
+        },
+        "answer": {
+            "en": "Mix Amprolium powder in drinking water. Keep litter dry.",
+            "hi": "पीने के पानी में एम्प्रोलियम पाउडर मिलाएं। बिछावन को सूखा रखें।"
+        }
+    },
+    {
+        "id": "goat_ppr",
+        "category": "Animal Husbandry",
+        "keywords": [
+            "goat",
+            "ppr",
+            "plague",
+            "fever",
+            "diarrhea"
+        ],
+        "question": {
+            "en": "Vaccination for PPR in Goats?",
+            "hi": "बकरियों में पीपीआर का टीकाकरण?"
+        },
+        "answer": {
+            "en": "Vaccinate goats at 3 months of age. Immunity lasts for 3 years.",
+            "hi": "बकरियों को 3 महीने की उम्र में टीका लगाएं। प्रतिरक्षा 3 साल तक रहती है।"
+        }
+    },
+    {
+        "id": "rose_powdery_mildew",
+        "category": "Flowers",
+        "keywords": [
+            "rose",
+            "powdery mildew",
+            "white powder",
+            "leaves"
+        ],
+        "question": {
+            "en": "Control of Powdery Mildew in Rose?",
+            "hi": "गुलाब में पाउडरी मिल्ड्यू का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Spray Wettable Sulphur (2g/L) or Karathane (1ml/L).",
+            "hi": "वेटेबल सल्फर (2 ग्राम/लीटर) या कराथेन (1 मिली/लीटर) का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "rose_dieback",
+        "category": "Flowers",
+        "keywords": [
+            "rose",
+            "dieback",
+            "black stem",
+            "drying"
+        ],
+        "question": {
+            "en": "Treatment for Die-back in Rose?",
+            "hi": "गुलाब में डाई-बैक का उपचार?"
+        },
+        "answer": {
+            "en": "Prune affected stems 2 inches below the black portion. Apply Copper Oxychloride paste on cut ends.",
+            "hi": "प्रभावित तनों को काले भाग से 2 इंच नीचे काटें। कटे हुए सिरों पर कॉपर ऑक्सीक्लोराइड पेस्ट लगाएं।"
+        }
+    },
+    {
+        "id": "marigold_blight",
+        "category": "Flowers",
+        "keywords": [
+            "marigold",
+            "leaf spot",
+            "blight",
+            "fungus"
+        ],
+        "question": {
+            "en": "Leaf spot control in Marigold?",
+            "hi": "गेंदा में पत्ती धब्बा नियंत्रण?"
+        },
+        "answer": {
+            "en": "Spray Mancozeb (2.5g/L) or Carbendazim (1g/L) at 15 days interval.",
+            "hi": "15 दिनों के अंतराल पर मैंकोजेब (2.5 ग्राम/लीटर) या कार्बेन्डाजिम (1 ग्राम/लीटर) का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "jasmine_bud_worm",
+        "category": "Flowers",
+        "keywords": [
+            "jasmine",
+            "bud worm",
+            "holes in bud"
+        ],
+        "question": {
+            "en": "Control of Bud Worm in Jasmine?",
+            "hi": "चमेली में कली छेदक का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Spray Thiodicarb 75 WP (1g/L) or Spinosad (0.5ml/L) during evening hours.",
+            "hi": "शाम के समय थियोडिकार्ब 75 डब्ल्यूपी (1 ग्राम/लीटर) या स्पिनोसैड (0.5 मिली/लीटर) का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "cabbage_dbm",
+        "category": "Vegetables",
+        "keywords": [
+            "cabbage",
+            "cauliflower",
+            "worm",
+            "dbm",
+            "diamond back moth",
+            "holes"
+        ],
+        "question": {
+            "en": "Control of Diamond Back Moth (DBM) in Cabbage/Cauliflower?",
+            "hi": "पत्तागोभी/फूलगोभी में डायमंड बैक मोथ (डीबीएम) का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Use mustard as trap crop. Spray Spinosad (0.5ml/L) or Emamectin Benzoate (0.5g/L).",
+            "hi": "सरसों को ट्रैप फसल के रूप में प्रयोग करें। स्पिनोसैड (0.5 मिली/लीटर) या इमामेक्टिन बेंजोएट (0.5 ग्राम/लीटर) का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "cauliflower_black_rot",
+        "category": "Vegetables",
+        "keywords": [
+            "cauliflower",
+            "black rot",
+            "v-shaped",
+            "yellowing"
+        ],
+        "question": {
+            "en": "Management of Black Rot in Cauliflower?",
+            "hi": "फूलगोभी में ब्लैक रॉट (काला सड़न) का प्रबंधन?"
+        },
+        "answer": {
+            "en": "Seed treatment with Streptocycline (1g/10L). Spray Copper Oxychloride.",
+            "hi": "स्ट्रेप्टोसाइक्लिन (1 ग्राम/10 लीटर) से बीज उपचार। कॉपर ऑक्सीक्लोराइड का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "cucumber_downy_mildew",
+        "category": "Vegetables",
+        "keywords": [
+            "cucumber",
+            "downy mildew",
+            "yellow spots",
+            "angular spots"
+        ],
+        "question": {
+            "en": "Control of Downy Mildew in Cucumber?",
+            "hi": "खीरे में डाउनी मिल्ड्यू का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Spray Metalaxyl + Mancozeb (2.5g/L). Improve air circulation.",
+            "hi": "मेटालेक्सिल + मैंकोजेब (2.5 ग्राम/लीटर) का छिड़काव करें। वायु संचार में सुधार करें।"
+        }
+    },
+    {
+        "id": "bittergourd_fruit_fly",
+        "category": "Vegetables",
+        "keywords": [
+            "bitter gourd",
+            "karela",
+            "fruit fly",
+            "maggots"
+        ],
+        "question": {
+            "en": "Fruit Fly control in Bitter Gourd?",
+            "hi": "करेले में फल मक्खी का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Install pheromone traps (curolure). Bagging of fruits.",
+            "hi": "फेरोमोन ट्रैप (क्यूरोल्योर) लगाएं। फलों की बैगिंग (ढकना)।"
+        }
+    },
+    {
+        "id": "arecanut_kole_roga",
+        "category": "Plantation",
+        "keywords": [
+            "arecanut",
+            "supari",
+            "kole roga",
+            "fruit rot",
+            "dropping"
+        ],
+        "question": {
+            "en": "Control of Fruit Rot (Kole Roga) in Arecanut?",
+            "hi": "सुपारी में फल सड़न (कोले रोग) का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Cover bunches with polythene. Spray Bordeaux mixture (1%) before monsoon.",
+            "hi": "गुच्छों को पॉलीथिन से ढक दें। मानसून से पहले बोर्डो मिश्रण (1%) का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "coffee_berry_borer",
+        "category": "Plantation",
+        "keywords": [
+            "coffee",
+            "berry borer",
+            "hole in berry",
+            "insect"
+        ],
+        "question": {
+            "en": "Management of Coffee Berry Borer?",
+            "hi": "कॉफी बेरी बोरर का प्रबंधन?"
+        },
+        "answer": {
+            "en": "Use Broca traps. Clean harvest. Spray Beauveria bassiana.",
+            "hi": "ब्रोका ट्रैप का प्रयोग करें। सफाई से कटाई करें। बेवरिया बासियाना का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "pepper_wilt",
+        "category": "Plantation",
+        "keywords": [
+            "pepper",
+            "black pepper",
+            "wilt",
+            "quick wilt",
+            "foot rot"
+        ],
+        "question": {
+            "en": "Quick Wilt management in Black Pepper?",
+            "hi": "काली मिर्च में त्वरित विल्ट (क्विक विल्ट) का प्रबंधन?"
+        },
+        "answer": {
+            "en": "Apply Bordeaux mixture (1%) as drench. Apply Trichoderma to soil.",
+            "hi": "बोर्डो मिश्रण (1%) को ड्रेन्च (जड़ों में) के रूप में प्रयोग करें। मिट्टी में ट्राइकोडर्मा डालें।"
+        }
+    },
+    {
+        "id": "rubber_tapping_panel",
+        "category": "Plantation",
+        "keywords": [
+            "rubber",
+            "tapping panel",
+            "dryness",
+            "tpd"
+        ],
+        "question": {
+            "en": "Treatment for Tapping Panel Dryness (TPD) in Rubber?",
+            "hi": "रबर में टाइपिंग पैनल ड्रायनेस (टीपीडी) का उपचार?"
+        },
+        "answer": {
+            "en": "Give rest to trees. Apply antioxidants. Avoid over-tapping.",
+            "hi": "पेड़ों को आराम दें। एंटीऑक्सीडेंट का प्रयोग करें। अत्यधिक दोहन से बचें।"
+        }
+    },
+    {
+        "id": "apple_scab",
+        "category": "Fruits",
+        "keywords": [
+            "apple",
+            "scab",
+            "black spots",
+            "fungus"
+        ],
+        "question": {
+            "en": "Control of Apple Scab?",
+            "hi": "सेब में स्कैब रोग का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Spray Difenoconazole or Kresoxim-methyl during fruit development.",
+            "hi": "फल विकास के दौरान डिफेनोकोनाजोल या क्रेसॉक्सिम-मिथाइल का छिड़काव करें."
+        }
+    },
+    {
+        "id": "pomegranate_wilt",
+        "category": "Fruits",
+        "keywords": [
+            "pomegranate",
+            "anar",
+            "wilt",
+            "yellowing"
+        ],
+        "question": {
+            "en": "Control of Wilt in Pomegranate?",
+            "hi": "अनार में विल्ट रोग का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Drench soil with Carbendazim or Propiconazole. Use bio-agents like Trichoderma.",
+            "hi": "मिट्टी को कार्बेन्डाजिम या प्रोपिकोनाजोल से भिगोएं। ट्राइकोडर्मा जैसे जैव-एजेंटों का उपयोग करें।"
+        }
+    },
+    {
+        "id": "tractor_maintenance",
+        "category": "Machinery",
+        "keywords": [
+            "tractor",
+            "maintenance",
+            "service",
+            "oil change"
+        ],
+        "question": {
+            "en": "General maintenance tips for Tractor?",
+            "hi": "ट्रैक्टर के लिए सामान्य रखरखाव युक्तियाँ?"
+        },
+        "answer": {
+            "en": "Change engine oil every 250 hours. Clean air cleaner daily. Check tire pressure and battery water.",
+            "hi": "हर 250 घंटे में इंजन ऑयल बदलें। एयर क्लीनर को रोजाना साफ करें। टायर का दबाव और बैटरी का पानी चेक करें।"
+        }
+    },
+    {
+        "id": "rotavator_vibration",
+        "category": "Machinery",
+        "keywords": [
+            "rotavator",
+            "vibration",
+            "noise",
+            "blades"
+        ],
+        "question": {
+            "en": "Why is my Rotavator vibrating excessively?",
+            "hi": "मेरा रोटावेटर अत्यधिक कंपन क्यों कर रहा है?"
+        },
+        "answer": {
+            "en": "Check for loose blades, bent shaft, or worn-out universal joint. Tighten all bolts.",
+            "hi": "ढीले ब्लेड, मुड़े हुए शाफ्ट, या घिसे हुए यूनिवर्सल जॉइंट की जाँच करें। सभी बोल्ट कस लें।"
+        }
+    },
+    {
+        "id": "seed_drill_calibration",
+        "category": "Machinery",
+        "keywords": [
+            "seed drill",
+            "calibration",
+            "seed rate",
+            "planting"
+        ],
+        "question": {
+            "en": "How to calibrate a Seed Drill?",
+            "hi": "सीड ड्रिल को कैसे कैलिब्रेट करें?"
+        },
+        "answer": {
+            "en": "Rotate the wheel 20 times, collect seed, weigh it, and calculate per acre rate based on wheel circumference.",
+            "hi": "पहिये को 20 बार घुमाएं, बीज इकट्ठा करें, उसे तौलें, और पहिये की परिधि के आधार पर प्रति एकड़ दर की गणना करें।"
+        }
+    },
+    {
+        "id": "grain_moisture_storage",
+        "category": "Post Harvest",
+        "keywords": [
+            "moisture",
+            "storage",
+            "grain",
+            "wheat",
+            "rice"
+        ],
+        "question": {
+            "en": "Safe moisture content for grain storage?",
+            "hi": "अनाज भंडारण के लिए सुरक्षित नमी की मात्रा?"
+        },
+        "answer": {
+            "en": "Cereals: 10-12%. Pulses: 8-10%. Oilseeds: 6-8%. High moisture causes fungal growth.",
+            "hi": "अनाज: 10-12%। दालें: 8-10%। तिलहन: 6-8%। अधिक नमी से फंगस लगती है।"
+        }
+    },
+    {
+        "id": "rhizobium_use",
+        "category": "Bio-fertilizer",
+        "keywords": [
+            "rhizobium",
+            "culture",
+            "seed treatment",
+            "pulses"
+        ],
+        "question": {
+            "en": "How to use Rhizobium culture?",
+            "hi": "राइजोबियम कल्चर का उपयोग कैसे करें?"
+        },
+        "answer": {
+            "en": "Mix 200g Rhizobium with jaggery solution and coat 10kg seeds. Dry in shade before sowing.",
+            "hi": "200 ग्राम राइजोबियम को गुड़ के घोल में मिलाएं और 10 किलो बीज पर लेप करें। बुवाई से पहले छाया में सुखाएं।"
+        }
+    },
+    {
+        "id": "psb_biofertilizer",
+        "category": "Bio-fertilizer",
+        "keywords": [
+            "psb",
+            "phosphorus",
+            "solubilizing",
+            "bacteria"
+        ],
+        "question": {
+            "en": "Benefits of PSB bio-fertilizer?",
+            "hi": "पीएसबी जैव उर्वरक के लाभ?"
+        },
+        "answer": {
+            "en": "It makes fixed phosphorus in soil available to plants. Apply 2-3kg/acre in soil.",
+            "hi": "यह मिट्टी में जमा फास्फोरस को पौधों के लिए उपलब्ध कराता है। मिट्टी में 2-3 किग्रा/एकड़ डालें।"
+        }
+    },
+    {
+        "id": "trichoderma_use",
+        "category": "Bio-control",
+        "keywords": [
+            "trichoderma",
+            "disease control",
+            "seed treatment",
+            "soil application",
+            "root rot"
+        ],
+        "question": {
+            "en": "How to apply Trichoderma viride?",
+            "hi": "ट्राइकोडर्मा विरिडे का प्रयोग कैसे करें?"
+        },
+        "answer": {
+            "en": "Seed treatment: 4-5g/kg seed. Soil application: Mix 1kg with 100kg FYM and apply per acre.",
+            "hi": "बीज उपचार: 4-5 ग्राम/किग्रा बीज। मृदा में प्रयोग: 1 किलो को 100 किलो गोबर की खाद में मिलाकर प्रति एकड़ डालें।"
+        }
+    },
+    {
+        "id": "polyhouse_cooling",
+        "category": "Protected Cultivation",
+        "keywords": [
+            "polyhouse",
+            "greenhouse",
+            "cooling",
+            "temperature"
+        ],
+        "question": {
+            "en": "How to reduce heat in Polyhouse?",
+            "hi": "पॉलीहाउस में गर्मी कैसे कम करें?"
+        },
+        "answer": {
+            "en": "Use foggers/misters. Open side vents. Use shade net (50-75%) on top.",
+            "hi": "फॉगर्स/मिस्टर्स का प्रयोग करें। साइड वेंट खोलें। ऊपर शेड नेट (50-75%) का प्रयोग करें।"
+        }
+    },
+    {
+        "id": "hydroponics_ec",
+        "category": "Protected Cultivation",
+        "keywords": [
+            "hydroponics",
+            "ec",
+            "ph",
+            "nutrient"
+        ],
+        "question": {
+            "en": "Ideal EC and pH for Hydroponics?",
+            "hi": "हाइड्रोपोनिक्स के लिए आदर्श ईसी और पीएच?"
+        },
+        "answer": {
+            "en": "Generally pH: 5.5-6.5. EC: 1.2-2.0 dS/m depending on crop stage.",
+            "hi": "आम तौर पर पीएच: 5.5-6.5। ईसी: फसल के चरण के आधार पर 1.2-2.0 dS/m।"
+        }
+    },
+    {
+        "id": "fish_farming_ammonia",
+        "category": "Fisheries",
+        "keywords": [
+            "fish",
+            "ammonia",
+            "pond",
+            "water quality"
+        ],
+        "question": {
+            "en": "Control of high Ammonia in Fish Pond?",
+            "hi": "मछली तालाब में उच्च अमोनिया का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Stop feeding. Exchange water. Apply Zeolite (10-20kg/acre). Use aerators.",
+            "hi": "खाना खिलाना बंद करें। पानी बदलें। जिओलाइट (10-20 किग्रा/एकड़) डालें। एयरेटर्स का प्रयोग करें।"
+        }
+    },
+    {
+        "id": "legacy_organic_neem",
+        "category": "Organic Remedies",
+        "keywords": [
+            "neem oil",
+            "spray",
+            "organic",
+            "pesticide",
+            "aphids",
+            "whiteflies"
+        ],
+        "question": {
+            "en": "How to prepare specific Neem Oil Spray (Universal Pesticide)?",
+            "hi": "नीम के तेल का स्प्रे (सार्वभौमिक कीटनाशक) कैसे तैयार करें?"
+        },
+        "answer": {
+            "en": "Mix 5ml Neem Oil + 1 liter water + 1/2 tsp dish soap. Shake well. Spray every 7 days. Targets: Aphids, Whiteflies, Thrips, Spider Mites.",
+            "hi": "5 मिली नीम का तेल + 1 लीटर पानी + 1/2 चम्मच बर्तन धोने का साबुन मिलाएं। अच्छी तरह हिलाएं। हर 7 दिन में स्प्रे करें।"
+        }
+    },
+    {
+        "id": "legacy_organic_garlic_chili",
+        "category": "Organic Remedies",
+        "keywords": [
+            "garlic",
+            "chili",
+            "spray",
+            "repellent",
+            "caterpillars"
+        ],
+        "question": {
+            "en": "Recipe for Garlic-Chili Spray repellent?",
+            "hi": "लहसुन-मिर्च स्प्रे विकर्षक की विधि?"
+        },
+        "answer": {
+            "en": "Blend 2 bulbs garlic + 5 spicy chilies + 1 liter water. Strain. Dilute 1:5 with water. Spray for chewable pests like Caterpillars and Beetles.",
+            "hi": "2 गांठ लहसुन + 5 तीखी मिर्च + 1 लीटर पानी को पीस लें। छान लें। 1:5 के अनुपात में पानी के साथ पतला करें। इल्लियों के लिए स्प्रे करें।"
+        }
+    },
+    {
+        "id": "legacy_organic_buttermilk",
+        "category": "Organic Remedies",
+        "keywords": [
+            "buttermilk",
+            "fungicide",
+            "mildew",
+            "sour"
+        ],
+        "question": {
+            "en": "How to use Buttermilk as fungicide?",
+            "hi": "छाछ का कवकनाशी (Fungicide) के रूप में उपयोग कैसे करें?"
+        },
+        "answer": {
+            "en": "Use 1-week old sour buttermilk diluted 1:10 with water. Valid for Powdery Mildew and Downy Mildew.",
+            "hi": "1 सप्ताह पुरानी खट्टी छाछ को 1:10 पानी के साथ मिलाकर प्रयोग करें। यह पाउडरी मिल्ड्यू के लिए कारगर है।"
+        }
+    },
+    {
+        "id": "legacy_organic_wood_ash",
+        "category": "Organic Remedies",
+        "keywords": [
+            "wood ash",
+            "potassium",
+            "snails",
+            "slugs"
+        ],
+        "question": {
+            "en": "Uses of Wood Ash in agriculture?",
+            "hi": "कृषि में लकड़ी की राख के उपयोग?"
+        },
+        "answer": {
+            "en": "Sprinkle fine wood ash around the base of plants or on leaves (when dry). Repels Snails/Slugs and provides Potassium.",
+            "hi": "पौधों के आधार के चारों ओर या पत्तियों पर (सूखी होने पर) बारीक लकड़ी की राख छिड़कें। यह घोंघे को दूर भगाता है और पोटाश प्रदान करता है।"
+        }
+    },
+    {
+        "id": "seasonal_january",
+        "category": "Calendar",
+        "keywords": [
+            "january",
+            "sowing",
+            "harvest",
+            "calendar"
+        ],
+        "question": {
+            "en": "Agricultural activities for January?",
+            "hi": "जनवरी के लिए कृषि गतिविधियाँ?"
+        },
+        "answer": {
+            "en": "Sow: Tomato, Chili, Eggplant (Summer nursery). Harvest: Potato, Mustard, Wheat. Irrigation is critical for wheat.",
+            "hi": "बुवाई: टमाटर, मिर्च, बैंगन (गर्मी की नर्सरी)। कटाई: आलू, सरसों, गेहूं। गेहूं के लिए सिंचाई महत्वपूर्ण है।"
+        }
+    },
+    {
+        "id": "seasonal_february",
+        "category": "Calendar",
+        "keywords": [
+            "february",
+            "sowing",
+            "harvest",
+            "calendar"
+        ],
+        "question": {
+            "en": "Agricultural activities for February?",
+            "hi": "फरवरी के लिए कृषि गतिविधियाँ?"
+        },
+        "answer": {
+            "en": "Sow: Okra, Cucumber, Bitter Gourd. Harvest: Onion, Garlic.",
+            "hi": "बुवाई: भिंडी, खीरा, करेला। कटाई: प्याज, लहसुन।"
+        }
+    },
+    {
+        "id": "seasonal_march",
+        "category": "Calendar",
+        "keywords": [
+            "march",
+            "sowing",
+            "harvest",
+            "calendar"
+        ],
+        "question": {
+            "en": "Agricultural activities for March?",
+            "hi": "मार्च के लिए कृषि गतिविधियाँ?"
+        },
+        "answer": {
+            "en": "Sow: Corn, Sunflower. Harvest: Wheat, Mustard, Gram.",
+            "hi": "बुवाई: मक्का, सूरजमुखी। कटाई: गेहूं, सरसों, चना।"
+        }
+    },
+    {
+        "id": "seasonal_april",
+        "category": "Calendar",
+        "keywords": [
+            "april",
+            "care",
+            "harvest",
+            "calendar"
+        ],
+        "question": {
+            "en": "Agricultural activities for April?",
+            "hi": "अप्रैल के लिए कृषि गतिविधियाँ?"
+        },
+        "answer": {
+            "en": "Care: High heat protection, Mulching. Harvest: Mango (Early varieties).",
+            "hi": "देखभाल: तेज गर्मी से बचाव, मल्चिंग। कटाई: आम (शुरुआती किस्में)।"
+        }
+    },
+    {
+        "id": "seasonal_may",
+        "category": "Calendar",
+        "keywords": [
+            "may",
+            "preparation",
+            "harvest",
+            "calendar"
+        ],
+        "question": {
+            "en": "Agricultural activities for May?",
+            "hi": "मई के लिए कृषि गतिविधियाँ?"
+        },
+        "answer": {
+            "en": "Preparation: Clean fields, Apply manure. Harvest: Mango, Watermelon.",
+            "hi": "तैयारी: खेत साफ करें, खाद डालें। कटाई: आम, तरबूज।"
+        }
+    },
+    {
+        "id": "seasonal_june",
+        "category": "Calendar",
+        "keywords": [
+            "june",
+            "sowing",
+            "care",
+            "calendar",
+            "monsoon"
+        ],
+        "question": {
+            "en": "Agricultural activities for June?",
+            "hi": "जून के लिए कृषि गतिविधियाँ?"
+        },
+        "answer": {
+            "en": "Sow: Rice (Nursery), Cotton, Corn (Monsoon crops). Care: Check drainage.",
+            "hi": "बुवाई: धान (नर्सरी), कपास, मक्का (मानसून फसलें)। देखभाल: जल निकासी की जाँच करें।"
+        }
+    },
+    {
+        "id": "seasonal_july",
+        "category": "Calendar",
+        "keywords": [
+            "july",
+            "sowing",
+            "weed",
+            "calendar"
+        ],
+        "question": {
+            "en": "Agricultural activities for July?",
+            "hi": "जुलाई के लिए कृषि गतिविधियाँ?"
+        },
+        "answer": {
+            "en": "Sow: Soybean, Groundnut. Care: Weed control (Kharif crops).",
+            "hi": "बुवाई: सोयाबीन, मूंगफली। देखभाल: खरपतवार नियंत्रण (खरीफ फसलें)।"
+        }
+    },
+    {
+        "id": "seasonal_august",
+        "category": "Calendar",
+        "keywords": [
+            "august",
+            "fertilizer",
+            "harvest",
+            "calendar"
+        ],
+        "question": {
+            "en": "Agricultural activities for August?",
+            "hi": "अगस्त के लिए कृषि गतिविधियाँ?"
+        },
+        "answer": {
+            "en": "Care: Top dressing Nitrogen/Urea. Harvest: Corn (Early).",
+            "hi": "देखभाल: नाइट्रोजन/यूरिया की टॉप ड्रेसिंग। कटाई: मक्का (शुरुआती)।"
+        }
+    },
+    {
+        "id": "seasonal_september",
+        "category": "Calendar",
+        "keywords": [
+            "september",
+            "sowing",
+            "harvest",
+            "calendar"
+        ],
+        "question": {
+            "en": "Agricultural activities for September?",
+            "hi": "सितंबर के लिए कृषि गतिविधियाँ?"
+        },
+        "answer": {
+            "en": "Sow: Mustard (Early), Potato (Early). Harvest: Rice (Early).",
+            "hi": "बुवाई: सरसों (अगेती), आलू (अगेती)। कटाई: धान (अगेती)।"
+        }
+    },
+    {
+        "id": "seasonal_october",
+        "category": "Calendar",
+        "keywords": [
+            "october",
+            "sowing",
+            "harvest",
+            "calendar",
+            "rabi"
+        ],
+        "question": {
+            "en": "Agricultural activities for October?",
+            "hi": "अक्टूबर के लिए कृषि गतिविधियाँ?"
+        },
+        "answer": {
+            "en": "Sow: Wheat, Gram, Pea, Lentil (Rabi crops). Harvest: Rice, Cotton.",
+            "hi": "बुवाई: गेहूं, चना, मटर, मसूर (रबी फसलें)। कटाई: धान, कपास।"
+        }
+    },
+    {
+        "id": "seasonal_november",
+        "category": "Calendar",
+        "keywords": [
+            "november",
+            "sowing",
+            "care",
+            "calendar"
+        ],
+        "question": {
+            "en": "Agricultural activities for November?",
+            "hi": "नवंबर के लिए कृषि गतिविधियाँ?"
+        },
+        "answer": {
+            "en": "Sow: Late Wheat, Barley. Care: Irrigation for Rabi crops.",
+            "hi": "बुवाई: पछेती गेहूं, जौ। देखभाल: रबी फसलों के लिए सिंचाई।"
+        }
+    },
+    {
+        "id": "seasonal_december",
+        "category": "Calendar",
+        "keywords": [
+            "december",
+            "protection",
+            "frost",
+            "calendar"
+        ],
+        "question": {
+            "en": "Agricultural activities for December?",
+            "hi": "दिसंबर के लिए कृषि गतिविधियाँ?"
+        },
+        "answer": {
+            "en": "Care: Protect crops from Frost (haze/smoke). Harvest: Sugarcane.",
+            "hi": "देखभाल: फसलों को पाले (कोहरे) से बचाएं। कटाई: गन्ना।"
+        }
+    },
+    {
+        "id": "legacy_disease_early_blight",
+        "category": "Disease Reference",
+        "keywords": [
+            "early blight",
+            "blight",
+            "spots",
+            "brown rings"
+        ],
+        "question": {
+            "en": "Symptoms and Treatment for Early Blight?",
+            "hi": "अगेती झुलसा (Early Blight) के लक्षण और उपचार?"
+        },
+        "answer": {
+            "en": "Symptoms: Concentrically ringed brown spots (target-like) on older leaves. Treatment: Remove affected leaves. Apply copper fungicide. Improve spacing.",
+            "hi": "लक्षण: पुरानी पत्तियों पर छल्लेदार भूरे धब्बे। उपचार: प्रभावित पत्तियों को हटा दें। कॉपर फफूंदनाशक लगाएं। पौधों के बीच दूरी बढ़ाएं।"
+        }
+    },
+    {
+        "id": "legacy_disease_late_blight",
+        "category": "Disease Reference",
+        "keywords": [
+            "late blight",
+            "blight",
+            "water soaked",
+            "dark spots"
+        ],
+        "question": {
+            "en": "Symptoms and Treatment for Late Blight?",
+            "hi": "पछेती झुलसा (Late Blight) के लक्षण और उपचार?"
+        },
+        "answer": {
+            "en": "Symptoms: Dark, water-soaked patches on leaves/stems. White mold in humidity. Treatment: Destroy infected plants. Apply protective fungicides (Mancozeb) before rain.",
+            "hi": "लक्षण: पत्तियों/तनों पर काले, पानी से भरे धब्बे। उपचार: संक्रमित पौधों को नष्ट करें। बारिश से पहले मैनकोजेब का छिड़काव करें।"
+        }
+    },
+    {
+        "id": "legacy_disease_powdery_mildew",
+        "category": "Disease Reference",
+        "keywords": [
+            "powdery mildew",
+            "white powder",
+            "fungus",
+            "milk spray"
+        ],
+        "question": {
+            "en": "Symptoms and Treatment for Powdery Mildew?",
+            "hi": "पाउडरी मिल्ड्यू (छाछ्या रोग) के लक्षण और उपचार?"
+        },
+        "answer": {
+            "en": "Symptoms: White, flour-like coating on leaves. Treatment: Mix 1 part milk with 9 parts water and spray. Use sulfur-based sprays or neem oil.",
+            "hi": "लक्षण: पत्तियों पर सफेद आटे जैसी परत। उपचार: 1 भाग दूध और 9 भाग पानी मिलाकर स्प्रे करें। सल्फर स्प्रे या नीम तेल का उपयोग करें।"
+        }
+    },
+    {
+        "id": "legacy_disease_fusarium_wilt",
+        "category": "Disease Reference",
+        "keywords": [
+            "fusarium wilt",
+            "wilt",
+            "yellow leaves",
+            "root rot"
+        ],
+        "question": {
+            "en": "Symptoms and Treatment for Fusarium Wilt?",
+            "hi": "फ्यूसेरियम विल्ट (उकठा रोग) के लक्षण और उपचार?"
+        },
+        "answer": {
+            "en": "Symptoms: Yellowing and drooping leaves, often on one side. Brown stem interior. Treatment: No cure. Solarize soil. Rotate crops. Use resistant varieties.",
+            "hi": "लक्षण: पत्तियां पीली होकर झुक जाती हैं। तने का अंदरूनी हिस्सा भूरा। उपचार: कोई इलाज नहीं। मिट्टी का सौरीकरण करें। फसल चक्र अपनाएं।"
+        }
+    },
+    {
+        "id": "legacy_pest_aphids",
+        "category": "Pest Reference",
+        "keywords": [
+            "aphids",
+            "mahu",
+            "green fly",
+            "sticky leaves",
+            "honeydew"
+        ],
+        "question": {
+            "en": "How to identify and control Aphids?",
+            "hi": "एफिड्स (माहू) की पहचान और नियंत्रण कैसे करें?"
+        },
+        "answer": {
+            "en": "Symptoms: Tiny green/black insects under leaves. Sticky honeydew. Control: Blast with water jet. Spray soapy water or neem oil. Encourage ladybugs.",
+            "hi": "लक्षण: पत्तियों के नीचे छोटे हरे/काले कीड़े। चिपचिपा पदार्थ। नियंत्रण: पानी की तेज धार मारें। साबुन पानी या नीम तेल का स्प्रे करें।"
+        }
+    },
+    {
+        "id": "legacy_pest_whiteflies",
+        "category": "Pest Reference",
+        "keywords": [
+            "whitefly",
+            "whiteflies",
+            "virus vector",
+            "fly"
+        ],
+        "question": {
+            "en": "How to control Whiteflies?",
+            "hi": "सफेद मक्खी (Whitefly) का नियंत्रण कैसे करें?"
+        },
+        "answer": {
+            "en": "Symptoms: Tiny white flying insects when plant is shaken. Transmits viruses. Control: Yellow sticky traps. Neem oil. Avoid excess Nitrogen.",
+            "hi": "लक्षण: पौधे को हिलाने पर उड़ने वाले सफेद कीड़े। वायरस फैलाते हैं। नियंत्रण: पीले चिपचिपे जाल। नीम तेल। यूरिया कम करें।"
+        }
+    },
+    {
+        "id": "legacy_pest_spider_mites",
+        "category": "Pest Reference",
+        "keywords": [
+            "spider mites",
+            "mites",
+            "webbing",
+            "red dots"
+        ],
+        "question": {
+            "en": "How to control Spider Mites?",
+            "hi": "स्पाइडर माइट्स (मकड़ी) का नियंत्रण कैसे करें?"
+        },
+        "answer": {
+            "en": "Symptoms: Tiny reddish dots under leaves. Fine webbing. Yellow speckles. Control: Increase humidity (sprinklers). Use neem oil or miticides.",
+            "hi": "लक्षण: पत्तियों के नीचे लाल बिंदु। बारीक जाले। नियंत्रण: नमी बढ़ाएं (फव्वारे)। नीम तेल या माइटिसाइड का प्रयोग करें।"
+        }
+    },
+    {
+        "id": "legacy_crop_potato_irrigation",
+        "category": "Vegetables",
+        "keywords": [
+            "potato",
+            "watering",
+            "irrigation",
+            "moisture"
+        ],
+        "question": {
+            "en": "Watering requirements for Potato?",
+            "hi": "आलू के लिए सिंचाई की आवश्यकता?"
+        },
+        "answer": {
+            "en": "Potatoes need consistent moisture, especially during tuber formation. Water deeply once or twice a week. Reduce watering when vines turn yellow to prevent rot.",
+            "hi": "आलू को कंद बनने के दौरान निरंतर नमी की आवश्यकता होती है। सप्ताह में 1-2 बार गहराई से पानी दें। बेलें पीली होने पर पानी कम कर दें।"
+        }
+    },
+    {
+        "id": "legacy_crop_potato_pests",
+        "category": "Vegetables",
+        "keywords": [
+            "potato",
+            "pest",
+            "beetle",
+            "aphids"
+        ],
+        "question": {
+            "en": "Common pests in Potato and control?",
+            "hi": "आलू के सामान्य कीट और नियंत्रण?"
+        },
+        "answer": {
+            "en": "Colorado Potato Beetle, Aphids, Leafhoppers. Control: Use neem oil or yellow sticky traps. Introduce ladybugs.",
+            "hi": "कोलोराडो आलू बीटल, एफिड्स। नियंत्रण: नीम तेल या पीले चिपचिपे जाल का प्रयोग करें।"
+        }
+    },
+    {
+        "id": "legacy_crop_tomato_care",
+        "category": "Vegetables",
+        "keywords": [
+            "tomato",
+            "watering",
+            "blossom end rot",
+            "cracking"
+        ],
+        "question": {
+            "en": "Watering tips for Tomato to prevent fruit cracking?",
+            "hi": "टमाटर में फल फटने से रोकने के लिए सिंचाई के सुझाव?"
+        },
+        "answer": {
+            "en": "Consistent watering (1-2 inches/week) prevents Blossom End Rot and cracking. Water at the base, not leaves.",
+            "hi": "निरंतर सिंचाई (1-2 इंच/सप्ताह) फल फटने और सड़न को रोकती है। आधार पर पानी दें, पत्तियों पर नहीं।"
+        }
+    },
+    {
+        "id": "legacy_crop_rice_water",
+        "category": "Cereals",
+        "keywords": [
+            "rice",
+            "paddy",
+            "water",
+            "flooding"
+        ],
+        "question": {
+            "en": "Water management for Rice/Paddy?",
+            "hi": "धान की फसल के लिए जल प्रबंधन?"
+        },
+        "answer": {
+            "en": "Requires flooding (2-5 cm) early stages. Maintain moisture until grain hardens.",
+            "hi": "शुरुआती चरणों में 2-5 सेमी खड़ा पानी चाहिए। दाना सख्त होने तक नमी बनाए रखें।"
+        }
+    },
+    {
+        "id": "legacy_crop_rice_pests",
+        "category": "Cereals",
+        "keywords": [
+            "rice",
+            "paddy",
+            "bph",
+            "stem borer",
+            "leaf folder"
+        ],
+        "question": {
+            "en": "Control of BPH and Stem Borer in Rice?",
+            "hi": "धान में बीपीएच और तना छेदक का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Brown Plant Hopper (BPH), Stem Borer. Use light traps and pheromone traps. Avoid excessive Nitrogen.",
+            "hi": "बीपीएच, तना छेदक। प्रकाश जाल और फेरोमोन जाल का उपयोग करें। यूरिया कम करें।"
+        }
+    },
+    {
+        "id": "legacy_crop_wheat_irrigation",
+        "category": "Cereals",
+        "keywords": [
+            "wheat",
+            "irrigation",
+            "cri",
+            "watering"
+        ],
+        "question": {
+            "en": "Critical irrigation stages for Wheat?",
+            "hi": "गेहूं के लिए सिंचाई के महत्वपूर्ण चरण?"
+        },
+        "answer": {
+            "en": "CRI (Crown Root Initiation) at 21 days is most critical. Other stages: Jointing and Flowering. Total 4-6 irrigations.",
+            "hi": "CRI (ताज जड़) अवस्था (21 दिन) सबसे महत्वपूर्ण है। अन्य: गांठें बनना और फूल आना। कुल 4-6 सिंचाई।"
+        }
+    },
+    {
+        "id": "legacy_crop_mango_pests",
+        "category": "Fruits",
+        "keywords": [
+            "mango",
+            "hopper",
+            "fruit fly",
+            "pest"
+        ],
+        "question": {
+            "en": "Control of Mango Hopper and Fruit Fly?",
+            "hi": "आम के फुदके और फल मक्खी का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Hopper: Spray neem oil during flowering (avoid full bloom). Fruit Fly: Use Methyl Eugenol pheromone traps.",
+            "hi": "फुदका: फूल आने पर नीम तेल स्प्रे करें। फल मक्खी: मिथाइल यूजेनॉल फेरोमोन जाल का उपयोग करें।"
+        }
+    },
+    {
+        "id": "legacy_crop_banana_care",
+        "category": "Fruits",
+        "keywords": [
+            "banana",
+            "fertilizer",
+            "potassium",
+            "water",
+            "panama wilt"
+        ],
+        "question": {
+            "en": "Fertilizer and Water needs for Banana?",
+            "hi": "केले के लिए खाद और पानी की आवश्यकता?"
+        },
+        "answer": {
+            "en": "High water (2000-2500mm). Heavy Potassium feeder (NPK 3:1:6). Avoid waterlogging to prevent Panama Wilt.",
+            "hi": "अधिक पानी (2000-2500 मिमी)। पोटाश की भारी आवश्यकता (NPK 3:1:6)। पनामा विल्ट से बचने के लिए जलभराव रोकें।"
+        }
+    },
+    {
+        "id": "legacy_crop_chili_leaf_curl",
+        "category": "Spices",
+        "keywords": [
+            "chili",
+            "leaf curl",
+            "murda",
+            "thrips",
+            "mites"
+        ],
+        "question": {
+            "en": "Control of Leaf Curl (Murda) in Chili?",
+            "hi": "मिर्च में मरोड़िया (Murda) रोग का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Caused by Thrips/Mites. Spray Neem Seed Kernel Extract (NSKE). Use blue sticky traps for thrips.",
+            "hi": "थ्रिप्स/माइट्स के कारण होता है। NSKE (नीम बीज अर्क) का छिड़काव करें। थ्रिप्स के लिए नीले चिपचिपे जाल का प्रयोग करें।"
+        }
+    },
+    {
+        "id": "legacy_crop_onion_harvest",
+        "category": "Vegetables",
+        "keywords": [
+            "onion",
+            "harvest",
+            "neck break",
+            "watering"
+        ],
+        "question": {
+            "en": "When to harvest Onion?",
+            "hi": "प्याज की कटाई कब करें?"
+        },
+        "answer": {
+            "en": "Stop watering 10-15 days before harvest when tops fall over (neck break). Harvest when tops dry.",
+            "hi": "जब ऊपरी हिस्से गिरने लगें तो 10-15 दिन पहले पानी बंद कर दें। पूरी तरह सूखने पर कटाई करें।"
+        }
+    },
+    {
+        "id": "legacy_crop_corn_faw",
+        "category": "Cereals",
+        "keywords": [
+            "corn",
+            "maize",
+            "faw",
+            "armyworm",
+            "pest"
+        ],
+        "question": {
+            "en": "Control of Fall Armyworm (FAW) in Corn?",
+            "hi": "मक्का में फॉल आर्मीवर्म (FAW) का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Look for shot holes in leaves. Use Metarhizium anisopliae or Pheromone traps.",
+            "hi": "पत्तियों में छेद देखें। मेटारिज़ियम एनिसोप्लिया या फेरोमोन जाल का उपयोग करें।"
+        }
+    },
+    {
+        "id": "legacy_crop_ladyfinger_yvmv",
+        "category": "Vegetables",
+        "keywords": [
+            "ladyfinger",
+            "okra",
+            "bhindi",
+            "virus",
+            "yellow vein"
+        ],
+        "question": {
+            "en": "Control of Yellow Vein Mosaic Virus in Okra?",
+            "hi": "भिंडी में पीली नस मोज़ेक वायरस का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Transmitted by Whiteflies. Grow resistant varieties like 'Arka Anamika'. Use yellow sticky traps.",
+            "hi": "सफेद मक्खी द्वारा फैलता है। 'अर्का अनामिका' जैसी प्रतिरोधी किस्में उगाएं। पीले चिपचिपे जाल का प्रयोग करें।"
+        }
+    },
+    {
+        "id": "legacy_crop_eggplant_borer",
+        "category": "Vegetables",
+        "keywords": [
+            "eggplant",
+            "brinjal",
+            "shoot borer",
+            "fruit borer",
+            "pest"
+        ],
+        "question": {
+            "en": "Control of Shoot and Fruit Borer in Brinjal?",
+            "hi": "बैंगन में तना और फल छेदक का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Remove wilted shoots immediately. Use Pheromone traps (Lucin-lure).",
+            "hi": "मुरझाए हुए तनों को तुरंत हटा दें। फेरोमोन जाल (Lucin-lure) का प्रयोग करें।"
+        }
+    },
+    {
+        "id": "legacy_crop_sugarcane_care",
+        "category": "Sugar",
+        "keywords": [
+            "sugarcane",
+            "earthing up",
+            "detrashing",
+            "falling"
+        ],
+        "question": {
+            "en": "Care tips for Sugarcane (Earthing up)?",
+            "hi": "गन्ने की देखभाल (मिट्टी चढ़ाना)?"
+        },
+        "answer": {
+            "en": "Earthing up: Mound soil around base to prevent lodging (falling). Detrashing: Remove dry lower leaves.",
+            "hi": "मिट्टी चढ़ाना: गिरने से बचाने के लिए जड़ पर मिट्टी चढ़ाएं। सूखी पत्तियों को हटाते रहें।"
+        }
+    },
+    {
+        "id": "legacy_crop_cotton_pest",
+        "category": "Fiber",
+        "keywords": [
+            "cotton",
+            "bollworm",
+            "pink bollworm",
+            "pest"
+        ],
+        "question": {
+            "en": "Control of Pink Bollworm in Cotton?",
+            "hi": "कपास में गुलाबी सुंडी (Pink Bollworm) का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Check for rosette flowers. Grow trap crops like Marigold. Use light traps.",
+            "hi": "गुलाब जैसे फूलों (rosette flowers) की जाँच करें। गेंदा जैसी जाल फसलें उगाएं। प्रकाश जाल का उपयोग करें।"
+        }
+    },
+    {
+        "id": "legacy_crop_dragonfruit_water",
+        "category": "Fruits",
+        "keywords": [
+            "dragon fruit",
+            "dragonfruit",
+            "pithaya",
+            "water",
+            "rot"
+        ],
+        "question": {
+            "en": "Watering requirements for Dragon Fruit?",
+            "hi": "ड्रैगन फ्रूट के लिए सिंचाई की आवश्यकता?"
+        },
+        "answer": {
+            "en": "Low water needs. Overwatering causes root rot. Water only when soil is dry to 2 inches depth. Good drainage is non-negotiable.",
+            "hi": "पानी की कम आवश्यकता। अधिक पानी से जड़ें सड़ जाती हैं। जल निकासी अच्छी होनी चाहिए।"
+        }
+    },
+    {
+        "id": "legacy_crop_cucumber_bitter",
+        "category": "Vegetables",
+        "keywords": [
+            "cucumber",
+            "bitter",
+            "watering",
+            "heat"
+        ],
+        "question": {
+            "en": "Why do cucumbers turn bitter?",
+            "hi": "खीरे कड़वे क्यों हो जाते हैं?"
+        },
+        "answer": {
+            "en": "Bitterness is often caused by heat stress or inconsistent watering. Keep soil moist and mulch to keep roots cool.",
+            "hi": "कड़वाहट अक्सर गर्मी के तनाव या अनियमित सिंचाई के कारण होती है। मिट्टी को नम रखें और जड़ों को ठंडा रखने के लिए मल्चिंग करें।"
+        }
+    },
+    {
+        "id": "legacy_crop_spinach_bolting",
+        "category": "Leafy Greens",
+        "keywords": [
+            "spinach",
+            "bolting",
+            "flowering",
+            "bitter leaves"
+        ],
+        "question": {
+            "en": "Why is my Spinach flowering early (Bolting)?",
+            "hi": "मेरा पालक जल्दी फूल क्यों रहा है (बोल्टिंग)?"
+        },
+        "answer": {
+            "en": "Bolting is caused by heat or dry soil. Keep soil moist and grow in partial shade during hot months.",
+            "hi": "बोल्टिंग गर्मी या सूखी मिट्टी के कारण होती है। मिट्टी को नम रखें और गर्म महीनों में आंशिक छाया में उगाएं।"
+        }
+    },
+    {
+        "id": "legacy_crop_ginger_rot",
+        "category": "Spices",
+        "keywords": [
+            "ginger",
+            "soft rot",
+            "yellow leaves",
+            "rhizome rot"
+        ],
+        "question": {
+            "en": "Control of Soft Rot (Rhizome Rot) in Ginger?",
+            "hi": "अदरक में कंद सड़न (Soft Rot) का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Caused by waterlogging. Ensure excellent drainage. Use raised beds. Treat seed rhizomes with Trichoderma.",
+            "hi": "जलजमाव के कारण होता है। बेहतर जल निकासी सुनिश्चित करें। उठी हुई क्यारियों का उपयोग करें। बीज कंदों को ट्राइकोडर्मा से उपचारित करें।"
+        }
+    },
+    {
+        "id": "legacy_crop_garlic_plant",
+        "category": "Spices",
+        "keywords": [
+            "garlic",
+            "planting",
+            "clove",
+            "spacing"
+        ],
+        "question": {
+            "en": "How to plant Garlic?",
+            "hi": "लहसुन कैसे लगाएं?"
+        },
+        "answer": {
+            "en": "Plant individual cloves pointed end up, 2 inches deep, 4 inches apart. Needs cool weather for bulb formation.",
+            "hi": "अलग-अलग कलियां लगाएं। नुकीला सिरा ऊपर, 2 इंच गहरा, 4 इंच की दूरी पर। बल्ब बनने के लिए ठंडे मौसम की आवश्यकता होती है।"
+        }
+    },
+    {
+        "id": "legacy_crop_cauliflower_blanch",
+        "category": "Vegetables",
+        "keywords": [
+            "cauliflower",
+            "yellow head",
+            "white",
+            "blanching"
+        ],
+        "question": {
+            "en": "How to keep Cauliflower white (Blanching)?",
+            "hi": "फूलगोभी को सफेद कैसे रखें (ब्लांचिंग)?"
+        },
+        "answer": {
+            "en": "Cover the developing white head with outer leaves to protect from sun. This keeps it creamy white like milk.",
+            "hi": "सफेद सिर को धूप से बचाने के लिए बाहरी पत्तियों से ढक दें। इससे यह दूध जैसा सफेद रहता है।"
+        }
+    },
+    {
+        "id": "legacy_crop_grapes_pruning",
+        "category": "Fruits",
+        "keywords": [
+            "grapes",
+            "pruning",
+            "cutting",
+            "winter"
+        ],
+        "question": {
+            "en": "Pruning guide for Grapes?",
+            "hi": "अंगूर की छंटाई (Pruning) गाइड?"
+        },
+        "answer": {
+            "en": "Prune during dormancy (winter). Remove 90% of new growth to ensure good fruit quality. Support with trellis.",
+            "hi": "सर्दियों (सुप्तावस्था) में छंटाई करें। अच्छी गुणवत्ता के लिए 90% नई वृद्धि को हटा दें। ट्रेलिस का सहारा दें।"
+        }
+    },
+    {
+        "id": "legacy_crop_mustard_aphid",
+        "category": "Oilseeds",
+        "keywords": [
+            "mustard",
+            "aphid",
+            "mahu",
+            "pest"
+        ],
+        "question": {
+            "en": "Control of Mustard Aphid (Mahu)?",
+            "hi": "सरसों के माहू (Aphid) का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Use yellow sticky traps. Spray water early morning to wash them off. Spray Neem oil.",
+            "hi": "पीले चिपचिपे जाल का प्रयोग करें। उन्हें धोने के लिए सुबह जल्दी पानी का छिड़काव करें। नीम तेल स्प्रे करें।"
+        }
+    },
+    {
+        "id": "legacy_crop_soybean_nitrogen",
+        "category": "Oilseeds",
+        "keywords": [
+            "soybean",
+            "fertilizer",
+            "rhizobium",
+            "nitrogen"
+        ],
+        "question": {
+            "en": "Fertilizer needs for Soybean?",
+            "hi": "सोयाबीन के लिए खाद की आवश्यकता?"
+        },
+        "answer": {
+            "en": "Seed treatment with Rhizobium is essential for Nitrogen fixation. Does not need much Urea.",
+            "hi": "नाइट्रोजन स्थिरीकरण के लिए राइजोबियम से बीज उपचार आवश्यक है। ज्यादा यूरिया की जरूरत नहीं है।"
+        }
+    },
+    {
+        "id": "legacy_crop_apple_chill",
+        "category": "Fruits",
+        "keywords": [
+            "apple",
+            "flowering",
+            "chilling",
+            "winter"
+        ],
+        "question": {
+            "en": "Why implies my Apple tree not flowering?",
+            "hi": "मेरे सेब के पेड़ में फूल क्यों नहीं आ रहे हैं?"
+        },
+        "answer": {
+            "en": "Apples require 'chilling hours' (cold temperature) in winter to break dormancy and fruit. Also, ensure proper pruning.",
+            "hi": "सेब को फलने के लिए सर्दियों में 'चिलिंग आवर्स' (ठंड) की आवश्यकता होती है। साथ ही, उचित छंटाई सुनिश्चित करें।"
+        }
+    },
+    {
+        "id": "legacy_crop_pomegranate_butterfly",
+        "category": "Fruits",
+        "keywords": [
+            "pomegranate",
+            "butterfly",
+            "borer",
+            "inside fruit"
+        ],
+        "question": {
+            "en": "Control of Pomegranate Butterfly (Anar Butterfly)?",
+            "hi": "अनार की तितली (Anar Butterfly) का नियंत्रण?"
+        },
+        "answer": {
+            "en": "Bagging fruits with paper/cloth bags is best. Remove damaged fruits.",
+            "hi": "फलों को कागज/कपड़े की थैलियों से ढकना (Bagging) सबसे अच्छा है। खराब फलों को हटा दें।"
+        }
+    },
+    {
+        "id": "legacy_crop_watermelon_sweet",
+        "category": "Fruits",
+        "keywords": [
+            "watermelon",
+            "sweetness",
+            "harvest",
+            "watering"
+        ],
+        "question": {
+            "en": "How to make Watermelon sweeter?",
+            "hi": "तरबूज को मीठा कैसे बनाएं?"
+        },
+        "answer": {
+            "en": "Stop watering 1 week before harvest not to dilute sugars. Add Potassium during fruiting.",
+            "hi": "शर्करा को पतला न होने देने के लिए कटाई से 1 सप्ताह पहले पानी देना बंद कर दें। फल आते समय पोटाश डालें।"
+        }
+    }
+]

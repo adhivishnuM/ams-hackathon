@@ -1,0 +1,437 @@
+{
+    "potato_disease": {
+        "disease_name": "Potato Infection (Tuber/Leaf)",
+        "disease_name_hindi": "आलू का रोग",
+        "severity": "high",
+        "description": "Signs of pathology detected on the potato. This could be Late Blight or Common Scab depending on the part affected.",
+        "description_hindi": "आलू पर रोग के लक्षण पाए गए हैं।",
+        "symptoms": [
+            "Dark, sunken lesions on the surface",
+            "Internal browning or rotting of tissue",
+            "Dry, corky texture in affected areas"
+        ],
+        "symptoms_hindi": [
+            "सतह पर गहरे, धंसे हुए घाव",
+            "अंदरूनी ऊतकों का भूरा होना या सड़ना",
+            "प्रभावित क्षेत्रों में सूखा और खुरदरापन"
+        ],
+        "treatment_steps": [
+            "Sort and remove all infected potatoes immediately",
+            "Apply copper-based treatment to remaining healthy stock",
+            "Reduce humidity in storage areas"
+        ],
+        "treatment_steps_hindi": [
+            "संक्रमित आलू को तुरंत अलग करें",
+            "स्वस्थ स्टॉक पर तांबा आधारित उपचार का प्रयोग करें",
+            "भंडारण क्षेत्रों में नमी कम करें"
+        ],
+        "organic_options": [
+            "Dusting with limestone powder",
+            "Storage in cool, dry sand",
+            "Spray with garlic and ginger extract"
+        ],
+        "organic_options_hindi": [
+            "चूना पत्थर के पाउडर का छिड़काव",
+            "ठंडी, सूखी रेत में भंडारण",
+            "लहसुन और अदरक के अर्क का छिड़काव"
+        ],
+        "prevention_tips": [
+            "Do not replant infected tubers",
+            "Avoid wounding during harvest",
+            "Use crop rotation with non-root crops"
+        ],
+        "prevention_tips_hindi": [
+            "संक्रमित आलू को दोबारा न लगाएं",
+            "कटाई के दौरान चोट लगने से बचाएं",
+            "फसल चक्र अपनाएं"
+        ]
+    },
+    "tomato_disease": {
+        "disease_name": "Tomato Pathogen",
+        "disease_name_hindi": "टमाटर का रोग",
+        "severity": "medium",
+        "description": "Symptoms found on the tomato crop. Common issues include Blight or Bacterial Spot.",
+        "description_hindi": "टमाटर की फसल में रोग के लक्षण।",
+        "symptoms": [
+            "Discolored spotting on the surface",
+            "Premature softening or wilting",
+            "Abnormal growth patterns"
+        ],
+        "symptoms_hindi": [
+            "सतह पर रंगहीन धब्बे",
+            "समय से पहले नरम होना या मुरझाना",
+            "असामान्य विकास"
+        ],
+        "treatment_steps": [
+            "Prune affected areas to stop spread",
+            "Improve ventilation between plants",
+            "Apply organic bio-fungicide"
+        ],
+        "treatment_steps_hindi": [
+            "फैलाव रोकने के लिए प्रभावित हिस्सों को काटें",
+            "हवा का संचार सुधारें",
+            "जैविक कवकनाशी का प्रयोग करें"
+        ],
+        "organic_options": [
+            "Baking soda and oil spray",
+            "Compost tea foliage spray",
+            "Neem-based emulsions"
+        ],
+        "organic_options_hindi": [
+            "बेकिंग सोडा और तेल का स्प्रे",
+            "कंपोस्ट टी का छिड़काव",
+            "नीम आधारित घोल"
+        ],
+        "prevention_tips": [
+            "Water at the base, not over the fruit",
+            "Keep the area free of weeds",
+            "Sterilize tools after pruning"
+        ],
+        "prevention_tips_hindi": [
+            "पौधों की जड़ में पानी दें",
+            "निराई-गुड़ाई नियमित करें",
+            "औजारों को साफ रखें"
+        ]
+    },
+    "apple_disease": {
+        "disease_name": "Apple Malady",
+        "disease_name_hindi": "सेब का रोग",
+        "severity": "high",
+        "description": "Detection of fungal or bacterial markers on the apple tree or fruit.",
+        "description_hindi": "सेब के पेड़ या फल पर संक्रमण।",
+        "symptoms": [
+            "Dark, scabby patches on fruit skin",
+            "Dull appearance and loss of texture",
+            "Curled or spotted leaves"
+        ],
+        "symptoms_hindi": [
+            "फल की त्वचा पर गहरे, खुरदरे धब्बे",
+            "बनावट का खराब होना",
+            "मुड़ी हुई या धब्बेदार पत्तियां"
+        ],
+        "treatment_steps": [
+            "Apply liquid lime sulfur",
+            "Remove fallen debris around tree",
+            "Improve air penetration by thinning"
+        ],
+        "treatment_steps_hindi": [
+            "लाइम सल्फर का प्रयोग करें",
+            "पेड़ के आस-पास का कचरा साफ करें",
+            "शाखाओं की छंटाई करें"
+        ],
+        "organic_options": [
+            "Sulfur-based organic spray",
+            "Diluted vinegar wash (mild cases)",
+            "Pruning infected twigs"
+        ],
+        "organic_options_hindi": [
+            "सल्फर आधारित जैविक स्प्रे",
+            "सिरके के घोल से धुलाई",
+            "संक्रमित टहनियों को काटना"
+        ],
+        "prevention_tips": [
+            "Select resistant varieties",
+            "Clean up orchard floor in autumn",
+            "Maintain proper tree spacing"
+        ],
+        "prevention_tips_hindi": [
+            "प्रतिरोधी किस्में चुनें",
+            "शरद ऋतु में बाग की सफाई करें",
+            "उचित दूरी बनाए रखें"
+        ]
+    },
+    "general_pathology": {
+        "disease_name": "Plant Health Anomaly",
+        "disease_name_hindi": "पौधे का रोग",
+        "severity": "medium",
+        "description": "The AI has detected irregular patterns on the plant tissue. This may indicate an early-stage fungal or bacterial infection.",
+        "description_hindi": "पौधे के ऊतकों पर अनियमित पैटर्न पाए गए हैं।",
+        "symptoms": [
+            "Localized discoloration or spots",
+            "Changes in surface texture",
+            "Mild wilting or sagging"
+        ],
+        "symptoms_hindi": [
+            "स्थानीय रंगहीनता या धब्बे",
+            "सतह की बनावट में बदलाव",
+            "हल्का मुरझाना"
+        ],
+        "treatment_steps": [
+            "Isolate the plant to prevent spread",
+            "Reduce moisture on the plant surface",
+            "Apply a general organic bio-protector"
+        ],
+        "treatment_steps_hindi": [
+            "फैलाव रोकने के लिए पौधे को अलग करें",
+            "सतह पर नमी कम करें",
+            "जैविक रक्षक का प्रयोग करें"
+        ],
+        "organic_options": [
+            "Neem oil spray (1% concentration)",
+            "Garlic-infused water spray",
+            "Mild soap and water solution"
+        ],
+        "organic_options_hindi": [
+            "नीम तेल का स्प्रे",
+            "लहसुन के पानी का छिड़काव",
+            "हल्के साबुन और पानी का घोल"
+        ],
+        "prevention_tips": [
+            "Inspect plants weekly",
+            "Avoid overcrowding",
+            "Maintain balanced soil nutrition"
+        ],
+        "prevention_tips_hindi": [
+            "साप्ताहिक निरीक्षण करें",
+            "ज्यादा भीड़ न होने दें",
+            "संतुलित पोषण दें"
+        ]
+    },
+    "pepper_disease": {
+        "disease_name": "Pepper Blight/Spot",
+        "disease_name_hindi": "मिर्च का रोग",
+        "severity": "high",
+        "description": "Symptoms of blight or bacterial spot detected on pepper plants. Can lead to significant yield loss.",
+        "description_hindi": "मिर्च के पौधों पर झुलसा या बैक्टीरियल स्पॉट के लक्षण पाए गए हैं। इससे उपज में काफी कमी आ सकती है।",
+        "symptoms": [
+            "Water-soaked spots on leaves and fruit",
+            "Yellowing and dropping of leaves",
+            "Stunted growth and fruit rot"
+        ],
+        "symptoms_hindi": [
+            "पत्तियों और फलों पर पानी से भरे धब्बे",
+            "पत्तियों का पीला पड़ना और गिरना",
+            "अवरुद्ध विकास और फल सड़ना"
+        ],
+        "treatment_steps": [
+            "Remove and destroy infected plants",
+            "Apply copper-based fungicides",
+            "Ensure good air circulation"
+        ],
+        "treatment_steps_hindi": [
+            "संक्रमित पौधों को हटा दें और नष्ट कर दें",
+            "तांबा आधारित फफूंदनाशकों का प्रयोग करें",
+            "अच्छी वायु संचार सुनिश्चित करें"
+        ],
+        "organic_options": [
+            "Neem oil spray",
+            "Baking soda solution spray",
+            "Compost tea application"
+        ],
+        "organic_options_hindi": [
+            "नीम तेल का स्प्रे",
+            "बेकिंग सोडा घोल का स्प्रे",
+            "कम्पोस्ट चाय का प्रयोग"
+        ],
+        "prevention_tips": [
+            "Plant resistant varieties",
+            "Rotate crops with non-solanaceous plants",
+            "Avoid overhead watering"
+        ],
+        "prevention_tips_hindi": [
+            "प्रतिरोधी किस्में लगाएं",
+            "गैर-सोलनेसी पौधों के साथ फसल चक्र अपनाएं",
+            "ऊपर से पानी देने से बचें"
+        ]
+    },
+    "cucumber_disease": {
+        "disease_name": "Cucumber Downy Mildew",
+        "disease_name_hindi": "खीरे का मृदु रोमिल फफूंद",
+        "severity": "medium",
+        "description": "Signs of downy mildew, a common fungal disease affecting cucumber leaves.",
+        "description_hindi": "खीरे की पत्तियों को प्रभावित करने वाले मृदु रोमिल फफूंद के लक्षण।",
+        "symptoms": [
+            "Yellow angular spots on upper leaf surface",
+            "Purplish-brown fuzzy growth on lower leaf surface",
+            "Leaf necrosis and defoliation"
+        ],
+        "symptoms_hindi": [
+            "ऊपरी पत्ती की सतह पर पीले कोणीय धब्बे",
+            "निचली पत्ती की सतह पर बैंगनी-भूरे रंग की फफूंद",
+            "पत्ती का गलना और पत्ती का झड़ना"
+        ],
+        "treatment_steps": [
+            "Apply fungicides specifically for downy mildew",
+            "Remove infected leaves immediately",
+            "Improve air circulation around plants"
+        ],
+        "treatment_steps_hindi": [
+            "मृदु रोमिल फफूंद के लिए विशेष फफूंदनाशकों का प्रयोग करें",
+            "संक्रमित पत्तियों को तुरंत हटा दें",
+            "पौधों के चारों ओर वायु संचार में सुधार करें"
+        ],
+        "organic_options": [
+            "Garlic spray",
+            "Horsetail tea spray",
+            "Milk spray (diluted)"
+        ],
+        "organic_options_hindi": [
+            "लहसुन का स्प्रे",
+            "हॉर्सटेल चाय का स्प्रे",
+            "दूध का स्प्रे (पतला)"
+        ],
+        "prevention_tips": [
+            "Plant resistant cucumber varieties",
+            "Avoid overhead irrigation",
+            "Ensure proper plant spacing"
+        ],
+        "prevention_tips_hindi": [
+            "प्रतिरोधी खीरे की किस्में लगाएं",
+            "ऊपर से सिंचाई से बचें",
+            "पौधों के बीच उचित दूरी सुनिश्चित करें"
+        ]
+    },
+    "rice_disease": {
+        "disease_name": "Rice Blast",
+        "disease_name_hindi": "धान का झुलसा रोग",
+        "severity": "high",
+        "description": "A destructive fungal disease affecting rice plants, causing lesions on leaves, stems, and panicles.",
+        "description_hindi": "धान के पौधों को प्रभावित करने वाला एक विनाशकारी फंगल रोग, जिससे पत्तियों, तनों और बालियों पर घाव हो जाते हैं।",
+        "symptoms": [
+            "Diamond-shaped lesions with gray centers on leaves",
+            "Neck rot on panicles, causing them to break",
+            "Reduced grain filling and yield loss"
+        ],
+        "symptoms_hindi": [
+            "पत्तियों पर भूरे केंद्र वाले हीरे के आकार के घाव",
+            "बालियों पर गर्दन का सड़ना, जिससे वे टूट जाती हैं",
+            "दाने भरने में कमी और उपज का नुकसान"
+        ],
+        "treatment_steps": [
+            "Apply appropriate fungicides at early stages",
+            "Manage nitrogen fertilization to avoid excess",
+            "Remove and destroy infected plant debris"
+        ],
+        "treatment_steps_hindi": [
+            "शुरुआती चरणों में उपयुक्त फफूंदनाशकों का प्रयोग करें",
+            "अत्यधिक नाइट्रोजन उर्वरक से बचें",
+            "संक्रमित पौधों के मलबे को हटा दें और नष्ट कर दें"
+        ],
+        "organic_options": [
+            "Neem cake application in soil",
+            "Trichoderma viride bio-fungicide",
+            "Garlic extract spray"
+        ],
+        "organic_options_hindi": [
+            "मिट्टी में नीम की खली का प्रयोग",
+            "ट्राइकोडर्मा विरिडे जैव-फफूंदनाशक",
+            "लहसुन के अर्क का स्प्रे"
+        ],
+        "prevention_tips": [
+            "Use resistant rice varieties",
+            "Practice proper water management",
+            "Ensure good field sanitation"
+        ],
+        "prevention_tips_hindi": [
+            "प्रतिरोधी धान की किस्में उपयोग करें",
+            "उचित जल प्रबंधन का अभ्यास करें",
+            "खेत की अच्छी स्वच्छता सुनिश्चित करें"
+        ]
+    },
+    "wheat_disease": {
+        "disease_name": "Wheat Rust",
+        "disease_name_hindi": "गेहूं का रस्ट रोग",
+        "severity": "high",
+        "description": "Fungal disease causing rust-colored pustules on wheat leaves and stems, leading to significant yield reduction.",
+        "description_hindi": "फंगल रोग जो गेहूं की पत्तियों और तनों पर जंग के रंग के फफोले पैदा करता है, जिससे उपज में काफी कमी आती है।",
+        "symptoms": [
+            "Orange to brown pustules on leaves and stems",
+            "Yellowing and premature drying of leaves",
+            "Reduced grain size and quality"
+        ],
+        "symptoms_hindi": [
+            "पत्तियों और तनों पर नारंगी से भूरे रंग के फफोले",
+            "पत्तियों का पीला पड़ना और समय से पहले सूखना",
+            "दाने के आकार और गुणवत्ता में कमी"
+        ],
+        "treatment_steps": [
+            "Apply fungicides at the first sign of disease",
+            "Remove volunteer wheat plants",
+            "Ensure balanced fertilization"
+        ],
+        "treatment_steps_hindi": [
+            "रोग के पहले लक्षण पर फफूंदनाशकों का प्रयोग करें",
+            "स्वयंसेवी गेहूं के पौधों को हटा दें",
+            "संतुलित उर्वरक सुनिश्चित करें"
+        ],
+        "organic_options": [
+            "Neem oil spray",
+            "Garlic and chili pepper spray",
+            "Compost tea foliar application"
+        ],
+        "organic_options_hindi": [
+            "नीम तेल का स्प्रे",
+            "लहसुन और मिर्च का स्प्रे",
+            "कम्पोस्ट चाय का पत्ती पर प्रयोग"
+        ],
+        "prevention_tips": [
+            "Plant resistant wheat varieties",
+            "Rotate crops with non-host plants",
+            "Timely sowing to avoid peak infection periods"
+        ],
+        "prevention_tips_hindi": [
+            "प्रतिरोधी गेहूं की किस्में लगाएं",
+            "गैर-मेजबान पौधों के साथ फसल चक्र अपनाएं",
+            "संक्रमण के चरम समय से बचने के लिए समय पर बुवाई करें"
+        ]
+    },
+    "corn_disease": {
+        "disease_name": "Corn Leaf Blight",
+        "disease_name_hindi": "मक्के का पत्ती झुलसा रोग",
+        "severity": "medium",
+        "description": "Fungal disease causing lesions on corn leaves, which can reduce photosynthetic capacity and yield.",
+        "description_hindi": "फंगल रोग जो मक्के की पत्तियों पर घाव पैदा करता है, जिससे प्रकाश संश्लेषण क्षमता और उपज कम हो सकती है।",
+        "symptoms": [
+            "Long, narrow, tan lesions on leaves",
+            "Lesions may coalesce, leading to blighting of large leaf areas",
+            "Premature death of leaves"
+        ],
+        "symptoms_hindi": [
+            "पत्तियों पर लंबे, संकरे, भूरे रंग के घाव",
+            "घाव आपस में मिल सकते हैं, जिससे पत्ती के बड़े क्षेत्रों में झुलसा हो सकता है",
+            "पत्तियों की समय से पहले मृत्यु"
+        ],
+        "treatment_steps": [
+            "Apply fungicides if disease pressure is high",
+            "Ensure proper residue management",
+            "Improve field drainage"
+        ],
+        "treatment_steps_hindi": [
+            "यदि रोग का दबाव अधिक हो तो फफूंदनाशकों का प्रयोग करें",
+            "उचित अवशेष प्रबंधन सुनिश्चित करें",
+            "खेत की जल निकासी में सुधार करें"
+        ],
+        "organic_options": [
+            "Neem oil spray",
+            "Baking soda solution spray",
+            "Compost tea foliar spray"
+        ],
+        "organic_options_hindi": [
+            "नीम तेल का स्प्रे",
+            "बेकिंग सोडा घोल का स्प्रे",
+            "कम्पोस्ट चाय का पत्ती पर स्प्रे"
+        ],
+        "prevention_tips": [
+            "Plant resistant corn hybrids",
+            "Rotate crops with non-host crops",
+            "Bury infected crop residue"
+        ],
+        "prevention_tips_hindi": [
+            "प्रतिरोधी मक्के के संकर लगाएं",
+            "गैर-मेजबान फसलों के साथ फसल चक्र अपनाएं",
+            "संक्रमित फसल अवशेषों को दफनाएं"
+        ]
+    },
+    "mappings": {
+        "chili": "pepper_disease",
+        "capsicum": "pepper_disease",
+        "bell pepper": "pepper_disease",
+        "maize": "corn_disease",
+        "paddy": "rice_disease",
+        "leaf": "general_pathology",
+        "plant": "general_pathology",
+        "banana": "general_pathology",
+        "orange": "general_pathology",
+        "strawberry": "general_pathology"
+    }
+}

@@ -1,0 +1,958 @@
+{
+    "meta": {
+        "version": "2.0.0",
+        "description": "Extensive Agricultural Knowledge Base for Offline Local Wisdom",
+        "total_crops": 52,
+        "languages": [
+            "en",
+            "hi",
+            "ta",
+            "te",
+            "mr"
+        ]
+    },
+    "crops": {
+        "potato": {
+            "names": [
+                "potato",
+                "potatoes",
+                "aaloo",
+                "aloo",
+                "solanum tuberosum",
+                "batata",
+                "urulaikizhangu"
+            ],
+            "watering": {
+                "en": "Potatoes need consistent moisture, especially during tuber formation. Water deeply once or twice a week (1-2 inches). Reduce watering when vines turn yellow to prevent rot.",
+                "hi": "आलू को कंद बनने के दौरान निरंतर नमी की आवश्यकता होती है। सप्ताह में एक या दो बार गहराई से पानी दें (1-2 इंच)। सड़न रोकने के लिए जब बेलें पीली होने लगें तो पानी कम कर दें।",
+                "ta": "உருளைக்கிழங்கு கிழங்கு உருவாகும் போது நிலையான ஈரப்பதம் தேவை. வாரத்திற்கு ஒருமுறை அல்லது இருமுறை ஆழமாக தண்ணீர் ஊற்றவும். அழுகலைத் தடுக்க கொடிகள் மஞ்சளாகும்போது நீரைக் குறைக்கவும்."
+            },
+            "soil": {
+                "en": "Grows best in loose, well-draining, slightly acidic soil (pH 5.0 to 6.0). Stones should be removed to prevent deformed tubers. Enrich with organic compost.",
+                "hi": "ढीली, अच्छी जल निकासी वाली, थोड़ी अम्लीय मिट्टी (pH 5.0 से 6.0) में सबसे अच्छा बढ़ता है। टेढ़े-मेढ़े कंदों को रोकने के लिए पत्थरों को हटा देना चाहिए। जैविक खाद डालें।",
+                "ta": "தளர்வான, நன்கு வடிகட்டிய, சற்றே அமிலத்தன்மை கொண்ட மண்ணில் (pH 5.0 முதல் 6.0 வரை) சிறப்பாக வளரும். உருமாறிய கிழங்குகளைத் தவிர்க்க கற்களை அகற்ற வேண்டும்."
+            },
+            "pests": {
+                "en": "Common pests: Colorado Potato Beetle, Aphids, and Leafhoppers. Use neem oil spray or yellow sticky traps. Introduce ladybugs for natural control.",
+                "hi": "सामान्य कीट: कोलोराडो आलू बीटल, एफिड्स और लीफहॉपर्स। नीम के तेल का स्प्रे या पीले चिपचिपे जाल का उपयोग करें। प्राकृतिक नियंत्रण के लिए लेडीबग्स पालें।",
+                "ta": "பொதுவான பூச்சிகள்: கொலராடோ உருளைக்கிழங்கு வண்டு மற்றும் அசுவினிகள். வேப்ப எண்ணெய் தெளிப்பு அல்லது மஞ்சள் ஒட்டும் பொறிகளைப் பயன்படுத்தவும்."
+            },
+            "diseases": {
+                "en": "Early Blight (dark spots on leaves) and Late Blight (water-soaked spots). Use copper-based fungicides. Avoid overhead watering to keep leaves dry.",
+                "hi": "अगेती झुलसा (पत्तियों पर काले धब्बे) और पछेती झुलसा (पानीदार धब्बे)। कॉपर-आधारित फफूंदनाशकों का उपयोग करें। पत्तियों को सूखा रखने के लिए ऊपर से सिंचाई न करें।",
+                "ta": "ஆரம்பகால வாடல் மற்றும் தாமதமான வாடல். செம்பு சார்ந்த பூஞ்சைக் கொல்லிகளைப் பயன்படுத்தவும். இலைகளை உலர வைக்க மேலே தண்ணீர் ஊற்றுவதைத் தவிர்க்கவும்."
+            },
+            "fertilizer": {
+                "en": "High Nitrogen during early growth, followed by Phosphorus and Potassium for tuber development (NPK 10-20-10 or 5-10-10). Apply 2-3 weeks after planting.",
+                "hi": "शुरुआती विकास के दौरान उच्च नाइट्रोजन, उसके बाद कंद विकास के लिए फास्फोरस और पोटेशियम (NPK 10-20-10)। रोपण के 2-3 सप्ताह बाद डालें।",
+                "ta": "ஆரம்ப வளர்ச்சியின் போது அதிக நைட்ரஜன், அதைத் தொடர்ந்து கிழங்கு வளர்ச்சிக்கு பாஸ்பரஸ் மற்றும் பொட்டாசியம் தேவை."
+            },
+            "care": {
+                "en": "Hilling is essential: mound soil around the base as plants grow to cover developing tubers and protect them from sunlight (which turns them green/toxic).",
+                "hi": "मिट्टी चढ़ाना आवश्यक है: कंदों को ढकने और उन्हें धूप से बचाने के लिए आधार के चारों ओर मिट्टी चढ़ाएं (धूप से वे हरे और जहरीले हो सकते हैं)।",
+                "ta": "மண்ணை அணைப்பது அவசியம்: செடிகள் வளரும்போது வளரும் கிழங்குகளை சூரிய ஒளியிலிருந்து பாதுகாக்க தண்டைச் சுற்றி மண்ணைக் குவித்து வைக்கவும்."
+            },
+            "harvesting": {
+                "en": "Harvest 'new potatoes' 2-3 weeks after flowering. For storage, wait until vines die completely. Cure in a dark, cool place for 2 weeks to toughen skin.",
+                "hi": "फूल आने के 2-3 सप्ताह बाद 'नए आलू' की कटाई करें। भंडारण के लिए, बेलों के पूरी तरह सूखने का इंतज़ार करें। त्वचा सख्त करने के लिए 2 सप्ताह ठंडी जगह रखें।",
+                "ta": "பூத்த 2-3 வாரங்களுக்குப் பிறகு புதிய உருளைக்கிழங்கை அறுவடை செய்யலாம். சேமித்து வைக்க கொடிகள் முற்றிலும் காய்ந்த பின் அறுவடை செய்யவும்."
+            }
+        },
+        "tomato": {
+            "names": [
+                "tomato",
+                "tomatoes",
+                "tamatar",
+                "solanum lycopersicum",
+                "thakkali",
+                "raktha phala"
+            ],
+            "watering": {
+                "en": "Tomatoes need 1-2 inches of water per week. Consistent watering is crucial to prevent Blossom End Rot and fruit cracking. Water at the base, not leaves.",
+                "hi": "टमाटर को प्रति सप्ताह 1-2 इंच पानी की आवश्यकता होती है। फल फटने और सड़न को रोकने के लिए निरंतर सिंचाई महत्वपूर्ण है। आधार पर पानी दें, पत्तियों पर नहीं।",
+                "ta": "தக்காளிக்கு வாரம் 1-2 அங்குல தண்ணீர் தேவை. பழங்கள் வெடிப்பதைத் தவிர்க்க நிலையான நீர்ப்பாசனம் முக்கியம். இலைகளில் அல்லாமல் அடிப்பகுதியில் தண்ணீர் ஊற்றவும்."
+            },
+            "soil": {
+                "en": "Fertile, well-draining soil with a pH of 6.0 to 6.8. Rich in organic matter. Avoid soil where other nightshades grew recently.",
+                "hi": "6.0 से 6.8 के पीएच के साथ उपजाऊ, अच्छी जल निकासी वाली मिट्टी। जैविक पदार्थों से भरपूर। हाल ही में अन्य सोलेनेसी फसलें उगाने वाली मिट्टी से बचें।",
+                "ta": "6.0 முதல் 6.8 pH கொண்ட செழிப்பான, நன்கு வடிகட்டிய மண். கரிமப் பொருட்கள் நிறைந்தது."
+            },
+            "pests": {
+                "en": "Warning: Tomato Hornworms can defoliate plants quickly. Also watch for Whiteflies and Fruit Borers. Use neem oil or Bt (Bacillus thuringiensis).",
+                "hi": "चेतावनी: टमाटर के हॉर्नवॉर्म पौधों को जल्दी बर्बाद कर सकते हैं। सफेद मक्खी और फल छेदक पर भी नज़र रखें। नीम का तेल या बीटी का उपयोग करें।",
+                "ta": "தக்காளி கொம்பு புழுக்கள் செடிகளை விரைவாக அழிக்கும். வெள்ளை ஈக்கள் மற்றும் பழம் துளைப்பான்களையும் கவனியுங்கள்."
+            },
+            "diseases": {
+                "en": "Fusarium Wilt and Late Blight are common. Rotate crops every 3 years. Improve airflow by pruning lower leaves and using stakes/cages.",
+                "hi": "फ्यूसेरियम विल्ट और पछेती झुलसा आम है। हर 3 साल में फसलें बदलें। निचली पत्तियों की छंटाई करके और सहारा देकर हवा का प्रवाह बढ़ाएं।",
+                "ta": "வாடல் நோய் மற்றும் கருகல் நோய் பொதுவானவை. ஒவ்வொரு 3 வருடங்களுக்கும் பயிர் சுழற்சி செய்யவும்."
+            },
+            "fertilizer": {
+                "en": "Needs heavy Phosphorus and Potassium for fruit, but too much Nitrogen leads to leaves without fruit. Use bone meal or compost tea.",
+                "hi": "फलों के लिए भारी फास्फोरस और पोटेशियम की आवश्यकता होती है, लेकिन बहुत अधिक नाइट्रोजन से बिना फल के केवल पत्तियां आएंगी। हड्डी का चूरा या जैविक चाय का उपयोग करें।",
+                "ta": "பழங்களுக்கு அதிக பாஸ்பரஸ் மற்றும் பொட்டாசியம் தேவை. அதிகப்படியான நைட்ரஜன் பழங்கள் இல்லாமல் இலைகளை மட்டுமே வளர்க்கும்."
+            },
+            "harvesting": {
+                "en": "Pick when fully colored but still firm. Can be picked at 'breaker stage' (half red) and ripened indoors at room temperature to avoid pests.",
+                "hi": "पूरी तरह से रंग आने पर लेकिन सख्त होने पर तोड़ें। फसल को आधा लाल होने पर भी तोड़ सकते हैं और कीटों से बचने के लिए अंदर कमरे के तापमान पर पका सकते हैं।",
+                "ta": "முழுமையாக நிறம் மாறியதும் ஆனால் உறுதியாக இருக்கும்போது பறிக்கவும். பூச்சிகளைத் தவிர்க்க அரைப் பழமாக இருக்கும்போதே பறிக்கலாம்."
+            }
+        },
+        "rice": {
+            "names": [
+                "rice",
+                "paddy",
+                "chawal",
+                "dhan",
+                "oryza sativa",
+                "nellu"
+            ],
+            "watering": {
+                "en": "Requires flooding (2-5 cm of standing water) during early stages. Maintain moisture until the grain hardens. Water management is critical for weed control.",
+                "hi": "शुरुआती चरणों के दौरान जलजमाव (2-5 सेमी खड़ा पानी) की आवश्यकता होती है। दाना सख्त होने तक नमी बनाए रखें। खरपतवार नियंत्रण के लिए जल प्रबंधन महत्वपूर्ण है।",
+                "ta": "ஆரம்ப காலங்களில் வெள்ள நீர் (2-5 செமீ) தேவை. தானியம் கடினமாகும் வரை ஈரப்பதத்தை பராமரிக்கவும்."
+            },
+            "pests": {
+                "en": "Brown Plant Hopper (BPH), Stem Borer, and Leaf Folder. Use light traps and pheromone traps. Practice field sanitation and avoid excessive Nitrogen.",
+                "hi": "भूरा बादामी फुदका (BPH), तना छेदक और पत्ती लपेटक। प्रकाश जाल और फेरोमोन जाल का उपयोग करें। खेत की स्वच्छता बनाए रखें।",
+                "ta": "புகையான் மற்றும் தண்டு துளைப்பான். ஒளிப் பொறிகளைப் பயன்படுத்தவும். அதிகப்படியான நைட்ரஜனைத் தவிர்க்கவும்."
+            },
+            "diseases": {
+                "en": "Rice Blast and Bacterial Leaf Blight. Use resistant varieties. Avoid high humidity close to plants by adjusting planting density.",
+                "hi": "चावल का झोंका रोग (Blast) और जीवाणुजनित पत्ती झुलसा। प्रतिरोधी किस्मों का उपयोग करें। रोपण घनत्व को समायोजित करके आर्द्रता कम करें।",
+                "ta": "நெல் குலை நோய் மற்றும் பாக்டீரியா இலை கருகல். எதிர்ப்புத் திறன் கொண்ட ரகங்களைப் பயன்படுத்தவும்."
+            },
+            "fertilizer": {
+                "en": "Apply Urea in 3 split doses (Basal, Tillering, and Panicle initiation). Add Zinc sulfate (25kg/ha) if plants look rusty/brownish (Zinc deficiency).",
+                "hi": "यूरिया को 3 विभाजित खुराकों में डालें। यदि पौधे जंग जैसे/भूरे रंग के दिखें (जिंक की कमी) तो जिंक सल्फेट (25 किग्रा/हेक्टेयर) डालें।",
+                "ta": "யூரியாவை மூன்று முறைகளாகப் பிரித்து போடவும். துத்தநாகக் குறைபாடு இருந்தால் துத்தநாக சல்பேட் சேர்க்கவும்."
+            }
+        },
+        "wheat": {
+            "names": [
+                "wheat",
+                "gehu",
+                "gehun",
+                "triticum",
+                "godhumai",
+                "kanak"
+            ],
+            "watering": {
+                "en": "Critical stages for irrigation: Crown Root Initiation (CRI) (21 days after sowing), Jointing, and Flowering. Total 4-6 irrigations depending on soil.",
+                "hi": "सिंचाई के महत्वपूर्ण चरण: ताज जड़ निकलने का समय (CRI) (बुवाई के 21 दिन बाद), गांठें बनने और फूल आने का समय। मिट्टी के आधार पर कुल 4-6 सिंचाई।",
+                "ta": "நீர்ப்பாசனத்தின் முக்கியமான நிலைகள்: வேர் பிடிக்கும் பருவம் (விதைத்த 21 நாட்கள் கழித்து), பூக்கும் பருவம்."
+            },
+            "soil": {
+                "en": "Well-drained loamy to clayey-loam soil is best. Prepare a fine seedbed. Optimum pH 6.0 to 7.5.",
+                "hi": "अच्छी जल निकासी वाली दोमट से मटियार-दोमट मिट्टी सबसे अच्छी है। एक महीन बीजशय्या तैयार करें। इष्टतम पीएच 6.0 से 7.5।",
+                "ta": "நன்கு வடிகட்டிய வண்டல் மண் சிறந்தது. மென்மையான விதை படுக்கையை தயார் செய்யவும்."
+            },
+            "pests": {
+                "en": "Wheat Aphids, Termites, and Armyworms. Treat seeds with Chlorpyriphos for termites. Use yellow sticky traps for aphids.",
+                "hi": "गेहूं के एफिड्स, दीमक और आर्मीवर्म। दीमक के लिए बीज को क्लोरपायरीफोस से उपचारित करें। एफिड्स के लिए पीले चिपचिपे जाल का उपयोग करें।",
+                "ta": "கோதுமை அசுவினிகள் மற்றும் கரையான்கள். கரையான்களுக்கு குளோர்பைரிபாஸ் கொண்டு விதைகளை நேர்த்தி செய்யவும்."
+            },
+            "diseases": {
+                "en": "Yellow Rust (stripe rust) and Karnal Bunt. Look for yellow-orange powder on leaves. Apply Propiconazole if rust appears early.",
+                "hi": "पीला रतुआ (Yellow Rust) और करनाल बंट। पत्तियों पर पीला-नारंगी पाउडर देखें। रतुआ दिखने पर प्रोपिकोनाज़ोल का उपयोग करें।",
+                "ta": "மஞ்சள் துரு நோய். இலைகளில் மஞ்சள்-ஆரஞ்சு தூள் இருக்கிறதா என்று பார்க்கவும்."
+            }
+        },
+        "mango": {
+            "names": [
+                "mango",
+                "mangoes",
+                "aam",
+                "mangifera indica",
+                "maangai",
+                "mampazham"
+            ],
+            "care": {
+                "en": "Young trees need pruning for shape. For bearing trees, remove dead/diseased branches after harvest. Smudging (smoking) can induce flowering in some climates.",
+                "hi": "छोटे पेड़ों को आकार के लिए छंटाई की आवश्यकता होती है। फल देने वाले पेड़ों के लिए, कटाई के बाद मरी/रोगग्रस्त शाखाओं को हटा दें।",
+                "ta": "இளம் மரங்களுக்கு வடிவம் கொடுக்க கத்தரித்தல் தேவை. அறுவடைக்கு பின் காய்ந்த கிளைகளை அகற்றவும்."
+            },
+            "pests": {
+                "en": "Mango Hopper and Fruit Fly. Use methyl eugenol pheromone traps for fruit flies. Spray neem oil for hoppers during flowering (avoid during full bloom).",
+                "hi": "आम का फुदका (Hopper) और फल मक्खी। फल मक्खी के लिए मिथाइल यूजेनॉल फेरोमोन जाल का उपयोग करें। फूल आने के दौरान फुदकों के लिए नीम तेल का प्रयोग करें।",
+                "ta": "மாம்பழ தத்துப்பூச்சி மற்றும் பழ ஈ. பழ ஈக்களுக்கு மெத்தில் யூஜெனால் பொறிகளைப் பயன்படுத்தவும்."
+            },
+            "watering": {
+                "en": "Water newly planted trees 2-3 times a week. Mature trees need water during fruit development. Stop watering 2 weeks before harvest for better flavor.",
+                "hi": "नए लगाए गए पेड़ों को सप्ताह में 2-3 बार पानी दें। फल बनने के दौरान परिपक्व पेड़ों को पानी चाहिए। बेहतर स्वाद के लिए कटाई से 2 सप्ताह पहले पानी देना बंद कर दें।",
+                "ta": "புதிதாக நடப்பட்ட மரங்களுக்கு வாரம் 2-3 முறை தண்ணீர் ஊற்றவும். அறுவடைக்கு 2 வாரங்களுக்கு முன் நீரை நிறுத்தவும்."
+            }
+        },
+        "banana": {
+            "names": [
+                "banana",
+                "bananas",
+                "kela",
+                "musa",
+                "vazhai",
+                "kadali"
+            ],
+            "watering": {
+                "en": "High water requirement (2000-2500 mm annually). Drip irrigation is ideal. Maintain moist soil but avoid waterlogging which causes Panama Wilt.",
+                "hi": "पानी की अधिक आवश्यकता (वर्ष में 2000-2500 मिमी)। ड्रिप सिंचाई आदर्श है। नमी बनाए रखें लेकिन जलभराव से बचें, जिससे पनामा विल्ट हो सकता है।",
+                "ta": "அதிக நீர் தேவை. சொட்டு நீர் பாசனம் சிறந்தது. பனாமா வாடல் நோயைத் தவிர்க்க தேங்கி நிற்கும் நீரைத் தவிர்க்கவும்."
+            },
+            "fertilizer": {
+                "en": "Heavy feeders of Potassium. Use NPK in 3:1:6 ratio. Apply in a ring 30-60cm away from the trunk.",
+                "hi": "पोटेशियम की भारी आवश्यकता। 3:1:6 अनुपात में NPK का उपयोग करें। तने से 30-60 सेमी दूर छल्ले में डालें।",
+                "ta": "பொட்டாசியம் அதிகம் தேவைப்படும். தண்டுப்பகுதியிலிருந்து 30-60 செமீ தொலைவில் வளையமாக இடவும்."
+            },
+            "pests": {
+                "en": "Banana Weevil and Rhizome Weevil. Use healthy suckers for planting. Trap weevils using pseudostem pieces.",
+                "hi": "केला घुन (Weevil) और राइजोम घुन। रोपण के लिए स्वस्थ पौधों (suckers) का उपयोग करें। तने के टुकड़ों का उपयोग करके घुन को पकड़ें।",
+                "ta": "வாழை தண்டு மற்றும் கிழங்கு வண்டு. நடவு செய்ய ஆரோக்கியமான கன்றுகளைப் பயன்படுத்தவும்."
+            }
+        },
+        "chili": {
+            "names": [
+                "chili",
+                "chilli",
+                "mirch",
+                "mirchi",
+                "capsicum",
+                "milagai",
+                "pusa jwala"
+            ],
+            "watering": {
+                "en": "Sensitive to drought and flooding. Maintain constant moisture during flowering. Overwatering causes flower drop.",
+                "hi": "सूखे और बाढ़ के प्रति संवेदनशील। फूल आने के दौरान निरंतर नमी बनाए रखें। अधिक पानी देने से फूल झड़ सकते हैं।",
+                "ta": "வறட்சி மற்றும் வெள்ளத்திற்கு உணர்திறன் கொண்டது. பூக்கும் போது ஈரப்பதத்தை பராமரிக்கவும்."
+            },
+            "care": {
+                "en": "Pinch the growing tip when 6 inches tall for bushier growth. Protect from frost. Support heavy plants with stakes.",
+                "hi": "झाड़ीदार विकास के लिए 6 इंच लंबे होने पर ऊपरी सिरे को चुटकी से काटें। पाले से बचाएं। डंडों से सहारा दें।",
+                "ta": "செடி 6 அங்குலம் வளர்ந்ததும் நுனியை கிள்ளி விடவும். இது கிளைகள் அதிகம் வளர உதவும்."
+            },
+            "pests": {
+                "en": "Thrips and Mites cause leaf curling (Murda disease). Spray neem seed kernel extract (NSKE). Use blue sticky traps for thrips.",
+                "hi": "थ्रिप्स और माइट्स के कारण पत्तियां ओड़ने लगती हैं (मुरड़ा रोग)। नीम के बीज के अर्क (NSKE) का छिड़काव करें। नीले चिपचिपे जाल का प्रयोग करें।",
+                "ta": "இலைப்பேன் மற்றும் சிலந்தி இலை சுருட்டலை ஏற்படுத்தும். வேப்பங்கொட்டை சாற்றை தெளிக்கவும்."
+            }
+        },
+        "onion": {
+            "names": [
+                "onion",
+                "onions",
+                "pyaj",
+                "pyaaz",
+                "allium cepa",
+                "vengayam",
+                "ullaigadda"
+            ],
+            "soil": {
+                "en": "Friable, fertile sandy loam with pH 6.0-7.0. Heavy clay soil causes misshapen bulbs and difficult harvesting.",
+                "hi": "6.0-7.0 के पीएच के साथ भुरभुरी, उपजाऊ रेतीली दोमट। भारी चिकनी मिट्टी से बल्ब टेढ़े-मेढ़े हो सकते हैं।",
+                "ta": "6.0-7.0 pH கொண்ட செழிப்பான மணல் கலந்த வண்டல் மண். களிமண் வெங்காயத்தின் வடிவத்தை பாதிக்கும்."
+            },
+            "watering": {
+                "en": "Even watering is needed. Critical stage is bulb enlargement. Stop watering 10-15 days before harvest when tops start to fall over (neck break).",
+                "hi": "समान सिंचाई की आवश्यकता है। बल्ब बढ़ने का चरण महत्वपूर्ण है। जब ऊपरी हिस्से गिरने लगें (neck break) तो कटाई से 10-15 दिन पहले पानी बंद कर दें।",
+                "ta": "வெங்காயம் பெருக்கும் பருவம் முக்கியம். அறுவடைக்கு 10-15 நாட்களுக்கு முன் நீரை நிறுத்தவும்."
+            },
+            "diseases": {
+                "en": "Purple Blotch and Downy Mildew. Avoid dense planting for better airflow. Use Mancozeb if purple spots appear on leaves.",
+                "hi": "बैंगनी धब्बा (Purple Blotch) और डाउनी मिल्ड्यू। बेहतर हवा के लिए सघन रोपण से बचें। बैंगनी धब्बे दिखने पर मैनकोजेब का प्रयोग करें।",
+                "ta": "ஊதா நிற இலைப்புள்ளி மற்றும் சாம்பல் நோய். நெருக்கமாக நடுப்பதைத் தவிர்க்கவும்."
+            }
+        },
+        "corn": {
+            "names": [
+                "corn",
+                "maize",
+                "makka",
+                "makki",
+                "bhutta",
+                "zea mays",
+                "cholam"
+            ],
+            "watering": {
+                "en": "Highest water need during silking and tasseling. Drought at this stage leads to poor grain filling and gaps in the cob.",
+                "hi": "सिल्किंग और टेसलिंग के दौरान पानी की सबसे अधिक आवश्यकता होती है। इस स्तर पर सूखा पड़ने से दाने कम बनते हैं।",
+                "ta": "பூக்கும் பருவத்தில் அதிக நீர் தேவை. இந்த நேரத்தில் வறட்சி இருந்தால் சோளம் சரியாக விளையாது."
+            },
+            "fertilizer": {
+                "en": "Heavy feeder of Nitrogen. Apply Urea at knee-high stage and silking stage. Ensure Phosphorus is available for root depth.",
+                "hi": "नाइट्रोजन की भारी आवश्यकता। घुटने की ऊंचाई तक बढ़ने पर और सिल्किंग के समय यूरिया डालें। जड़ों के लिए फास्फोरस सुनिश्चित करें।",
+                "ta": "நைட்ரஜன் அதிகம் தேவை. இடுப்பு அளவு வளர்ந்த பிறகும் பூக்கும் பருவம் தொடங்கும் போதும் யூரியா இடவும்."
+            },
+            "pests": {
+                "en": "Fall Armyworm (FAW) is a major threat. Look for 'shot holes' in leaves. Use Metarhizium anisopliae or Pheromone traps.",
+                "hi": "फॉ़ल आर्मीवर्म (FAW) एक बड़ा खतरा है। पत्तियों में 'छेद' देखें। फेरोमोन जाल का उपयोग करें।",
+                "ta": "படைப்புழு ஒரு பெரிய அச்சுறுத்தல். இலைகளில் துளைகள் இருக்கிறதா என்று பார்க்கவும்."
+            }
+        },
+        "ladyfinger": {
+            "names": [
+                "lady finger",
+                "okra",
+                "bhindi",
+                "abelmoschus esculentus",
+                "vendakkai",
+                "bhendi"
+            ],
+            "watering": {
+                "en": "Water every 2-3 days in summer. Mulch the soil to retain moisture. Lack of water makes pods tough and fibrous.",
+                "hi": "गर्मियों में हर 2-3 दिन में पानी दें। नमी बनाए रखने के लिए मल्चिंग करें। पानी की कमी से भिंडी सख्त और रेशेदार हो जाती है।",
+                "ta": "கோடையில் 2-3 நாட்களுக்கு ஒருமுறை தண்ணீர் ஊற்றவும். தண்ணீர் பற்றாக்குறை வெண்டையை நாராக மாற்றிவிடும்."
+            },
+            "diseases": {
+                "en": "Yellow Vein Mosaic Virus (YVMV) transmitted by Whiteflies. Grow resistant varieties like 'Arka Anamika'. Control whiteflies using yellow sticky traps.",
+                "hi": "पीली नस मोज़ेक वायरस (YVMV) जो सफेद मक्खियों द्वारा फैलता है। 'अर्का अनामिका' जैसी प्रतिरोधी किस्में उगाएं।",
+                "ta": "வெள்ளையீக்கள் மூலம் பரவும் மஞ்சள் நரம்பு நோய். எதிர்ப்பு திறன் கொண்ட ரகங்களை நடவும்."
+            },
+            "harvesting": {
+                "en": "Harvest pods every 2 days when 3-4 inches long. If you can snap the tip with your finger, it is fresh. Old pods prevent further flowering.",
+                "hi": "3-4 इंच लंबे होने पर हर 2 दिन में भिंडी तोड़ें। यदि आप उंगली से सिरा तोड़ सकते हैं, तो यह ताजा है। पुरानी भिंडी आगे फूल आने से रोकती है।",
+                "ta": "3-4 அங்குல நீளம் இருக்கும்போது 2 நாட்களுக்கு ஒருமுறை அறுவடை செய்யவும்."
+            }
+        },
+        "eggplant": {
+            "names": [
+                "eggplant",
+                "brinjal",
+                "baigan",
+                "baingan",
+                "solanum melongena",
+                "kathirikkai",
+                "vankaya"
+            ],
+            "pests": {
+                "en": "Shoot and Fruit Borer (SFB) is the most destructive. Remove and burn wilted shoots immediately. Use pheromone traps (Lucin-lure).",
+                "hi": "तना और फल छेदक (SFB) सबसे विनाशकारी है। मुरझाए हुए तनों को तुरंत काटकर जला दें। फेरोमोन जाल का प्रयोग करें।",
+                "ta": "தண்டு மற்றும் பழத் துளைப்பான் மிகவும் ஆபத்தானது. வாடிய நுனிகளை உடனே அப்புறப்படுத்தவும்."
+            },
+            "care": {
+                "en": "Stake the plants to support heavy fruit. Mulching helps control weeds and soil diseases. Prune old leaves for better light.",
+                "hi": "भारी फलों के लिए पौधों को डंडे से सहारा दें। खरपतवार नियंत्रण के लिए मल्चिंग करें। बेहतर प्रकाश के लिए पुरानी पत्तियों की छंटाई करें।",
+                "ta": "பெரிய பழங்கள் காய்க்கும்போது செடிக்கு முட்டுக் கொடுக்கவும். களைகளைக் கட்டுப்படுத்த தழைக்கூளம் பயன்படுத்தவும்."
+            }
+        },
+        "sugarcane": {
+            "names": [
+                "sugarcane",
+                "ganna",
+                "ookh",
+                "saccharum officinarum",
+                "karumbu",
+                "cheruku"
+            ],
+            "watering": {
+                "en": "High water requirement. Irrigation interval should be 7-10 days in summer and 20-25 days in winter. Avoid waterlogging during ripening.",
+                "hi": "पानी की अधिक आवश्यकता। गर्मियों में 7-10 दिन और सर्दियों में 20-25 दिन में सिंचाई करें। पकने के दौरान जलभराव से बचें।",
+                "ta": "அதிக நீர் தேவை. கோடையில் 7-10 நாட்களுக்கு ஒருமுறை நீர் பாய்ச்சவும். முதிர்ச்சியின் போது தேங்கி நிற்கும் நீரைத் தவிர்க்கவும்."
+            },
+            "care": {
+                "en": "Earthing up: Mound soil around the base to prevent lodging (falling down). Detrashing: Remove dry lower leaves to reduce pest pressure and fire risk.",
+                "hi": "मिट्टी चढ़ाना (Earthing up): गिरने से बचाने के लिए आधार पर मिट्टी चढ़ाएं। सूखी पत्तियों को हटाते रहें (Detrashing)।",
+                "ta": "மண்ணை அணைப்பது மற்றும் உலர்ந்த இலைகளை அகற்றுவது விளைச்சலை அதிகரிக்கும்."
+            }
+        },
+        "cotton": {
+            "names": [
+                "cotton",
+                "kapas",
+                "rui",
+                "gossypium",
+                "paruthi",
+                "prathi"
+            ],
+            "pests": {
+                "en": "Bollworms and Pink Bollworm. Check for 'Rosette flowers'. Grow trap crops like Marigold. Use light traps.",
+                "hi": "बॉलवॉर्म (डोंडे की सुंडी) और गुलाबी बॉलवॉर्म। 'रोसेट फूल' की जाँच करें। गेंदा जैसे जाल फसलें उगाएं।",
+                "ta": "காய்ப்புழுக்கள். செண்டிப்பூ போன்ற பயிர்களை ஊடுபயிராக நடவும்."
+            },
+            "watering": {
+                "en": "Critical stages: Flowering and Boll formation. Sensitive to both drought and waterlogging. Adequate drainage is essential.",
+                "hi": "महत्वपूर्ण चरण: फूल आना और बॉल (डोंडा) बनना। सूखे और जलभराव दोनों के प्रति संवेदनशील।",
+                "ta": "பூக்கும் மற்றும் காய் பிடிக்கும் பருவம் மிகவும் முக்கியமானது."
+            }
+        },
+        "dragonfruit": {
+            "names": [
+                "dragon fruit",
+                "pitaya",
+                "hylocereus",
+                "dragonfruit",
+                "kamalam",
+                "agginimandram"
+            ],
+            "watering": {
+                "en": "Low water needs. Overwatering causes root rot. Water only when soil is dry to 2 inches depth. Good drainage is non-negotiable.",
+                "hi": "पानी की कम आवश्यकता। अधिक पानी से जड़ें सड़ जाती हैं। जल निकासी अच्छी होनी चाहिए।",
+                "ta": "குறைந்த நீர் தேவை. அதிக நீர் வேர் அழுகலை ஏற்படுத்தும். நல்ல வடிகால் வசதி மிகவும் அவசியம்."
+            },
+            "care": {
+                "en": "Supports are mandatory (cement poles with tires on top). Prune to keep 4-5 main branches. Cut back secondary branches after fruiting to stimulate new growth.",
+                "hi": "सहारा देना अनिवार्य है (सीमेंट के खंभे)। 4-5 मुख्य शाखाएं रखें। फल लगने के बाद छंटाई करें।",
+                "ta": "சிமெண்ட் தூண் போன்ற ஆதரவு அவசியம். 4-5 முதன்மை கிளைகளை மட்டும் வைத்து மற்றவற்றை கத்தரிக்கவும்."
+            }
+        },
+        "cucumber": {
+            "names": [
+                "cucumber",
+                "cucumbers",
+                "kheera",
+                "kakdi",
+                "cucumis sativus",
+                "vellarikkai",
+                "dosakaya"
+            ],
+            "watering": {
+                "en": "Needs daily watering in peak heat. Keep soil moist but not soggy. Mulching helps prevent fruit decay if growing on ground.",
+                "hi": "तेज गर्मी में रोजाना पानी देने की जरूरत होती है। मिट्टी को नम रखें लेकिन बहुत गीली नहीं।",
+                "ta": "கோடையின் உச்சத்தில் தினமும் தண்ணீர் ஊற்றவும். தரைப்பகுதியில் வளர்த்தால் பழம் அழுகாமல் இருக்க தழைக்கூளம் இடவும்."
+            },
+            "pests": {
+                "en": "Cucumber Beetles can spread bacterial wilt. Use yellow sticky traps. Encourage bees as cucumbers need pollination for fruit.",
+                "hi": "खीरा बीटल बैक्टीरियल विल्ट फैला सकते हैं। पीले चिपचिपे जाल का प्रयोग करें। मधुमक्खियों को बढ़ावा दें क्योंकि परागण जरूरी है।",
+                "ta": "வண்டுகள் பாக்டீரியா வாடலை பரப்பும். மகரந்த சேர்க்கைக்கு தேனீக்கள் அவசியம்."
+            }
+        },
+        "spinach": {
+            "names": [
+                "spinach",
+                "palak",
+                "spinacia oleracea",
+                "pasalai keerai",
+                "palakura"
+            ],
+            "watering": {
+                "en": "Frequent shallow irrigation is best. Never let the soil dry out as it triggers 'bolting' (premature flowering), making leaves bitter.",
+                "hi": "बार-बार हल्की सिंचाई सबसे अच्छी है। मिट्टी को कभी भी सूखने न दें, क्योंकि इससे 'बोल्टिंग' (समय से पहले फूल आना) हो जाती है और पत्तियां कड़वी हो जाती हैं।",
+                "ta": "அடிக்கடி லேசான நீர் பாய்ச்சுவது சிறந்தது. மண் காயக்கூடாது, இல்லையெனில் கீரை முற்றி கசக்கத் தொடங்கும்."
+            },
+            "care": {
+                "en": "Grow in partial shade during hot months. Nitrogen-rich fertilizer (cow dung manure) helps produce large green leaves.",
+                "hi": "गर्म महीनों में आंशिक छाया में उगाएं। बड़े पत्तों के लिए नाइट्रोजन युक्त खाद (गोबर की खाद) का प्रयोग करें।",
+                "ta": "கோடை காலங்களில் நிழலில் வளர்க்கவும். இலைகள் செழிப்பாக வளர நைட்ரஜன் உரம் தேவை."
+            }
+        },
+        "ginger": {
+            "names": [
+                "ginger",
+                "adrak",
+                "zingiber officinale",
+                "inchi",
+                "allam"
+            ],
+            "soil": {
+                "en": "Requires loose, fertile, soil rich in humus. Heavy clay soil hinders rhizome growth. Partial shade (25-50%) is ideal.",
+                "hi": "ढीली, उपजाऊ मिट्टी की आवश्यकता होती है। भारी चिकनी मिट्टी अदरक के बढ़ने में बाधा डालती है। आंशिक छाया (25-50%) आदर्श है।",
+                "ta": "தளர்வான, செழிப்பான மண் தேவை. களிமண் இஞ்சியின் வளர்ச்சியை தடுக்கும்."
+            },
+            "diseases": {
+                "en": "Soft Rot (Rhizome rot) caused by waterlogging. Ensure excellent drainage. Use raised beds for planting.",
+                "hi": "जलजमाव के कारण नरम सड़न (Rhizome rot)। बेहतर जल निकासी सुनिश्चित करें। रोपण के लिए उठी हुई क्यारियों का उपयोग करें।",
+                "ta": "நீர் தேங்குவதால் ஏற்படும் மென்மையான அழுகல் நோய். உயரமான பாத்திகளில் நடவு செய்யவும்."
+            }
+        },
+        "garlic": {
+            "names": [
+                "garlic",
+                "lehsun",
+                "lahsun",
+                "allium sativum",
+                "poondu",
+                "vellulli"
+            ],
+            "sowing": {
+                "en": "Plant individual cloves in cool weather. Pointed end up, 2 inches deep, 4 inches apart. Requires cold for 'vernalization' (bulb splitting).",
+                "hi": "ठंडे मौसम में अलग-अलग कलियां लगाएं। नुकीला सिरा ऊपर, 2 इंच गहरा। बल्ब बनने के लिए ठंड की आवश्यकता होती है।",
+                "ta": "குளிர்ந்த காலநிலையில் தனித்தனி பற்களாக நடவும். நுனிப்பகுதி மேலே இருக்குமாறு பார்த்துக் கொள்ளவும்."
+            },
+            "harvesting": {
+                "en": "Harvest when lower 3-4 leaves turn brown. Cure in a shaded, airy place for 2-4 weeks. Do not leave in sun as bulbs may get scorched.",
+                "hi": "जब निचली 3-4 पत्तियां भूरी हो जाएं तब कटाई करें। 2-4 सप्ताह छायादार जगह में सुखाएं। सीधी धूप में न छोड़ें।",
+                "ta": "கீழ் இலைகள் மஞ்சளாகும்போது அறுவடை செய்யவும். நிழலில் உலர வைக்கவும்."
+            }
+        },
+        "cauliflower": {
+            "names": [
+                "cauliflower",
+                "phool gobhi",
+                "gobhi",
+                "brassica oleracea",
+                "muttakos",
+                "gobi"
+            ],
+            "care": {
+                "en": "Blanching: Cover the developing white head with outer leaves to protect from sun and keep them creamy white.",
+                "hi": "ब्लांचिंग: सफेद सिर को धूप से बचाने और उसे मलाईदार सफेद रखने के लिए बाहरी पत्तियों से ढक दें।",
+                "ta": "பூக்கோசின் வெள்ளை நிறத்தை பராமரிக்க இலைகளை கொண்டு மூடி வைக்கவும்."
+            },
+            "pests": {
+                "en": "Diamondback Moth (DBM) and Aphids. Use neem oil and plant mustard as a trap crop to lure moths away from cauliflower.",
+                "hi": "डायमंडबैक मोथ (DBM) और एफिड्स। नीम के तेल का प्रयोग करें और सरसों को जाल फसल के रूप में लगाएं।",
+                "ta": "அசுவினிகள் மற்றும் புழுக்கள். கடுகு செடியை ஊடுபயிராக நடவும்."
+            }
+        },
+        "grapes": {
+            "names": [
+                "grapes",
+                "grape",
+                "angoor",
+                "vitis vinifera",
+                "dratchai",
+                "draksha"
+            ],
+            "care": {
+                "en": "Grapes need a strong support system (trellis). Pruning is the most important task; 90% of new growth should be removed during winter to ensure fruit quality.",
+                "hi": "अंगूर को एक मजबूत सहारा प्रणाली की आवश्यकता होती है। छंटाई सबसे महत्वपूर्ण कार्य है; गुणवत्ता के लिए 90% नई वृद्धि को सर्दियों में हटा देना चाहिए।",
+                "ta": "திராட்சைக்கு வலுவான பந்தல் தேவை. கத்தரித்தல் மிகவும் முக்கியமானது; தங்கு தடையின்றி காய்க்க 90% புதிய வளர்ச்சியை அகற்ற வேண்டும்."
+            },
+            "pests": {
+                "en": "Grape Mealybugs and Flea Beetles. Use neem oil. Keep the area under vines clear of debris where pests hide.",
+                "hi": "अंगूर के मिलीबग और पिस्सू बीटल। नीम के तेल का प्रयोग करें। बेलों के नीचे कचरा न जमा होने दें।",
+                "ta": "திராட்சை மாவுப்பூச்சி மற்றும் வண்டுகள். வேப்ப எண்ணெய் பயன்படுத்தவும்."
+            }
+        },
+        "mustard": {
+            "names": [
+                "mustard",
+                "sarson",
+                "rai",
+                "brassica juncea",
+                "kadugu",
+                "aavalu"
+            ],
+            "watering": {
+                "en": "Requires 2-3 irrigations. First at 30 days (pre-flowering) and second at 60 days (pod formation). Avoid waterlogging during flowering.",
+                "hi": "2-3 सिंचाई की आवश्यकता। पहली 30 दिन पर (फूल आने से पहले) और दूसरी 60 दिन पर।",
+                "ta": "2-3 நீர்ப்பாசனம் தேவை. பூக்கும் பருவம் மற்றும் காய் பிடிக்கும் பருவம் முக்கியம்."
+            },
+            "pests": {
+                "en": "Mustard Aphid and Sawfly. Use yellow sticky traps. Spray water early in the morning to wash away aphids or use neem oil.",
+                "hi": "सरसों का माहू (Aphid) और आरा मक्खी। पीले चिपचिपे जाल का प्रयोग करें।",
+                "ta": "கடுகு அசுவினி. மஞ்சள் ஒட்டும் பொறிகளைப் பயன்படுத்தவும்."
+            }
+        },
+        "soybean": {
+            "names": [
+                "soybean",
+                "soya bean",
+                "glycine max"
+            ],
+            "care": {
+                "en": "Rhizobium seed treatment is essential for Nitrogen fixation. Keep soil moist during germination and pod filling.",
+                "hi": "नाइट्रोजन स्थिरीकरण के लिए राइजोबियम बीज उपचार आवश्यक है। अंकुरण के दौरान मिट्टी नम रखें।",
+                "ta": "நைட்ரஜன் நிலைநிறுத்தத்திற்கு ரைசோபியம் விதை நேர்த்தி அவசியம்."
+            }
+        },
+        "sunflower": {
+            "names": [
+                "sunflower",
+                "surajmukhi",
+                "helianthus",
+                "sooryakanthi"
+            ],
+            "care": {
+                "en": "Helps in phytoremediation (cleaning soil). Needs full sun. Protect from birds during maturity using nets or reflective tape.",
+                "hi": "मिट्टी की सफाई में मदद करता है। पूरी धूप की जरूरत। पकने के समय पक्षियों से बचाने के लिए जाल का प्रयोग करें।",
+                "ta": "முழு சூரிய ஒளி தேவை. பறவைகளிடமிருந்து பாதுகாக்க வலைகளைப் பயன்படுத்தவும்."
+            }
+        },
+        "millet": {
+            "names": [
+                "millet",
+                "bajra",
+                "ragi",
+                "jowar",
+                "sorghum",
+                "sirudhaniyam"
+            ],
+            "care": {
+                "en": "Highly drought-tolerant. Ideal for drylands. Requires minimal fertilizer. Good for rotation with pulses.",
+                "hi": "सूखा सहन करने में अत्यधिक सक्षम। शुष्क भूमि के लिए आदर्श। कम उर्वरक की आवश्यकता।",
+                "ta": "வறட்சியைத் தாங்கும் தன்மை கொண்டது. குறைந்த உரம் போதும்."
+            }
+        },
+        "apple": {
+            "names": [
+                "apple",
+                "apples",
+                "seb",
+                "malus domestica",
+                "kumari"
+            ],
+            "care": {
+                "en": "Requires chilling hours in winter to fruit. Prune during dormancy to open the center for light. Thin the fruit (leave 1 apple per cluster) for larger size.",
+                "hi": "फल आने के लिए सर्दियों में ठंड के घंटों की आवश्यकता होती है। प्रकाश के लिए बीच के हिस्से को छाँटें। बड़े फल के लिए फलों को विरल (thinning) करें।",
+                "ta": "ஆப்பிள் காய்க்க குளிர் தேவை. வெளிச்சம் உள்ளே செல்லுமாறு மரத்தை கத்தரிக்கவும்."
+            },
+            "watering": {
+                "en": "Deep watering every 7-10 days for mature trees. Young trees need more frequent watering. Avoid wetting the trunk to prevent collar rot.",
+                "hi": "परिपक्व पेड़ों के लिए हर 7-10 दिन में गहरी सिंचाई। कॉलर रॉट को रोकने के लिए तने को गीला करने से बचें।",
+                "ta": "முதிர்ந்த மரங்களுக்கு வாரம் ஒருமுறை ஆழமாக நீர் பாய்ச்சவும்."
+            }
+        },
+        "pomegranate": {
+            "names": [
+                "pomegranate",
+                "anar",
+                "punica granatum",
+                "madhulai",
+                "dhanimma"
+            ],
+            "care": {
+                "en": "Tolerates drought once established. Prune to maintain 3-5 main trunks and remove suckers from the base.",
+                "hi": "एक बार जम जाने के बाद सूखा सहन करता है। 3-5 मुख्य तने रखे और आधार से निकलने वाले तनों (suckers) को हटा दें।",
+                "ta": "வறட்சியைத் தாங்கும். 3-5 முக்கிய கிளைகளை மட்டும் வைத்து மற்றவற்றை அகற்றவும்."
+            },
+            "pests": {
+                "en": "Pomegranate Butterfly (Deudorix isocrates). Caterpillars bore into the fruit. Bagging the fruit with paper or cloth bags is the best organic prevention.",
+                "hi": "अनार की तितली। सुंडी फल के अंदर छेद कर देती है। कागज या कपड़े की थैलियों से फलों को ढकना (bagging) सबसे अच्छा जैविक बचाव है।",
+                "ta": "மாதுளை பட்டாம்பூச்சி. பழங்களை பைகளால் மூடி வைப்பது சிறந்த தடுப்பு முறை."
+            }
+        },
+        "turmeric": {
+            "names": [
+                "turmeric",
+                "haldi",
+                "curcuma longa",
+                "manjal",
+                "pasupu"
+            ],
+            "soil": {
+                "en": "Requires sandy or clayey loam with rich organic matter. Needs good drainage. Prepare 1-foot high raised beds.",
+                "hi": "जैविक पदार्थों से भरपूर दोमट मिट्टी। अच्छी जल निकासी जरूरी है। 1 फुट ऊँची क्यारियाँ तैयार करें।",
+                "ta": "கரிம கரிமப் பொருட்கள் நிறைந்த வண்டல் மண் தேவை. உயரமான பாத்திகளை தயார் செய்யவும்."
+            },
+            "harvesting": {
+                "en": "Ready in 7-9 months when leaves turn dry and yellow. Boil leaves and dry in sun to process into powder.",
+                "hi": "7-9 महीनों में तैयार जब पत्तियाँ सूखकर पीली हो जाएँ। पाउडर बनाने के लिए उबालें और धूप में सुखाएँ।",
+                "ta": "7-9 மாதங்களில் இலைகள் காய்ந்த பிறகு அறுவடை செய்யவும்."
+            }
+        },
+        "watermelon": {
+            "names": [
+                "watermelon",
+                "water melon",
+                "tarbooz",
+                "kalingad",
+                "tharpoosani",
+                "rmelon",
+                "melons"
+            ],
+            "watering": {
+                "en": "Watermelons are 92% water! They need 1-2 inches of water per week. Critical during flowering and fruit set. Stop watering 1 week before harvest to increase sweetness.",
+                "hi": "तरबूज में 92% पानी होता है! इन्हें प्रति सप्ताह 1-2 इंच पानी की आवश्यकता होती है। फूल आने और फल लगने के दौरान यह महत्वपूर्ण है।"
+            },
+            "care": {
+                "en": "Needs plenty of space. Use mulch to keep fruit off the soil and prevent rot. If you're farming 10+ acres, consider drip irrigation for efficiency.",
+                "hi": "ढेर सारी जगह चाहिए। फल को मिट्टी से दूर रखने और सड़न रोकने के लिए मल्चिंग का उपयोग करें।"
+            }
+        },
+        "muskmelon": {
+            "names": [
+                "muskmelon",
+                "cantaloupe",
+                "kharbuja",
+                "melon",
+                "rmelon"
+            ],
+            "care": {
+                "en": "Grows best in warm weather. Watch out for powdery mildew on leaves. Harvest when the stem 'slips' easily from the fruit.",
+                "hi": "गर्म मौसम में सबसे अच्छा बढ़ता है। पत्तियों पर पाउडर जैसा फफूंद (mildew) देखें।"
+            }
+        }
+    },
+    "disease_reference": {
+        "early_blight": {
+            "symptoms": {
+                "en": "Concentrically ringed brown spots (target-like) on older leaves first. Stem cankers may follow.",
+                "hi": "पुरानी पत्तियों पर पहले छल्लेदार भूरे धब्बे (लक्ष्य जैसे)। तने पर घाव भी हो सकते हैं।"
+            },
+            "treatment": {
+                "en": "Remove affected leaves. Apply copper fungicide. Improve spacing.",
+                "hi": "प्रभावित पत्तियों को हटा दें। कॉपर फफूंदनाशक लगाएं। दूरी बढ़ाएं।"
+            }
+        },
+        "late_blight": {
+            "symptoms": {
+                "en": "Dark, water-soaked patches on leaves and stems. White mold may appear under leaves in humid weather.",
+                "hi": "पत्तियों और तनों पर काले, पानी से भरे धब्बे। उमस भरे मौसम में पत्तियों के नीचे सफेद फफूंद दिख सकती है।"
+            },
+            "treatment": {
+                "en": "Destroy infected plants immediately. Use resistant varieties. Apply protective fungicides before rain.",
+                "hi": "संक्रमित पौधों को तुरंत नष्ट कर दें। बारिश से पहले सुधारात्मक स्प्रे करें।"
+            }
+        },
+        "powdery_mildew": {
+            "symptoms": {
+                "en": "White, flour-like coating on leaves and stems. Leaves may curl and turn brown.",
+                "hi": "पत्तियों और तनों पर सफेद, आटे जैसी परत। पत्तियां मुड़कर भूरी हो सकती हैं।"
+            },
+            "treatment": {
+                "en": "Mix 1 part milk with 9 parts water and spray. Use sulfur-based sprays or neem oil.",
+                "hi": "1 भाग दूध और 9 भाग पानी मिलाकर स्प्रे करें। सल्फर-आधारित स्प्रे या नीम तेल का उपयोग करें।"
+            }
+        },
+        "fusarium_wilt": {
+            "symptoms": {
+                "en": "Leaves turn yellow and droop, often starting on one side of the plant. Inside of the stem shows brown discoloration.",
+                "hi": "पत्तियां पीली होकर झुक जाती हैं, अक्सर पौधे के एक तरफ से। तने का अंदरूनी हिस्सा भूरा हो जाता है।"
+            },
+            "treatment": {
+                "en": "No cure for infected plants. Solarize the soil and rotate crops. Use resistant varieties.",
+                "hi": "संक्रमित पौधों का कोई इलाज नहीं। मिट्टी का सौरीकरण (Solarization) करें और फसलें बदलें।"
+            }
+        }
+    },
+    "pest_reference": {
+        "aphids": {
+            "symptoms": {
+                "en": "Tiny green/black insects under leaves. Leaves become sticky (honeydew) and distorted.",
+                "hi": "पत्तियों के नीचे छोटे हरे/काले कीड़े। पत्तियां चिपचिपी और विकृत हो जाती हैं।"
+            },
+            "control": {
+                "en": "Blast with water. Use soapy water spray or neem oil. Encourage ladybugs.",
+                "hi": "पानी की तेज धार से धोएं। साबुन के पानी या नीम तेल का प्रयोग करें।"
+            }
+        },
+        "whiteflies": {
+            "symptoms": {
+                "en": "Clouds of tiny white insects when plants are disturbed. Transmit viruses like YVMV.",
+                "hi": "पौधों को हिलाने पर उड़ते हुए सफेद कीड़े। ये वायरस फैलाते हैं।"
+            },
+            "control": {
+                "en": "Use yellow sticky traps. Spray neem oil. Avoid excessive Nitrogen fertilizer.",
+                "hi": "पीले चिपचिपे जाल का उपयोग करें। नीम तेल का छिड़काव करें।"
+            }
+        },
+        "spider_mites": {
+            "symptoms": {
+                "en": "Tiny reddish dots under leaves. Fine webbing on leaves. Yellow speckling on top of leaves.",
+                "hi": "पत्तियों के नीचे छोटे लाल बिंदु। बारीक जाले। पत्तियों के ऊपर पीले धब्बे।"
+            },
+            "control": {
+                "en": "Increase humidity. Use neem oil or miticides in extreme cases.",
+                "hi": "नमी बढ़ाएं। नीम तेल का प्रयोग करें।"
+            }
+        }
+    },
+    "organic_remedies": {
+        "neem_oil_spray": {
+            "title": "Universal Neem Pesticide",
+            "recipe": "5ml Neem Oil + 1 liter water + 1/2 tsp dish soap. Shake well. Spray every 7 days.",
+            "target": "Aphids, Whiteflies, Thrips, Spider Mites"
+        },
+        "garlic_chili_spray": {
+            "title": "Strong Repellent",
+            "recipe": "Blend 2 bulbs garlic + 5 spicy chilies + 1 liter water. Strain. Dilute 1:5 with water. Spray for chewable pests.",
+            "target": "Caterpillars, Beetles, Grasshoppers"
+        },
+        "buttermilk_fungicide": {
+            "title": "Sour Buttermilk Spray",
+            "recipe": "1-week old sour buttermilk diluted 1:10 with water. High in lactic acid.",
+            "target": "Powdery Mildew, Downy Mildew"
+        },
+        "wood_ash": {
+            "title": "Potassium & Protection",
+            "recipe": "Sprinkle fine wood ash around the base of plants or on leaves (when dry).",
+            "target": "Snails, Slugs, Potassium deficiency"
+        }
+    },
+    "seasonal_calendar": {
+        "january": [
+            "Sow: Tomato, Chili, Eggplant (Summer crop nursery)",
+            "Harvest: Potato, Mustard, Wheat (Irrigation critical)"
+        ],
+        "february": [
+            "Sow: Okra, Cucumber, Bitter Gourd",
+            "Harvest: Onion, Garlic"
+        ],
+        "march": [
+            "Sow: Corn, Sunflower",
+            "Harvest: Wheat, Mustard, Gram"
+        ],
+        "april": [
+            "Care: High heat protection, Mulching",
+            "Harvest: Mango (Early varieties)"
+        ],
+        "may": [
+            "Preparation: Clean fields, Apply manure",
+            "Harvest: Mango, Watermelon"
+        ],
+        "june": [
+            "Sow: Rice (Nursery), Cotton, Corn (Monsoon crops)",
+            "Care: Drainage check"
+        ],
+        "july": [
+            "Sow: Soybean, Groundnut",
+            "Care: Weed control (Kharif)"
+        ],
+        "august": [
+            "Care: Top dressing Nitrogen",
+            "Harvest: Corn (Early)"
+        ],
+        "september": [
+            "Sow: Mustard (Early), Potato (Early)",
+            "Harvest: Rice (Early)"
+        ],
+        "october": [
+            "Sow: Wheat, Gram, Pea, Lentil (Rabi crops)",
+            "Harvest: Rice, Cotton"
+        ],
+        "november": [
+            "Care: Irrigation for Wheat",
+            "Harvest: Sugarcane begins"
+        ],
+        "december": [
+            "Care: Frost protection",
+            "Harvest: Cotton (Final pickings)"
+        ]
+    },
+    "topics": {
+        "watering": [
+            "water",
+            "watering",
+            "irrigation",
+            "pour",
+            "drink",
+            "wet",
+            "drip",
+            "pani",
+            "sinchai",
+            "hydrat",
+            "moist",
+            "thanneer",
+            "neer",
+            "balti",
+            "nala",
+            "sinchana",
+            "pala"
+        ],
+        "soil": [
+            "soil",
+            "dirt",
+            "ground",
+            "earth",
+            "mitti",
+            "land",
+            "field",
+            "man",
+            "nela",
+            "kadai",
+            "matti",
+            "balu",
+            "reha",
+            "shor",
+            "potting",
+            "khad"
+        ],
+        "fertilizer": [
+            "fertilizer",
+            "manure",
+            "compost",
+            "dung",
+            "khad",
+            "nutr",
+            "nitrogen",
+            "urea",
+            "potash",
+            "phosphate",
+            "npk",
+            "uram",
+            "eruvu",
+            "penda",
+            "organic",
+            "bio"
+        ],
+        "pests": [
+            "pest",
+            "insect",
+            "bug",
+            "worm",
+            "beetle",
+            "kida",
+            "keet",
+            "larva",
+            "aphid",
+            "termite",
+            "bollworm",
+            "shopper",
+            "fly",
+            "moth",
+            "puchi",
+            "purugu",
+            "keed",
+            "marathi"
+        ],
+        "diseases": [
+            "disease",
+            "sick",
+            "infection",
+            "fungus",
+            "mold",
+            "bimar",
+            "rog",
+            "rot",
+            "blight",
+            "spot",
+            "wilt",
+            "curling",
+            "virus",
+            "noy",
+            "vyadhi",
+            "rogam",
+            "marz"
+        ],
+        "care": [
+            "care",
+            "grow",
+            "maintenance",
+            "help",
+            "how to",
+            "dekhbhal",
+            "planting",
+            "sowing",
+            "harvest",
+            "prun",
+            "support",
+            "hilling",
+            "mulch",
+            "staking",
+            "raksha",
+            "palan"
+        ],
+        "organic": [
+            "organic",
+            "natural",
+            "home made",
+            "bio",
+            "jaivik",
+            "neem",
+            "ayurvedic",
+            "desi",
+            "iyarkai",
+            "prakritik"
+        ]
+    },
+    "general": {
+        "organic_pesticide": {
+            "en": "Mix 5ml Neel oil + 1 liter water + 3 drops liquid soap. Spray weekly on both sides of leaves. This controls 80% of common garden pests.",
+            "hi": "5 मिली नील तेल + 1 लीटर पानी + 3 बूंदें तरल साबुन मिलाएं। पत्तियों के दोनों तरफ साप्ताहिक छिड़काव करें।",
+            "ta": "5 மி.லி வேப்ப எண்ணெய் + 1 லிட்டர் தண்ணீர் + 3 சொட்டு லிக்விட் சோப்பை கலக்கவும். வாரந்தோறும் தெளிக்கவும்."
+        },
+        "soil_test": {
+            "en": "Simple drainage test: Dig a hole (30cm), fill with water. If it takes >4 hours to drain, you have poor drainage. Add grit or sand.",
+            "hi": "जल निकासी परीक्षण: 30 सेमी का गड्ढा खोदें, पानी भरें। यदि खाली होने में 4 घंटे से अधिक समय लगता है, तो जल निकासी खराब है।",
+            "ta": "மண் வடிகால் சோதனை: 30 செமீ குழி தோண்டி தண்ணீர் நிரப்பவும். இது வடிய 4 மணி நேரத்திற்கு மேலானால் வடிகால் வசதி குறைவு."
+        },
+        "compost_home": {
+            "en": "Maintain 3 parts brown (dry leaves/cardboard) to 1 part green (food scrap/fresh grass). Keep it moist like a wrung-out sponge and turn weekly.",
+            "hi": "3 भाग भूरा (सूखे पत्ते) और 1 भाग हरा (भोजन का कचरा) रखें। इसे स्पंज की तरह नम रखें और हर हफ्ते पलटें।",
+            "ta": "3 பங்கு உலர்ந்த இலைகள் மற்றும் 1 பங்கு உணவு கழிவுகளை பயன்படுத்தவும். வாரம் ஒருமுறை கிளறி விடவும்."
+        },
+        "monsoon_care": {
+            "en": "During heavy rains, ensure raised beds or clean drainage channels. Spray fungicide BEFORE rains begin. Avoid fertilizing just before a downpour.",
+            "hi": "भारी बारिश के दौरान, उठी हुई क्यारियां या साफ जल निकासी सुनिश्चित करें। बारिश शुरू होने से पहले फफूंदनाशक का छिड़काव करें।",
+            "ta": "மழைக்காலத்தில் தேங்கி நிற்கும் நீரை அகற்றவும். மழைக்கு முன் பூஞ்சைக் கொல்லி தெளிக்கவும்."
+        }
+    }
+}

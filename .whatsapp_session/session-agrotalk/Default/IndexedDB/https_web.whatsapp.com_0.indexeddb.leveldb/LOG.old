@@ -1,0 +1,31 @@
+2026/03/07-03:43:48.129 6e0cd Reusing MANIFEST /Users/mac/Downloads/agrotalk-assist-main/.whatsapp_session/session-agrotalk/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2026/03/07-03:43:48.130 6e0cd Recovering log #2556
+2026/03/07-03:43:48.134 6e0cd Reusing old log /Users/mac/Downloads/agrotalk-assist-main/.whatsapp_session/session-agrotalk/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/002556.log 
+2026/03/07-03:44:01.483 6e0d0 Compacting 1@2 + 14@3 files
+2026/03/07-03:44:01.522 6e0d0 Generated table #2578@2: 62820 keys, 2239781 bytes
+2026/03/07-03:44:01.549 6e0d0 Generated table #2579@2: 54866 keys, 2215771 bytes
+2026/03/07-03:44:01.566 6e0d0 Generated table #2580@2: 33568 keys, 2192722 bytes
+2026/03/07-03:44:01.574 6e0d0 Generated table #2581@2: 1532 keys, 2148358 bytes
+2026/03/07-03:44:01.585 6e0d0 Generated table #2582@2: 2500 keys, 2152405 bytes
+2026/03/07-03:44:01.592 6e0d0 Generated table #2583@2: 1866 keys, 2155637 bytes
+2026/03/07-03:44:01.599 6e0d0 Generated table #2584@2: 1858 keys, 2155879 bytes
+2026/03/07-03:44:01.606 6e0d0 Generated table #2585@2: 1916 keys, 2155700 bytes
+2026/03/07-03:44:01.613 6e0d0 Generated table #2586@2: 1891 keys, 2155812 bytes
+2026/03/07-03:44:01.619 6e0d0 Generated table #2587@2: 1854 keys, 1856372 bytes
+2026/03/07-03:44:01.619 6e0d0 Compacted 1@2 + 14@3 files => 21428437 bytes
+2026/03/07-03:44:01.620 6e0d0 compacted to: files[ 0 1 49 10 0 0 0 ]
+2026/03/07-03:44:01.620 6e0d0 Delete type=2 #2139
+2026/03/07-03:44:01.620 6e0d0 Delete type=2 #2212
+2026/03/07-03:44:01.620 6e0d0 Delete type=2 #2417
+2026/03/07-03:44:01.620 6e0d0 Delete type=2 #2224
+2026/03/07-03:44:01.620 6e0d0 Delete type=2 #2190
+2026/03/07-03:44:01.620 6e0d0 Delete type=2 #2225
+2026/03/07-03:44:01.620 6e0d0 Delete type=2 #2142
+2026/03/07-03:44:01.620 6e0d0 Delete type=2 #2140
+2026/03/07-03:44:01.620 6e0d0 Delete type=2 #2418
+2026/03/07-03:44:01.620 6e0d0 Delete type=2 #2419
+2026/03/07-03:44:01.620 6e0d0 Delete type=2 #2169
+2026/03/07-03:44:01.620 6e0d0 Delete type=2 #2141
+2026/03/07-03:44:01.620 6e0d0 Delete type=2 #2545
+2026/03/07-03:44:01.620 6e0d0 Delete type=2 #2522
+2026/03/07-03:44:01.620 6e0d0 Delete type=2 #2523
