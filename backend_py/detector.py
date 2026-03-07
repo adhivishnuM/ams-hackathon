@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 
 import cv2
 import numpy as np
+import torch
 from ultralytics import YOLO
 
 
@@ -20,6 +21,7 @@ class DetectionState:
     last_detected: Optional[datetime] = None
     confidence: float = 0.0
     alert_active: bool = False
+    last_alert_time: Optional[datetime] = None
     _lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
     
     def update(self, detected: bool, confidence: float = 0.0, cooldown_seconds: float = 5.0):
@@ -30,16 +32,19 @@ class DetectionState:
             
             if detected:
                 self.confidence = confidence
-                
-                # Check if cooldown has passed for alert
-                if self.last_detected is None:
-                    self.alert_active = True
-                elif (now - self.last_detected) >= timedelta(seconds=cooldown_seconds):
-                    self.alert_active = True
-                else:
-                    self.alert_active = False
-                    
                 self.last_detected = now
+                
+                # Check if cooldown has passed since LAST ALERT
+                if self.last_alert_time is None or (now - self.last_alert_time) >= timedelta(seconds=cooldown_seconds):
+                    self.alert_active = True
+                    self.last_alert_time = now
+                else:
+                    # Keep alert_active True for a short window (2.5s) so polling catches it
+                    # but only if it was recently triggered
+                    if self.last_alert_time and (now - self.last_alert_time) < timedelta(seconds=2.5):
+                        self.alert_active = True
+                    else:
+                        self.alert_active = False
             else:
                 self.confidence = 0.0
                 self.alert_active = False
@@ -75,14 +80,14 @@ class BirdDetector:
         cooldown_seconds: float = 5.0
     ):
         """
-        Initialize the bird detector.
-        
-        Args:
-            model_path: Path to YOLOv8 model weights
-            confidence_threshold: Minimum confidence for detection (0.0-1.0)
-            cooldown_seconds: Cooldown period between alerts
+        Initialize the bird detector metadata. Model is loaded lazily on first use.
         """
-        self.model = YOLO(model_path)
+        # Detect best available device (MPS for Mac, CUDA for NVIDIA, CPU fallback)
+        self.device = 'mps' if torch.backends.mps.is_available() else ('cuda' if torch.cuda.is_available() else 'cpu')
+        
+        self.model_path = model_path
+        self.model = None
+        
         self.confidence_threshold = confidence_threshold
         self.cooldown_seconds = cooldown_seconds
         self.state = DetectionState()
@@ -91,6 +96,14 @@ class BirdDetector:
         self._video_source: Optional[cv2.VideoCapture] = None
         self._video_lock = threading.Lock()
         self._source_path: Optional[str] = None
+
+    def _ensure_model_loaded(self):
+        """Lazy load the YOLO model only when needed"""
+        if self.model is None:
+            print(f"🧠 Loading YOLO model ({self.model_path}) on {self.device.upper()}...")
+            self.model = YOLO(self.model_path)
+            self.model.to(self.device)
+            print(f"✅ BirdDetector ready.")
         
     def set_video_source(self, source: str) -> bool:
         """
@@ -156,21 +169,26 @@ class BirdDetector:
             if not ret and self._source_path and not self._source_path.isdigit():
                 self._video_source.set(cv2.CAP_PROP_POS_FRAMES, 0)
                 ret, frame = self._video_source.read()
+            
+            if not ret:
+                self.state.update(False) # Clear state if no frame
                 
             return ret, frame
     
     def detect_birds(self, frame: np.ndarray) -> Tuple[np.ndarray, bool, float]:
         """
         Detect birds in a frame and annotate with bounding boxes.
-        
-        Args:
-            frame: Input BGR image from OpenCV
-            
-        Returns:
-            Tuple of (annotated_frame, bird_detected, max_confidence)
         """
-        # Run inference
-        results = self.model(frame, verbose=False, conf=self.confidence_threshold)
+        self._ensure_model_loaded()
+        
+        # Run inference with hardware acceleration and half-precision if on GPU
+        results = self.model(
+            frame, 
+            verbose=False, 
+            conf=self.confidence_threshold,
+            device=self.device,
+            half=(self.device != 'cpu') # Use FP16 for much faster inference on MPS/CUDA
+        )
         
         bird_detected = False
         max_confidence = 0.0

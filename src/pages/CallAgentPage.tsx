@@ -46,18 +46,31 @@ export default function CallAgentPage() {
         isActiveRef.current = true;
         setCallState('connecting');
 
-        // Initial Greeting
-        const greetingTimer = setTimeout(() => {
+        // Initial Greeting Delay
+        const greetingTimer = setTimeout(async () => {
             if (!isActiveRef.current) return;
             const greetings = {
                 en: "Hello, I am the AgroTalk Agronomist. How can I help you today?",
                 hi: "नमस्ते, मैं एग्रोटॉक कृषिविज्ञानी हूँ। मैं आज आपकी कैसे मदद कर सकता हूँ?",
                 ta: "வணக்கம், நான் அக்ரோடாக் வேளாண் நிபுணர். இன்று நான் உங்களுக்கு எப்படி உதவ முடியும்?",
-                te: "నమస్కారం, నేను ఆగ్రోటాక్ వ్యవసాయ శాస్త్రవేత్తను. ఈ రోజు నేను మీకు ఎలా సహాయపడగలను?",
+                te: "నமస్కారం, నేను ఆగ్రోటాక్ వ్యవసాయ శాస్త్రవేత్తను. ఈ రోజు నేను మీకు ఎలా సహాయపడగలను?",
                 mr: "नमस्कार, मी ॲग्रोटॉक कृषितज्ज्ञ आहे. आज मी तुम्हाला कशी मदत करू शकेन?"
             };
             const text = greetings[language as keyof typeof greetings] || greetings.en;
-            playResponse(text);
+
+            console.log(`🔊 [NVIDIA] Fetching initial greeting (voice: ${selectedVoice})...`);
+            try {
+                const audioBlob = await getNvidiaTts(text, language, selectedVoice);
+                if (audioBlob) {
+                    playResponse(text, undefined, audioBlob);
+                } else {
+                    console.warn("⚠️ Greeting TTS failed, calling playResponse with fallback");
+                    playResponse(text);
+                }
+            } catch (err) {
+                console.error("❌ Greeting TTS error:", err);
+                playResponse(text);
+            }
         }, 1500);
 
         return () => {
@@ -91,7 +104,7 @@ export default function CallAgentPage() {
 
     // --- Speech Recognition ---
     const startListening = () => {
-        if (!isActiveRef.current || isMuted) return;
+        if (!isActiveRef.current) return; // Note: We allow listening even if muted (speaker vs mic)
 
         const WindowObj = window as unknown as IWindow;
         const Recognition = WindowObj.webkitSpeechRecognition || WindowObj.SpeechRecognition;
@@ -147,14 +160,10 @@ export default function CallAgentPage() {
         };
 
         recognition.onend = () => {
-            if (isActiveRef.current && callState === 'listening' && !isMuted) {
-                // If it died unexpectedly but we should be listening, restart
+            // Keep it alive if we didn't explicitly transition away
+            if (isActiveRef.current && callState === 'listening') {
                 try { recognition.start(); } catch (e) { }
             }
-        };
-
-        recognition.onerror = (e: any) => {
-            console.error("Recognition error:", e);
         };
 
         try {
@@ -180,16 +189,25 @@ export default function CallAgentPage() {
 
         stopListening();
         setCallState('processing');
-        setTranscript(''); // Clear for "Thinking" state
+        setTranscript('');
 
-        // --- Goodbye Detect ---
-        const goodbyeWords = ["bye", "goodbye", "alvida", "khuda hafiz", "phir milenge", "bas", "end", "tata", "hang up"];
+        // Goodbye Detection
+        const goodbyeWords = ["bye", "goodbye", "alvida", "khuda hafiz", "bas", "end", "tata", "hang up"];
         const lower = text.toLowerCase().trim();
         if (goodbyeWords.some(word => lower.includes(word))) {
             const farewell = language === 'hi' ? "नमस्ते! फिर मिलेंगे।" : "Goodbye! Have a nice day.";
-            setAgentSubtitles(farewell);
-            // Say farewell before hanging up
-            speakText(farewell, true);
+            console.log(`🔊 [NVIDIA] Fetching farewell message (voice: ${selectedVoice})...`);
+            try {
+                const audioBlob = await getNvidiaTts(farewell, language, selectedVoice);
+                if (audioBlob) {
+                    playResponse(farewell, undefined, audioBlob, true);
+                } else {
+                    speakText(farewell, true);
+                }
+            } catch (err) {
+                console.error("❌ Farewell TTS error:", err);
+                speakText(farewell, true);
+            }
             return;
         }
 
@@ -220,55 +238,83 @@ export default function CallAgentPage() {
             } else {
                 setCallState('idle');
                 toast.error("AI Error");
-                if (!isMuted) startListening();
+                startListening();
             }
         } catch (e) {
             console.error("Process error:", e);
             setCallState('idle');
-            if (!isMuted) startListening();
+            startListening();
         }
     };
 
-    // --- Playback ---
-    const playResponse = (text: string, audioBase64?: string) => {
+    // --- Playback Handling ---
+    const playResponse = (text: string, audioBase64?: string, audioBlob?: Blob, isExit: boolean = false) => {
         if (!isActiveRef.current) return;
 
-        setTranscript(''); // Clear any remaining user text
+        setTranscript('');
         setCallState('speaking');
         setAgentSubtitles(text);
 
+        if (isMuted) {
+            console.log("🔇 Agent is muted, showing subtitles only");
+            setTimeout(() => onPlaybackEnd(isExit), 2500);
+            return;
+        }
+
+        const handleAudioPlayback = (audioUrl: string) => {
+            const audio = new Audio(audioUrl);
+            audio.onended = () => {
+                URL.revokeObjectURL(audioUrl);
+                console.log("✅ Playback finished normally");
+                onPlaybackEnd(isExit);
+            };
+            audio.onerror = (e) => {
+                console.error("❌ Audio playback error:", e);
+                URL.revokeObjectURL(audioUrl);
+                speakText(text, isExit); // Fallback to browser TTS
+            };
+            setTtsAudio(audio);
+            console.log("▶️ Starting playback...");
+            audio.play().catch(err => {
+                console.error("❌ Playback play() failed:", err);
+                speakText(text);
+            });
+        };
+
+        if (audioBlob) {
+            console.log(`🔊 [NVIDIA] Playing from received Blob (${audioBlob.size} bytes)`);
+            const url = URL.createObjectURL(audioBlob);
+            handleAudioPlayback(url);
+            return;
+        }
+
         if (audioBase64) {
+            console.log(`🔊 [NVIDIA] Playing from received Base64 (${audioBase64.length} chars)`);
             try {
+                const isWav = audioBase64.startsWith('UklG');
+                const mimeType = isWav ? 'audio/wav' : 'audio/mp3';
+                console.log(`📄 Detected MIME type: ${mimeType}`);
+
                 const byteCharacters = atob(audioBase64);
                 const byteNumbers = new Array(byteCharacters.length);
                 for (let i = 0; i < byteCharacters.length; i++) {
                     byteNumbers[i] = byteCharacters.charCodeAt(i);
                 }
-                const blob = new Blob([new Uint8Array(byteNumbers)], { type: 'audio/mp3' });
+                const blob = new Blob([new Uint8Array(byteNumbers)], { type: mimeType });
                 const url = URL.createObjectURL(blob);
-                const audio = new Audio(url);
-
-                audio.onended = () => {
-                    URL.revokeObjectURL(url);
-                    onPlaybackEnd();
-                };
-                audio.onerror = () => {
-                    URL.revokeObjectURL(url);
-                    speakText(text); // Fallback
-                };
-
-                setTtsAudio(audio);
-                audio.play().catch(() => speakText(text));
+                handleAudioPlayback(url);
             } catch (e) {
+                console.error("❌ Base64 decode error:", e);
                 speakText(text);
             }
         } else {
+            console.warn("⚠️ No NVIDIA audio data received, using browser fallback");
             speakText(text);
         }
     };
 
     const speakText = (text: string, isExit: boolean = false) => {
-        if (!('speechSynthesis' in window)) {
+        if (!('speechSynthesis' in window) || isMuted) {
             onPlaybackEnd(isExit);
             return;
         }
@@ -293,10 +339,9 @@ export default function CallAgentPage() {
         }
         setCallState('idle');
         setAgentSubtitles('');
-        if (!isMuted) startListening();
+        startListening();
     };
 
-    // --- UI State Helpers ---
     const getStatusText = () => {
         switch (callState) {
             case 'connecting': return tCall.statusConnecting;
@@ -310,7 +355,6 @@ export default function CallAgentPage() {
 
     return (
         <div className="flex flex-col h-screen bg-black text-white relative overflow-hidden">
-            {/* Background */}
             <div className="absolute inset-0 bg-gradient-to-b from-zinc-900 via-black to-black" />
             <div className="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(circle_at_center,rgba(118,185,0,0.15),transparent_70%)]" />
 
@@ -329,7 +373,7 @@ export default function CallAgentPage() {
                 <div className="w-10 h-10"></div>
             </header>
 
-            {/* Center - Avatar */}
+            {/* Center Area */}
             <div className="flex-1 flex flex-col items-center justify-center z-10 relative px-10">
                 <div className={cn(
                     "w-48 h-48 rounded-full border-2 border-white/10 p-1 transition-all duration-700",
@@ -337,7 +381,7 @@ export default function CallAgentPage() {
                 )}>
                     <div className="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center overflow-hidden relative">
                         <img src="/logo.svg" alt="AgroTalk" className="w-24 h-24 object-contain opacity-90" />
-                        {callState === 'speaking' && (
+                        {(callState === 'speaking' || callState === 'processing') && (
                             <div className="absolute inset-0 bg-primary/5 animate-pulse" />
                         )}
                     </div>
@@ -355,33 +399,6 @@ export default function CallAgentPage() {
                 </div>
             </div>
 
-            {/* Waveform Visualization */}
-            <div className="h-32 w-full flex items-center justify-center px-10 z-10 relative">
-                <div className="flex items-end gap-1.5 h-16 w-full max-w-xs justify-center">
-                    {(callState === 'listening' || callState === 'speaking' || callState === 'processing') ? (
-                        Array.from({ length: 20 }).map((_, i) => (
-                            <div
-                                key={i}
-                                className={cn(
-                                    "w-1 rounded-full transition-all duration-300",
-                                    callState === 'listening' ? 'bg-red-500' :
-                                        callState === 'speaking' ? 'bg-primary' :
-                                            'bg-blue-500'
-                                )}
-                                style={{
-                                    height: callState === 'processing' ? '30%' : `${15 + Math.random() * 80}%`,
-                                    transitionDelay: `${i * 30}ms`,
-                                    animation: (callState === 'listening' || callState === 'speaking') ? 'wave-simple 1s ease-in-out infinite' : 'none',
-                                    animationDelay: `${i * 0.05}s`
-                                }}
-                            />
-                        ))
-                    ) : (
-                        <div className="h-[1px] w-48 bg-white/20 rounded-full" />
-                    )}
-                </div>
-            </div>
-
             {/* Subtitles Overlay */}
             <div className="absolute bottom-40 left-0 right-0 z-20 pointer-events-none px-8">
                 <div className="max-w-xl mx-auto">
@@ -395,15 +412,43 @@ export default function CallAgentPage() {
                 </div>
             </div>
 
-            {/* Controls */}
+            {/* Waveform Visualization */}
+            <div className="h-32 w-full flex items-center justify-center px-10 z-10 relative">
+                <div className="flex items-end gap-1.5 h-16 w-full max-w-xs justify-center">
+                    {(callState === 'listening' || callState === 'speaking' || callState === 'processing') ? (
+                        Array.from({ length: 24 }).map((_, i) => (
+                            <div
+                                key={i}
+                                className={cn(
+                                    "w-1 rounded-full transition-all duration-300",
+                                    callState === 'listening' ? 'bg-red-500' :
+                                        callState === 'speaking' ? 'bg-primary' :
+                                            'bg-blue-500'
+                                )}
+                                style={{
+                                    height: callState === 'processing' ? '30%' : `${15 + Math.random() * 85}%`,
+                                    transitionDelay: `${i * 20}ms`,
+                                    animation: (callState === 'listening' || callState === 'speaking') ? 'wave-simple 1s ease-in-out infinite' : 'none',
+                                    animationDelay: `${i * 0.05}s`
+                                }}
+                            />
+                        ))
+                    ) : (
+                        <div className="h-[1px] w-48 bg-white/20 rounded-full" />
+                    )}
+                </div>
+            </div>
+
+            {/* Bottom Controls */}
             <div className="pb-16 pt-6 px-8 z-10 relative">
                 <div className="flex items-center justify-center gap-12 max-w-md mx-auto">
                     <button
                         onClick={() => setIsMuted(!isMuted)}
                         className={cn(
                             "w-14 h-14 rounded-full flex items-center justify-center transition-all border",
-                            isMuted ? "bg-white text-black border-white" : "bg-white/5 text-white border-white/10"
+                            isMuted ? "bg-white text-black border-white shadow-lg shadow-white/10" : "bg-white/5 text-white border-white/10"
                         )}
+                        title={isMuted ? "Unmute Volume" : "Mute Volume"}
                     >
                         {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
                     </button>
@@ -416,16 +461,18 @@ export default function CallAgentPage() {
                         disabled={callState === 'connecting' || callState === 'processing' || callState === 'speaking'}
                         className={cn(
                             "w-20 h-20 rounded-full flex items-center justify-center transition-all bg-white/10",
-                            callState === 'listening' ? "bg-red-600 shadow-[0_0_25px_rgba(220,38,38,0.4)]" : "text-white/40",
+                            callState === 'listening' ? "bg-red-600 shadow-[0_0_30px_rgba(220,38,38,0.4)]" : "text-white/40",
                             (callState === 'connecting' || callState === 'processing' || callState === 'speaking') && "opacity-20 cursor-not-allowed"
                         )}
+                        title={callState === 'listening' ? "Stop Mic" : "Start Mic"}
                     >
                         <Mic size={32} />
                     </button>
 
                     <button
                         onClick={endCall}
-                        className="w-14 h-14 rounded-full flex items-center justify-center bg-red-600/20 text-red-500 border border-red-500/20"
+                        className="w-14 h-14 rounded-full flex items-center justify-center bg-red-600/20 text-red-500 border border-red-500/20 hover:bg-red-600/30"
+                        title="End Call"
                     >
                         <PhoneOff size={24} />
                     </button>
@@ -435,7 +482,7 @@ export default function CallAgentPage() {
             <style>{`
                 @keyframes wave-simple {
                     0%, 100% { transform: scaleY(1); }
-                    50% { transform: scaleY(1.5); }
+                    50% { transform: scaleY(1.4); }
                 }
             `}</style>
         </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { Camera, X, Volume2, VolumeX, Send, Bot, User, Play, Pause, RotateCcw, Mic, ChevronDown, ArrowRight, Search, Menu, Bell } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Camera, X, Volume2, VolumeX, Send, Bot, User, Play, Pause, RotateCcw, Mic, ChevronDown, ArrowRight, Search, Menu, Bell, PhoneCall, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { dbService } from '@/services/db';
 import { syncService } from '@/services/syncService';
@@ -24,6 +25,7 @@ import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { WhatsAppStatus } from "@/components/WhatsAppStatus";
 
 interface ChatMessage {
   id: string;
@@ -39,6 +41,7 @@ interface IWindow {
 }
 
 export default function Index() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<NavTab>("home");
   const [language, setLanguage] = useState("en");
   const [voiceSpeed, setVoiceSpeed] = useState<"slow" | "normal" | "fast">("normal");
@@ -68,6 +71,7 @@ export default function Index() {
   const [isVoiceOpen, setIsVoiceOpen] = useState(false);
   const [initialVoiceMessages, setInitialVoiceMessages] = useState<ChatMessage[]>([]);
   const [voiceContextId, setVoiceContextId] = useState<string>("");
+  const [isWhatsAppOpen, setIsWhatsAppOpen] = useState(false);
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
@@ -528,8 +532,119 @@ export default function Index() {
     }
   };
 
-  // Home Screen with integrated chat
+
+  const handleShareToChat = (analysis: any) => {
+    setIsImageOpen(false);
+
+    // Get translations for the current language
+    const tLib = getTranslation('library', language);
+
+    // Determine crop name — from DiseaseAnalysis or LibraryItem format
+    const cropName = analysis.crop_identified || analysis.cropType || 'Plant';
+    const diseaseName = analysis.disease_name || analysis.diseaseName || 'Unknown';
+
+    // Get symptoms/treatment arrays (handle both formats)
+    const symptomsArr: string[] = analysis.symptoms || analysis.symptoms || [];
+    const treatmentArr: string[] = analysis.treatment_steps || analysis.treatment || [];
+
+    const symptomsText = Array.isArray(symptomsArr) ? symptomsArr.slice(0, 3).join('; ') : String(symptomsArr);
+    const treatmentText = Array.isArray(treatmentArr) ? treatmentArr.slice(0, 3).join('; ') : String(treatmentArr);
+
+    // Also grab description if available
+    const description = analysis.description || analysis.summary || '';
+
+    // Build a rich context message that goes into the TEXT chatbox
+    const contextLines = [
+      `🌿 **${tLib.shareTitle || 'Plant Analysis Result'}**`,
+      ``,
+      `**${tLib.cropName || 'Crop'}:** ${cropName}`,
+      `**${tLib.shareCondition || 'Condition'}:** ${diseaseName}`,
+      `**${tLib.severity || 'Severity'}:** ${analysis.severity || 'N/A'}`,
+      `**${tLib.confidence || 'Confidence'}:** ${analysis.confidence || 'N/A'}%`,
+    ];
+
+    if (description) contextLines.push(``, `**${tLib.details || 'Details'}:** ${description}`);
+    if (symptomsText) contextLines.push(``, `**${tLib.symptoms || 'Symptoms'}:** ${symptomsText}`);
+    if (treatmentText) contextLines.push(``, `**${tLib.treatment || 'Treatment'}:** ${treatmentText}`);
+    contextLines.push(``, `_${tLib.askAnything || 'Ask me anything about this diagnosis!'}_`);
+
+    const contextMessage = contextLines.join('\n');
+
+    // Set up a new conversation with this context message in the CHATBOX
+    const newMessages: ChatMessage[] = [
+      {
+        id: `context_${Date.now()}`,
+        role: 'assistant',
+        content: contextMessage,
+        timestamp: new Date(),
+        condition: analysis.severity
+      }
+    ];
+
+    // Set conversation history so AI remembers the context
+    const newConvId = `analysis_${Math.random().toString(36).substring(2, 9)}`;
+    setConversationId(newConvId);
+    setConversationHistory([
+      { role: 'assistant' as const, content: `CONTEXT: User shared a plant analysis scan. Crop: ${cropName}. Condition: ${diseaseName}. Severity: ${analysis.severity}. Symptoms: ${symptomsText}. Treatment: ${treatmentText}. Description: ${description}` }
+    ]);
+
+    // Navigate to HOME and open the chatbox directly
+    setActiveTab('home');
+    setChatMessages(newMessages);
+    setIsImageOpen(false); // Close the modal here explicitly
+
+    // Slight delay to allow the dashboard to render before switching to chat mode
+    // This prevents state updates from being swallowed during the transition
+    setTimeout(() => {
+      setIsChatMode(true);
+    }, 100);
+
+    toast.success(tLib.sentToChat || '✅ Analysis sent to chat!');
+  };
+
+  const handleMarketShare = (record: any) => {
+    const tMarket = getTranslation('market', language);
+
+    const contextMessage = [
+      `📊 **${tMarket.shareTitle || 'Market Price Report'}**`,
+      ``,
+      `**${tMarket.commodity || 'Commodity'}:** ${record.commodity}`,
+      `**${tMarket.market || 'Market'}:** ${record.market}, ${record.district} (${record.state})`,
+      `**${tMarket.variety || 'Variety'}:** ${record.variety || 'FAQ'}`,
+      `**${tMarket.modalPrice || 'Modal Price'}:** ₹${record.modal_price} per quintal`,
+      `**${tMarket.priceRange || 'Price Range'}:** ₹${record.min_price} – ₹${record.max_price}`,
+      `**${tMarket.updated || 'Updated'}:** ${record.arrival_date}`,
+      ``,
+      `_${tMarket.askMarket || 'Ask me about pricing trends, selling tips, or market advice!'}_`
+    ].join('\n');
+
+    const newConvId = `market_${Math.random().toString(36).substring(2, 9)}`;
+    setConversationId(newConvId);
+    setConversationHistory([
+      { role: 'assistant' as const, content: `CONTEXT: User shared a market price report. Commodity: ${record.commodity}, Market: ${record.market} (${record.state}), Modal Price: ₹${record.modal_price} per quintal, Date: ${record.arrival_date}` }
+    ]);
+
+    setChatMessages([{
+      id: `market_${Date.now()}`,
+      role: 'assistant',
+      content: contextMessage,
+      timestamp: new Date()
+    }]);
+
+    setActiveTab('home');
+
+    // Slight delay to allow the dashboard to render before switching to chat mode
+    // This prevents state updates from being swallowed during the transition
+    setTimeout(() => {
+      setIsChatMode(true);
+    }, 100);
+
+    toast.success(tMarket.sentToChat || '✅ Market data sent to chat!');
+  };
+
+  // Unified render function for the Home screen (handles Dashboard & Chat Modes)
   const renderHomeScreen = () => {
+    // 1. Gather all items for the dashboard (Recent Queries)
     const allItems = [
       ...libraryItems.map(item => ({
         id: item.id,
@@ -553,8 +668,8 @@ export default function Index() {
 
     const recentQueries = allItems.slice(0, 3);
 
+    // 2. CHAT MODE: Return the chat interface
     if (isChatMode) {
-      // DM-style chat interface
       return (
         <div className="flex flex-col h-full bg-background pb-24 animate-in fade-in duration-500">
           {/* Chat Header - Glassmorphism */}
@@ -767,320 +882,213 @@ export default function Index() {
       );
     }
 
-    const handleShareToChat = (analysis: any) => {
-      setIsImageOpen(false);
-
-      // Get translations for the current language
-      const tLib = getTranslation('library', language);
-
-      // Determine crop name — from DiseaseAnalysis or LibraryItem format
-      const cropName = analysis.crop_identified || analysis.cropType || 'Plant';
-      const diseaseName = analysis.disease_name || analysis.diseaseName || 'Unknown';
-
-      // Get symptoms/treatment arrays (handle both formats)
-      const symptomsArr: string[] = analysis.symptoms || analysis.symptoms || [];
-      const treatmentArr: string[] = analysis.treatment_steps || analysis.treatment || [];
-
-      const symptomsText = Array.isArray(symptomsArr) ? symptomsArr.slice(0, 3).join('; ') : String(symptomsArr);
-      const treatmentText = Array.isArray(treatmentArr) ? treatmentArr.slice(0, 3).join('; ') : String(treatmentArr);
-
-      // Also grab description if available
-      const description = analysis.description || analysis.summary || '';
-
-      // Build a rich context message that goes into the TEXT chatbox
-      const contextLines = [
-        `🌿 **${tLib.shareTitle || 'Plant Analysis Result'}**`,
-        ``,
-        `**${tLib.cropName || 'Crop'}:** ${cropName}`,
-        `**${tLib.shareCondition || 'Condition'}:** ${diseaseName}`,
-        `**${tLib.severity || 'Severity'}:** ${analysis.severity || 'N/A'}`,
-        `**${tLib.confidence || 'Confidence'}:** ${analysis.confidence || 'N/A'}%`,
-      ];
-
-      if (description) contextLines.push(``, `**${tLib.details || 'Details'}:** ${description}`);
-      if (symptomsText) contextLines.push(``, `**${tLib.symptoms || 'Symptoms'}:** ${symptomsText}`);
-      if (treatmentText) contextLines.push(``, `**${tLib.treatment || 'Treatment'}:** ${treatmentText}`);
-      contextLines.push(``, `_${tLib.askAnything || 'Ask me anything about this diagnosis!'}_`);
-
-      const contextMessage = contextLines.join('\n');
-
-      // Set up a new conversation with this context message in the CHATBOX
-      const newMessages: ChatMessage[] = [
-        {
-          id: `context_${Date.now()}`,
-          role: 'assistant',
-          content: contextMessage,
-          timestamp: new Date(),
-          condition: analysis.severity
-        }
-      ];
-
-      // Set conversation history so AI remembers the context
-      const newConvId = `analysis_${Math.random().toString(36).substring(2, 9)}`;
-      setConversationId(newConvId);
-      setConversationHistory([
-        { role: 'assistant' as const, content: `CONTEXT: User shared a plant analysis scan. Crop: ${cropName}. Condition: ${diseaseName}. Severity: ${analysis.severity}. Symptoms: ${symptomsText}. Treatment: ${treatmentText}. Description: ${description}` }
-      ]);
-
-      // Navigate to HOME and open the chatbox directly
-      setActiveTab('home');
-      setChatMessages(newMessages);
-      setIsChatMode(true);
-
-      toast.success(tLib.sentToChat || '✅ Analysis sent to chat!');
-    };
-
-    const handleMarketShare = (record: any) => {
-      const tMarket = getTranslation('market', language);
-
-      const contextMessage = [
-        `📊 **${tMarket.shareTitle || 'Market Price Report'}**`,
-        ``,
-        `**${tMarket.commodity || 'Commodity'}:** ${record.commodity}`,
-        `**${tMarket.market || 'Market'}:** ${record.market}, ${record.district} (${record.state})`,
-        `**${tMarket.variety || 'Variety'}:** ${record.variety || 'FAQ'}`,
-        `**${tMarket.modalPrice || 'Modal Price'}:** ₹${record.modal_price} per quintal`,
-        `**${tMarket.priceRange || 'Price Range'}:** ₹${record.min_price} – ₹${record.max_price}`,
-        `**${tMarket.updated || 'Updated'}:** ${record.arrival_date}`,
-        ``,
-        `_${tMarket.askMarket || 'Ask me about pricing trends, selling tips, or market advice!'}_`
-      ].join('\n');
-
-      const newConvId = `market_${Math.random().toString(36).substring(2, 9)}`;
-      setConversationId(newConvId);
-      setConversationHistory([
-        { role: 'assistant' as const, content: `CONTEXT: User shared a market price report. Commodity: ${record.commodity}, Market: ${record.market} (${record.state}), Modal Price: ₹${record.modal_price} per quintal, Date: ${record.arrival_date}` }
-      ]);
-
-      setChatMessages([{
-        id: `market_${Date.now()}`,
-        role: 'assistant',
-        content: contextMessage,
-        timestamp: new Date()
-      }]);
-
-      setActiveTab('home');
-      setIsChatMode(true);
-
-      toast.success(tMarket.sentToChat || '✅ Market data sent to chat!');
-    };
-
-    // Default home screen with input box
-    const renderHomeScreen = () => {
-      const allItems = [
-        ...libraryItems.map(item => ({
-          id: item.id,
-          query: language === "hi" ? item.diseaseNameHi : item.diseaseName,
-          response: language === "hi" ? item.summaryHi : item.summary,
-          timestamp: new Date(item.timestamp),
-          cropType: (item.cropType.toLowerCase() || 'general') as any,
-          type: 'scan'
-        })),
-        ...chatHistory.map(item => ({
-          id: item.id,
-          conversationId: item.conversationId,
-          query: item.query,
-          response: item.response,
-          timestamp: new Date(item.timestamp),
-          cropType: 'general' as const,
-          type: 'chat',
-          messages: item.messages // Preserve full history
-        }))
-      ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-
-      const recentQueries = allItems.slice(0, 3);
-
-      return (
-        <div className="flex flex-col flex-1 pb-32 bg-background animate-in fade-in duration-700">
-          {/* Modern Glass Header */}
-          <header className="sticky top-0 z-40 px-5 py-4 bg-background/60 dark:bg-background/80 backdrop-blur-apple border-b border-border/50 transition-all duration-300">
-            <div className="flex items-center justify-between max-w-lg mx-auto w-full">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-white shadow-apple-sm flex items-center justify-center border border-border/50 group hover:scale-105 transition-all">
-                  <img src="/logo.svg" alt="AgroTalk" className="w-6 h-6" />
-                </div>
-                <div className="flex flex-col">
-                  <h1 className="text-body font-bold text-foreground leading-none tracking-tight">Agrotalk</h1>
-                  <ConnectionStatus isOnline={isOnline} />
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <LanguageSelector selectedLanguage={language} onLanguageChange={setLanguage} />
-                <button className="w-10 h-10 rounded-full flex items-center justify-center bg-muted/30 hover:bg-muted/60 transition-colors text-muted-foreground hover:text-foreground active:scale-90">
-                  <Bell size={18} />
-                </button>
-                <button className="w-10 h-10 rounded-full flex items-center justify-center bg-muted/30 hover:bg-muted/60 transition-colors text-muted-foreground hover:text-foreground active:scale-90 overflow-hidden border border-border/50">
-                  <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=100&auto=format&fit=crop" alt="User" className="w-full h-full object-cover" />
-                </button>
-              </div>
-            </div>
-          </header>
-
-          <main className="flex-1 max-w-lg mx-auto w-full px-5 py-6">
-            {/* Weather Section - Card Style */}
-            <div className="mb-8 animate-in slide-in-from-top-4 duration-500 delay-150">
-              <WeatherDashboard
-                data={weatherData}
-                loading={isWeatherLoading}
-                error={weatherError}
-                language={language}
-                lastUpdated={!isOnline ? weatherLastUpdated : null}
-              />
-            </div>
-
-            {/* Compact Hero Section */}
-            <div className="mb-6 animate-in slide-in-from-top-4 duration-500 delay-300">
-              <div className="flex flex-col items-center text-center mb-4">
-                <h2 className="text-lg font-bold text-foreground tracking-tight">
-                  {t.greeting}, <span className="text-primary">{getTranslation('common', language).farmer}!</span>
-                </h2>
-                <p className="text-[12px] text-muted-foreground leading-none mt-1">
-                  {t.greetingSubtext}
-                </p>
-              </div>
-
-              {/* Thin Quick Search Card */}
-              <div className="relative group cross-fade">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-[20px] blur-lg opacity-0 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
-                <form onSubmit={handleTextSubmit} className="relative">
-                  <div className="bg-card rounded-[18px] shadow-apple-sm border border-border/60 p-1 focus-within:border-primary/40 transition-all duration-300 group-hover:shadow-apple-md">
-                    <div className="flex items-center">
-                      <div className="pl-3 pr-1 text-primary">
-                        <Search size={18} strokeWidth={2.5} />
-                      </div>
-                      <input
-                        type="text"
-                        value={textInput}
-                        onChange={(e) => setTextInput(e.target.value)}
-                        placeholder={getPlaceholderText()}
-                        className="flex-1 h-9 bg-transparent border-none text-[13px] focus:ring-0 placeholder:text-muted-foreground/50 font-medium"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleMicClick}
-                        className={cn(
-                          "w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90",
-                          isRecording ? "bg-destructive text-white animate-pulse" : "text-primary hover:bg-primary/10"
-                        )}
-                      >
-                        <Mic size={16} strokeWidth={2.5} />
-                      </button>
-                      {textInput.trim() && (
-                        <button
-                          type="submit"
-                          className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-md shadow-primary/20 hover:scale-105 active:scale-90 transition-all ml-1"
-                        >
-                          <ArrowRight size={16} strokeWidth={3} />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
-
-            {/* Camera Button */}
-            <button
-              onClick={() => setIsImageOpen(true)}
-              className="w-full inline-flex items-center justify-center gap-3 px-6 py-4 rounded-3xl bg-card border border-border shadow-apple-sm hover:shadow-apple hover:-translate-y-0.5 transition-all active:scale-95 mb-10"
-            >
-              <Camera size={22} className="text-primary" />
-              <span className="font-bold text-foreground uppercase tracking-wider text-[11px]">{t.scanCrop}</span>
-            </button>
-
-            {/* Recent Queries */}
-            <section className="mt-4">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-body font-bold text-foreground tracking-tight">{t.recentQueries}</h2>
-                {recentQueries.length > 0 && (
-                  <button
-                    onClick={() => setActiveTab('library')}
-                    className="text-[10px] font-black uppercase tracking-widest text-primary hover:opacity-70 transition-opacity"
-                  >
-                    {getTranslation('common', language).viewLibrary}
-                  </button>
-                )}
-              </div>
-              <div className="space-y-4">
-                {recentQueries.length > 0 ? (
-                  recentQueries.map((item) => (
-                    <RecentQueryCard
-                      key={item.id}
-                      id={item.id}
-                      query={item.query}
-                      response={item.response}
-                      timestamp={item.timestamp}
-                      cropType={item.cropType}
-                      onClick={() => handleRecentQueryClick(item)}
-                      onPlay={() => handleRecentQueryClick(item)}
-                      isPlaying={currentPlayingId === `assistant_${item.id}`}
-                    />
-                  ))
-                ) : (
-                  <div className="p-10 text-center bg-muted/20 rounded-3xl border border-dashed border-border/50">
-                    <Search className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">{getTranslation('common', language).noRecentQueries}</p>
-                  </div>
-                )}
-              </div>
-            </section>
-          </main>
-        </div>
-      );
-    };
-
+    // 3. DASHBOARD MODE (Default)
     return (
-      <div className="min-h-screen bg-background overflow-x-hidden">
-        {!isOnline && <OfflineBanner language={language} />}
+      <div className="flex flex-col flex-1 pb-32 bg-background animate-in fade-in duration-700">
+        {/* Modern Glass Header */}
+        <header className="sticky top-0 z-40 px-5 py-4 bg-background/60 dark:bg-background/80 backdrop-blur-apple border-b border-border/50 transition-all duration-300">
+          <div className="flex items-center justify-between max-w-lg mx-auto w-full">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-white shadow-apple-sm flex items-center justify-center border border-border/50 group hover:scale-105 transition-all">
+                <img src="/logo.svg" alt="AgroTalk" className="w-6 h-6" />
+              </div>
+              <div className="flex flex-col">
+                <h1 className="text-body font-bold text-foreground leading-none tracking-tight">Agrotalk</h1>
+                <ConnectionStatus isOnline={isOnline} />
+              </div>
+            </div>
 
-        <main className={cn("flex-1 flex flex-col", !isOnline ? "pt-14" : "", isChatMode && activeTab === "home" ? "h-screen" : "")}>
-          {activeTab === "home" && renderHomeScreen()}
-          {activeTab === "library" && (
-            <LibraryScreen
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate('/call-agent')}
+                className="flex items-center justify-center p-2 rounded-full bg-card border border-border/50 shadow-apple-sm hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 w-10 h-10"
+                aria-label="Call AI Agent"
+              >
+                <PhoneCall size={20} className="text-primary" />
+              </button>
+              <button
+                onClick={() => setIsWhatsAppOpen(true)}
+                className="flex items-center justify-center p-2 rounded-full bg-card border border-border/50 shadow-apple-sm hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 w-10 h-10"
+                aria-label="WhatsApp Bridge"
+              >
+                <MessageCircle size={20} className="text-[#25D366]" />
+              </button>
+              <LanguageSelector selectedLanguage={language} onLanguageChange={setLanguage} />
+              <button className="w-10 h-10 rounded-full flex items-center justify-center bg-muted/30 hover:bg-muted/60 transition-colors text-muted-foreground hover:text-foreground active:scale-90">
+                <Bell size={18} />
+              </button>
+              <button className="w-10 h-10 rounded-full flex items-center justify-center bg-muted/30 hover:bg-muted/60 transition-colors text-muted-foreground hover:text-foreground active:scale-90 overflow-hidden border border-border/50">
+                <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=100&auto=format&fit=crop" alt="User" className="w-full h-full object-cover" />
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main className="flex-1 max-w-lg mx-auto w-full px-5 py-6">
+          {/* Weather Section - Card Style */}
+          <div className="mb-8 animate-in slide-in-from-top-4 duration-500 delay-150">
+            <WeatherDashboard
+              data={weatherData}
+              loading={isWeatherLoading}
+              error={weatherError}
               language={language}
-              weatherData={weatherData}
-              isWeatherLoading={isWeatherLoading}
-              onShareChat={(analysis) => {
-                handleShareToChat(analysis);
-              }}
+              lastUpdated={!isOnline ? weatherLastUpdated : null}
             />
-          )}
-          {activeTab === "settings" && (
-            <SettingsScreen language={language} onLanguageChange={setLanguage} voiceSpeed={voiceSpeed} onVoiceSpeedChange={setVoiceSpeed} />
-          )}
-          {activeTab === "market" && (
-            <MarketPriceScreen
-              language={language}
-              isOnline={isOnline}
-              onShareChat={handleMarketShare}
-            />
-          )}
+          </div>
+
+          {/* Compact Hero Section */}
+          <div className="mb-6 animate-in slide-in-from-top-4 duration-500 delay-300">
+            <div className="flex flex-col items-center text-center mb-4">
+              <h2 className="text-lg font-bold text-foreground tracking-tight">
+                {t.greeting}, <span className="text-primary">{getTranslation('common', language).farmer}!</span>
+              </h2>
+              <p className="text-[12px] text-muted-foreground leading-none mt-1">
+                {t.greetingSubtext}
+              </p>
+            </div>
+
+            {/* Thin Quick Search Card */}
+            <div className="relative group cross-fade">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-[20px] blur-lg opacity-0 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+              <form onSubmit={handleTextSubmit} className="relative">
+                <div className="bg-card rounded-[18px] shadow-apple-sm border border-border/60 p-1 focus-within:border-primary/40 transition-all duration-300 group-hover:shadow-apple-md">
+                  <div className="flex items-center">
+                    <div className="pl-3 pr-1 text-primary">
+                      <Search size={18} strokeWidth={2.5} />
+                    </div>
+                    <input
+                      type="text"
+                      value={textInput}
+                      onChange={(e) => setTextInput(e.target.value)}
+                      placeholder={getPlaceholderText()}
+                      className="flex-1 h-9 bg-transparent border-none text-[13px] focus:ring-0 placeholder:text-muted-foreground/50 font-medium"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleMicClick}
+                      className={cn(
+                        "w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90",
+                        isRecording ? "bg-destructive text-white animate-pulse" : "text-primary hover:bg-primary/10"
+                      )}
+                    >
+                      <Mic size={16} strokeWidth={2.5} />
+                    </button>
+                    {textInput.trim() && (
+                      <button
+                        type="submit"
+                        className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-md shadow-primary/20 hover:scale-105 active:scale-90 transition-all ml-1"
+                      >
+                        <ArrowRight size={16} strokeWidth={3} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          {/* Camera Button */}
+          <button
+            onClick={() => setIsImageOpen(true)}
+            className="w-full inline-flex items-center justify-center gap-3 px-6 py-4 rounded-3xl bg-card border border-border shadow-apple-sm hover:shadow-apple hover:-translate-y-0.5 transition-all active:scale-95 mb-10"
+          >
+            <Camera size={22} className="text-primary" />
+            <span className="font-bold text-foreground uppercase tracking-wider text-[11px]">{t.scanCrop}</span>
+          </button>
+
+          {/* Recent Queries */}
+          <section className="mt-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-body font-bold text-foreground tracking-tight">{t.recentQueries}</h2>
+              {recentQueries.length > 0 && (
+                <button
+                  onClick={() => setActiveTab('library')}
+                  className="text-[10px] font-black uppercase tracking-widest text-primary hover:opacity-70 transition-opacity"
+                >
+                  {getTranslation('common', language).viewLibrary}
+                </button>
+              )}
+            </div>
+            <div className="space-y-4">
+              {recentQueries.length > 0 ? (
+                recentQueries.map((item) => (
+                  <RecentQueryCard
+                    key={item.id}
+                    id={item.id}
+                    query={item.query}
+                    response={item.response}
+                    timestamp={item.timestamp}
+                    cropType={item.cropType}
+                    onClick={() => handleRecentQueryClick(item)}
+                    onPlay={() => handleRecentQueryClick(item)}
+                    isPlaying={currentPlayingId === `assistant_${item.id}`}
+                  />
+                ))
+              ) : (
+                <div className="p-10 text-center bg-muted/20 rounded-3xl border border-dashed border-border/50">
+                  <Search className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">{getTranslation('common', language).noRecentQueries}</p>
+                </div>
+              )}
+            </div>
+          </section>
         </main>
-
-
-        {!isChatMode && <BottomNavigation activeTab={activeTab} onTabChange={handleTabChange} language={language} />}
-
-        <ImageAnalysis
-          isOpen={isImageOpen}
-          onClose={() => { setIsImageOpen(false); refreshLibrary(); }}
-          language={language}
-          onShareChat={handleShareToChat}
-        />
-
-        <VoiceInteraction
-          isOpen={isVoiceOpen}
-          onClose={() => setIsVoiceOpen(false)}
-          language={language}
-          initialMessages={initialVoiceMessages}
-          initialConversationId={voiceContextId}
-          weatherContext={weatherData ? {
-            temp: weatherData.current.temperature_2m,
-            condition: weatherData.current.weather_code,
-            humidity: weatherData.current.relative_humidity_2m
-          } : undefined}
-        />
       </div>
     );
-  }
+  };
+
+  return (
+    <div className="min-h-screen bg-background overflow-x-hidden">
+      {!isOnline && <OfflineBanner language={language} />}
+
+      <main className={cn("flex-1 flex flex-col", !isOnline ? "pt-14" : "", isChatMode && activeTab === "home" ? "h-screen" : "")}>
+        {activeTab === "home" && renderHomeScreen()}
+        {activeTab === "library" && (
+          <LibraryScreen
+            language={language}
+            weatherData={weatherData}
+            isWeatherLoading={isWeatherLoading}
+            onShareChat={(analysis) => {
+              handleShareToChat(analysis);
+            }}
+          />
+        )}
+        {activeTab === "settings" && (
+          <SettingsScreen language={language} onLanguageChange={setLanguage} voiceSpeed={voiceSpeed} onVoiceSpeedChange={setVoiceSpeed} />
+        )}
+        {activeTab === "market" && (
+          <MarketPriceScreen
+            language={language}
+            isOnline={isOnline}
+            onShareChat={handleMarketShare}
+          />
+        )}
+      </main>
+
+
+      {!isChatMode && <BottomNavigation activeTab={activeTab} onTabChange={handleTabChange} language={language} />}
+
+      <ImageAnalysis
+        isOpen={isImageOpen}
+        onClose={() => { setIsImageOpen(false); refreshLibrary(); }}
+        language={language}
+        onShareChat={handleShareToChat}
+      />
+
+      <VoiceInteraction
+        isOpen={isVoiceOpen}
+        onClose={() => setIsVoiceOpen(false)}
+        language={language}
+        initialMessages={initialVoiceMessages}
+        initialConversationId={voiceContextId}
+        weatherContext={weatherData ? {
+          temp: weatherData.current.temperature_2m,
+          condition: weatherData.current.weather_code,
+          humidity: weatherData.current.relative_humidity_2m
+        } : undefined}
+      />
+
+      <WhatsAppStatus isOpen={isWhatsAppOpen} onClose={() => setIsWhatsAppOpen(false)} />
+    </div>
+  );
 }

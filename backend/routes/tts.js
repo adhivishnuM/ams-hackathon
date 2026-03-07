@@ -21,8 +21,11 @@ router.post('/', async (req, res) => {
             return res.status(500).json({ success: false, error: 'TTS generation failed' });
         }
 
+        const isWav = audioBuffer.slice(0, 4).toString() === 'RIFF';
+        const contentType = isWav ? 'audio/wav' : 'audio/mpeg';
+
         res.set({
-            'Content-Type': 'audio/mpeg',
+            'Content-Type': contentType,
             'Content-Length': audioBuffer.length
         });
 

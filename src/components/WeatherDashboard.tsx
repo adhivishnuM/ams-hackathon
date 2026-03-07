@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Cloud, Sun, Moon, CloudRain, Wind, Droplets, CloudSnow, CloudLightning, CloudFog, CloudDrizzle, ChevronDown, ChevronUp, MapPin, Thermometer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getTranslation, dayNames, monthNames, type SupportedLanguage } from '@/lib/translations';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface WeatherData {
   current: {
@@ -68,7 +69,18 @@ const getWeatherLabel = (code: number, t: any): string => {
 };
 
 const formatDate = (dateStr: string, language: string): { day: string; date: string; month: string } => {
-  const date = new Date(dateStr);
+  let date;
+  if (dateStr.includes('T')) {
+    date = new Date(dateStr);
+  } else {
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    } else {
+      date = new Date(dateStr);
+    }
+  }
+
   const dayIndex = date.getDay();
   const monthIndex = date.getMonth();
   const dateNum = date.getDate();
@@ -121,102 +133,146 @@ export const WeatherDashboard: React.FC<WeatherDashboardProps> = ({
   const today = new Date();
   const currentHour = today.getHours();
   const isNight = currentHour >= 18 || currentHour < 6;
-  const formattedToday = formatDate(today.toISOString(), language);
+  const todayDateStr = data.daily?.time?.[0] || today.toISOString().split('T')[0];
+  const formattedToday = formatDate(todayDateStr, language);
 
   return (
     <div className="relative group">
       {/* Premium Glass Card - Tactical Upgrade */}
-      <div
+      <motion.div
+        layout
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
         onClick={() => setIsExpanded(!isExpanded)}
         className={cn(
-          "bg-card rounded-[32px] transition-all duration-500 cursor-pointer overflow-hidden border border-border",
-          "hover:shadow-2xl hover:scale-[1.01] active:scale-[0.98]",
-          isExpanded ? "ring-2 ring-primary/40 shadow-apple-lg" : "shadow-xl"
+          "bg-card/40 backdrop-blur-xl rounded-[32px] transition-all duration-500 cursor-pointer overflow-hidden border border-white/10",
+          "hover:bg-card/60 hover:shadow-2xl hover:scale-[1.01] active:scale-[0.99]",
+          isExpanded ? "ring-2 ring-primary/30 shadow-2xl" : "shadow-apple-card"
         )}
       >
-        <div className="p-4">
+        <div className="p-6">
           <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
+            <div className="space-y-1.5">
               <div className="flex items-center gap-2">
-                <div className="px-1.5 py-0.5 rounded-full bg-muted border border-border">
-                  <span className="text-[8px] font-black uppercase tracking-widest text-muted-foreground">{t.liveWeather}</span>
-                </div>
+                <motion.div
+                  initial={{ scale: 0.8 }}
+                  animate={{ scale: 1 }}
+                  className="px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20"
+                >
+                  <span className="text-[9px] font-black uppercase tracking-[0.1em] text-primary">{t.liveWeather}</span>
+                </motion.div>
                 {lastUpdated && (
-                  <span className="text-[8px] font-bold text-muted-foreground/60 uppercase">
-                    • {new Date(lastUpdated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  <span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-widest">
+                    {new Date(lastUpdated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 )}
               </div>
-              <h3 className="text-[13px] font-bold text-foreground tracking-tight">
+              <h3 className="text-[15px] font-extrabold text-foreground tracking-tight">
                 {formattedToday.day}, {formattedToday.month} {formattedToday.date}
               </h3>
-              <div className="flex items-baseline gap-2">
-                <span className="text-xl font-black tracking-tighter text-foreground">
+              <div className="flex items-baseline gap-2.5">
+                <span className="text-4xl font-black tracking-tighter text-foreground">
                   {Math.round(data.current.temperature_2m)}°
                 </span>
-                <span className="text-[11px] font-bold text-muted-foreground leading-none">
+                <span className="text-[14px] font-bold text-muted-foreground/80 leading-none">
                   / {t.realFeel} {Math.round(data.current.temperature_2m + 2)}°
                 </span>
               </div>
-              <p className="text-[11px] font-medium text-muted-foreground italic leading-none">{currentLabel}</p>
+              <p className="text-[12px] font-semibold text-muted-foreground/90 italic leading-none">{currentLabel}</p>
             </div>
 
-            <div className="relative">
-              <div className="relative z-10 p-2 bg-muted/50 rounded-2xl border border-border shadow-apple-sm">
-                <WeatherIcon code={data.current.weather_code} size="md" isNight={isNight} />
+            <motion.div
+              whileHover={{ rotate: 15, scale: 1.1 }}
+              transition={{ type: "spring", stiffness: 300 }}
+              className="relative"
+            >
+              <div className="relative z-10 p-4 bg-white/5 dark:bg-black/20 backdrop-blur-md rounded-3xl border border-white/10 shadow-apple-lg">
+                <WeatherIcon code={data.current.weather_code} size="lg" isNight={isNight} />
               </div>
-            </div>
+              <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full -z-0 opacity-50" />
+            </motion.div>
           </div>
 
-          <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/40">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1.5">
-                <Droplets size={14} className="text-blue-500" />
-                <span className="text-[11px] font-bold text-foreground">{data.current.relative_humidity_2m}%</span>
+          <div className="flex items-center justify-between mt-6 pt-5 border-t border-border/10">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-blue-500/10">
+                  <Droplets size={16} className="text-blue-500" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase leading-none mb-0.5">Humidity</span>
+                  <span className="text-[13px] font-black text-foreground">{data.current.relative_humidity_2m}%</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5">
-                <Wind size={14} className="text-teal-500" />
-                <span className="text-[11px] font-bold text-foreground">{data.current.wind_speed_10m} km/h</span>
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-teal-500/10">
+                  <Wind size={16} className="text-teal-500" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase leading-none mb-0.5">Wind</span>
+                  <span className="text-[13px] font-black text-foreground">{data.current.wind_speed_10m} km/h</span>
+                </div>
               </div>
             </div>
-            <div className={cn("transition-transform duration-500", isExpanded && "rotate-180")}>
-              <ChevronDown size={16} className="text-muted-foreground/60" />
-            </div>
+            <motion.div
+              animate={{ rotate: isExpanded ? 180 : 0 }}
+              className="p-1 rounded-full bg-muted/30"
+            >
+              <ChevronDown size={20} className="text-muted-foreground/60" />
+            </motion.div>
           </div>
         </div>
 
         {/* Forecast Content */}
-        {isExpanded && data.daily && (
-          <div className="px-6 pb-6 animate-in slide-in-from-top-4 duration-500">
-            <div className="pt-2">
-              <div className="flex justify-between items-center mb-4">
-                <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/80">{t.next5Days}</h4>
+        <AnimatePresence>
+          {isExpanded && data.daily && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+              className="px-6 pb-8"
+            >
+              <div className="pt-4">
+                <div className="flex justify-between items-center mb-5">
+                  <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-primary/70">{t.next5Days}</h4>
+                </div>
+                <div className="grid grid-cols-5 gap-3">
+                  {data.daily.time.slice(0, 5).map((time, idx) => {
+                    const dateInfo = formatDate(time, language);
+                    const isToday = idx === 0;
+                    return (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        transition={{ delay: idx * 0.05 + 0.2 }}
+                        whileHover={{ y: -4, backgroundColor: "rgba(var(--primary), 0.1)" }}
+                        className={cn(
+                          "flex flex-col items-center p-3 rounded-[24px] border transition-all duration-300",
+                          isToday
+                            ? "bg-primary/10 border-primary/30 shadow-apple-sm ring-1 ring-primary/20"
+                            : "bg-muted/10 border-white/5 hover:bg-muted/20"
+                        )}
+                      >
+                        <p className={cn("text-[9px] font-black uppercase tracking-widest mb-2.5", isToday ? "text-primary" : "text-muted-foreground")}>
+                          {isToday ? t.today : dateInfo.day.slice(0, 3)}
+                        </p>
+                        <WeatherIcon code={data.daily!.weather_code[idx]} size="sm" isNight={false} />
+                        <div className="mt-3 flex flex-col items-center leading-none">
+                          <p className="text-[14px] font-black text-foreground">{Math.round(data.daily!.temperature_2m_max[idx])}°</p>
+                          <p className="text-[10px] text-muted-foreground/60 font-bold mt-1">{Math.round(data.daily!.temperature_2m_min[idx])}°</p>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
               </div>
-              <div className="grid grid-cols-5 gap-2">
-                {data.daily.time.slice(0, 5).map((time, idx) => {
-                  const dateInfo = formatDate(time, language);
-                  const isToday = idx === 0;
-                  return (
-                    <div key={idx} className={cn(
-                      "flex flex-col items-center p-2 rounded-2xl border transition-all duration-300",
-                      isToday
-                        ? "bg-primary/5 border-primary/20 shadow-apple-sm"
-                        : "bg-muted/20 border-border/30 hover:bg-muted/40"
-                    )}>
-                      <p className={cn("text-[8px] font-black uppercase tracking-widest mb-1.5", isToday ? "text-primary" : "text-muted-foreground")}>
-                        {isToday ? t.today : dateInfo.day.slice(0, 3)}
-                      </p>
-                      <WeatherIcon code={data.daily!.weather_code[idx]} size="sm" isNight={false} />
-                      <p className="text-[12px] font-bold text-foreground mt-1.5">{Math.round(data.daily!.temperature_2m_max[idx])}°</p>
-                      <p className="text-[9px] text-muted-foreground/60 font-medium">{Math.round(data.daily!.temperature_2m_min[idx])}°</p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
     </div>
   );
 };

@@ -9,6 +9,7 @@ import asyncio
 from typing import Optional
 from datetime import datetime
 from pathlib import Path
+import httpx
 
 from fastapi import APIRouter, UploadFile, File, HTTPException, Response
 from fastapi.responses import StreamingResponse
@@ -71,11 +72,32 @@ def get_detector() -> BirdDetector:
             confidence_threshold=0.35,  # Lowered for better detection
             cooldown_seconds=3.0  # Faster alerts
         )
+        
     return _detector
 
 
 # Store latest detection frame for thumbnails
 _latest_detection_frame: Optional[bytes] = None
+_last_whatsapp_alert: float = 0
+_background_task: Optional[asyncio.Task] = None
+
+
+# Background monitoring task is now disabled by default to prevent frame-stealing from MJPEG feed.
+# The MJPEG feed (process_frame) handles detection and status updates when active.
+_background_task = None
+_last_whatsapp_alert: float = 0
+
+async def notify_whatsapp(message: str):
+    """Send a notification via the WhatsApp bridge Express service"""
+    try:
+        async with httpx.AsyncClient() as client:
+            await client.post(
+                "http://localhost:3002/notify",
+                json={"message": message},
+                timeout=5.0
+            )
+    except Exception as e:
+        print(f"⚠️ WhatsApp Notification failed: {e}")
 
 
 # ============================================================================
@@ -145,29 +167,42 @@ async def _generate_frames(detector: BirdDetector):
     responsiveness with CPU usage.
     """
     global _latest_detection_frame
-    frame_delay = 1 / 20  # Target 20 FPS
+    frame_delay = 1 / 30  # Optimized for Mac hardware (30 FPS)
     
     while True:
         try:
+            if not detector.has_source:
+                yield _create_mjpeg_frame(_generate_placeholder_frame())
+                await asyncio.sleep(0.5) # Idle poll rate
+                continue
+
             frame_bytes = detector.process_frame()
             
             if frame_bytes is None:
-                # No more frames, yield placeholder then stop
+                # Source active but no frame (e.g. read failure), show placeholder but don't break
                 yield _create_mjpeg_frame(_generate_placeholder_frame())
-                break
+                await asyncio.sleep(0.1)
+                continue
             
             # Store frame for thumbnail if bird detected
             if detector.state.detected:
                 _latest_detection_frame = frame_bytes
                 
+                # Send WhatsApp notification if alert is active
+                if detector.state.alert_active:
+                    current_time = datetime.now().timestamp()
+                    global _last_whatsapp_alert
+                    if current_time - _last_whatsapp_alert > 30:
+                        _last_whatsapp_alert = current_time
+                        bird_info = f"Bird detected with {detector.state.confidence*100:.1f}% confidence."
+                        asyncio.create_task(notify_whatsapp(bird_info))
+                
             yield _create_mjpeg_frame(frame_bytes)
-            
-            # Small delay to control frame rate and allow other coroutines
             await asyncio.sleep(frame_delay)
             
         except Exception as e:
             print(f"Frame generation error: {e}")
-            break
+            await asyncio.sleep(1) # Wait before retry
 
 
 def _create_mjpeg_frame(jpeg_bytes: bytes) -> bytes:
@@ -261,10 +296,6 @@ async def upload_video(file: UploadFile = File(...)):
         # Set as active video source
         detector = get_detector()
         success = detector.set_video_source(str(file_path))
-        
-        if not success:
-            file_path.unlink(missing_ok=True)
-            raise HTTPException(500, "Failed to open video file. The file may be corrupted.")
         
         return UploadResponse(
             success=True,

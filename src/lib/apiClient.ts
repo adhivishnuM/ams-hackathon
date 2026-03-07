@@ -5,7 +5,7 @@
  * Now supports conversation history for context-aware AI responses.
  */
 
-const BACKEND_URL = 'http://localhost:3001';
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 import localWisdomData from '@/data/offline_knowledge.json';
 import { localWisdom, WisdomItem } from '@/data/localWisdom';
@@ -396,14 +396,19 @@ export async function getTextAdvice(
  * Get natural TTS audio from NVIDIA cloud
  * Returns a Blob containing the MP3 audio
  */
-export async function getNvidiaTts(text: string, language: string = 'en', forceEdge: boolean = false): Promise<Blob | null> {
+export async function getNvidiaTts(
+    text: string,
+    language: string = 'en',
+    voice?: string,
+    forceEdge: boolean = false
+): Promise<Blob | null> {
     try {
         const response = await fetch(`${BACKEND_URL}/api/tts`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ text, language, forceEdge })
+            body: JSON.stringify({ text, language, voice: voice || 'mia', forceEdge })
         });
 
         if (!response.ok) return null;

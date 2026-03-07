@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: agrotalk-backend
+    env: docker
+    plan: free
+    dockerCommand: npm start
+    envVars:
+      - key: PORT
+        value: 3001
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: NVIDIA_VISION_KEY
+        sync: false
+      - key: NVIDIA_TTS_KEY
+        sync: false
+      - key: NVIDIA_STT_KEY
+        sync: false
+      - key: FIREBASE_SERVICE_ACCOUNT
+        sync: false

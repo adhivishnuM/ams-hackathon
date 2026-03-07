@@ -1,7 +1,7 @@
 /**
  * Vision Analysis Module (FRONTEND)
  * 
- * connect to Python YOLO Backend
+ * connect to Special NVIDIA Vision Backend
  */
 
 export interface DiseaseAnalysis {
@@ -53,9 +53,9 @@ export interface VisionAnalysisResult {
 }
 
 /**
- * Analyzes an image by sending it to the Python YOLO backend.
+ * Analyzes an image by sending it to the Python backend.
  */
-export async function analyzeImage(imageFile: File, mode: "yolo" | "nvidia" = "nvidia", language: string = "en"): Promise<VisionAnalysisResult> {
+export async function analyzeImage(imageFile: File, language: string = "en"): Promise<VisionAnalysisResult> {
   try {
     // Convert file to base64
     const base64Image = await new Promise<string>((resolve, reject) => {
@@ -65,11 +65,9 @@ export async function analyzeImage(imageFile: File, mode: "yolo" | "nvidia" = "n
       reader.readAsDataURL(imageFile);
     });
 
-    // Call Python Backend
-    // Assuming backend is running on port 8000
     const BACKEND_URL = "http://localhost:8000/api/analyze";
 
-    console.log(`🚀 Sending image to Python backend (${mode}):`, BACKEND_URL);
+    console.log(`🚀 Sending image to NVIDIA Specialty backend:`, BACKEND_URL);
 
     const response = await fetch(BACKEND_URL, {
       method: "POST",
@@ -79,7 +77,6 @@ export async function analyzeImage(imageFile: File, mode: "yolo" | "nvidia" = "n
       body: JSON.stringify({
         image: base64Image,
         language: language,
-        mode: mode
       })
     });
 

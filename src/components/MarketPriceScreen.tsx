@@ -570,7 +570,10 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                                                 </div>
                                                 {analysis ? (
                                                     <>
-                                                        <div className="prose prose-sm prose-primary max-w-none text-caption leading-relaxed text-foreground font-medium mb-4">
+                                                        <div className="prose prose-sm prose-primary max-w-none text-caption leading-relaxed text-foreground font-medium mb-4 
+                                                            prose-a:text-primary prose-a:font-black prose-a:underline prose-a:underline-offset-4 prose-a:decoration-primary/30 hover:prose-a:decoration-primary
+                                                            prose-strong:text-foreground prose-strong:font-black
+                                                            prose-p:mb-3 last:prose-p:mb-0">
                                                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                                                 {analysis}
                                                             </ReactMarkdown>
@@ -580,7 +583,7 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                                                                 e.stopPropagation();
                                                                 try {
                                                                     if (navigator.onLine) {
-                                                                        const audioBlob = await getNvidiaTts(analysis, language, true);
+                                                                        const audioBlob = await getNvidiaTts(analysis, language, undefined, true);
                                                                         if (audioBlob) {
                                                                             const audioUrl = URL.createObjectURL(audioBlob);
                                                                             const audio = new Audio(audioUrl);

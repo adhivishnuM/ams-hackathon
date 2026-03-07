@@ -11,6 +11,7 @@ from typing import Optional, Dict, Any
 import httpx
 from openai import AsyncOpenAI
 from dotenv import load_dotenv
+from services.nvidia_stt import NvidiaSTTService
 
 load_dotenv()
 
@@ -137,11 +138,11 @@ class WhatsAppAIService:
     """
 
     AGRO_SYSTEM_PROMPT = (
-        "You are AgroTalk, an elite agricultural AI specialist. "
-        "Provide expert advice on plant diseases, crop management, and organic farming. "
-        "Keep responses professional, highly concise (max 3 sentences unless listing steps), and practical. "
-        "Use numbered lists for steps. Do NOT use conversational filler like 'I'm here to help' or 'No need to worry'. "
-        "Focus purely on the scientific and practical agricultural solution."
+        "You are AgroTalk, an elite world-class agricultural AI specialist. "
+        "Provide scientific, precise, and practical expert advice on crop health, soil management, and modern farming techniques. "
+        "Maintain a professional, authoritative tone. Responses must be extremely concise (max 3 sentences). "
+        "Use numbered lists only for critical steps. Avoid all conversational filler or generic greetings. "
+        "Focus on delivering immediate, high-value agricultural solutions based on data."
     )
 
     def __init__(self):
@@ -169,16 +170,8 @@ class WhatsAppAIService:
             self.chat_model: Optional[str] = None
             print("❌ [WhatsApp AI] No chat API key found!")
 
-        # STT uses same NVIDIA key
-        if self.nvidia_vision_key:
-            self.stt_client = AsyncOpenAI(
-                base_url="https://integrate.api.nvidia.com/v1",
-                api_key=self.nvidia_vision_key
-            )
-            print("🟢 [WhatsApp AI] STT using NVIDIA Whisper NIM")
-        else:
-            self.stt_client = None
-            print("⚠️ [WhatsApp AI] No STT client - NVIDIA_VISION_KEY missing")
+        # STT using dedicated service
+        self.stt_service = NvidiaSTTService()
 
         # Node.js backend URL for market data
         self.node_api_url = os.getenv("VITE_API_URL") or "http://localhost:3001"
@@ -210,6 +203,27 @@ class WhatsAppAIService:
             print(f"⚠️ [Market Fetch] Error: {e}")
         return None
 
+    async def _fetch_weather(self, lat: float = 28.6139, lon: float = 77.2090) -> Optional[str]:
+        """Fetch real-time agricultural weather from Open-Meteo."""
+        try:
+            url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto"
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.get(url)
+                if response.status_code == 200:
+                    d = response.json()
+                    curr = d.get("current", {})
+                    daily = d.get("daily", {})
+                    
+                    weather_info = (
+                        f"Current: {curr.get('temperature_2m')}°C, Humidity: {curr.get('relative_humidity_2m')}%, "
+                        f"Wind: {curr.get('wind_speed_10m')}km/h. "
+                        f"Today's Range: {daily.get('temperature_2m_min', [0])[0]}°C to {daily.get('temperature_2m_max', [0])[0]}°C."
+                    )
+                    return weather_info
+        except Exception as e:
+            print(f"⚠️ [Weather Fetch] Error: {e}")
+        return None
+
     def _extract_market_intent(self, text: str) -> Optional[Dict[str, str]]:
         """Identify if user is asking for prices and extract commodity."""
         if not text:
@@ -233,12 +247,18 @@ class WhatsAppAIService:
                 break
         
         if found_commodity:
-            # Map maize to corn if needed, but the Mandi API usually uses the common name
             commodity_str = str(found_commodity)
             if commodity_str == "corn": commodity_str = "Maize"
             return {"commodity": commodity_str.capitalize()}
         
         return {"commodity": ""} # Mentioned price but no crop found
+
+    def _extract_weather_intent(self, text: str) -> bool:
+        """Identify if user is asking about weather."""
+        if not text: return False
+        text = text.lower()
+        keywords = ["weather", "rain", "temperature", "forecast", "climate", "mausam"]
+        return any(kw in text for kw in keywords)
 
     async def chat(self, text: str, language: str = "en") -> str:
         """
@@ -288,11 +308,19 @@ class WhatsAppAIService:
                 else:
                     market_context = "\n\nNOTICE: User asked about prices but no crop found. Ask which crop."
 
+            # Step 2: Check for Weather Intent
+            weather_context = ""
+            if self._extract_weather_intent(text):
+                print(f"🌦️ [Weather] Fetching weather...")
+                weather_data = await self._fetch_weather()
+                if weather_data:
+                    weather_context = f"\n\nREAL-TIME WEATHER: {weather_data}\nProvide agricultural advice based on this."
+
             print(f"🤖 [WhatsApp Chat] Sending: '{str(text)[:60]}...' (lang={language})")
             response = await self.chat_client.chat.completions.create(
                 model=self.chat_model,
                 messages=[
-                    {"role": "system", "content": f"{agro_system_prompt} {lang_instruction} {market_context}"},
+                    {"role": "system", "content": f"{agro_system_prompt} {lang_instruction} {market_context} {weather_context}"},
                     {"role": "user", "content": text}
                 ],
                 max_tokens=600,
@@ -305,61 +333,30 @@ class WhatsAppAIService:
             print(f"❌ [WhatsApp Chat] Error: {e}")
             return f"⚠️ AI error: {str(e)}"
 
-    async def transcribe_audio(self, audio_bytes: bytes, mime_type: str = "audio/ogg") -> Optional[str]:
+    async def transcribe_audio(self, audio_bytes: bytes, mime_type: str = "audio/ogg", language: str = "en") -> Optional[str]:
         """
         Transcribe audio bytes using NVIDIA Whisper NIM or fallback.
         Returns transcription text or None.
         """
-        if not self.stt_client:
-            print("❌ [STT] No STT client available")
+        if not self.stt_service:
+            print("❌ [STT] No STT service initialized")
             return None
 
-        # Determine file extension
-        ext_map = {
-            "audio/ogg": ".ogg",
-            "audio/mpeg": ".mp3",
-            "audio/mp4": ".m4a",
-            "audio/wav": ".wav",
-            "audio/webm": ".webm",
-        }
-        ext = ext_map.get(mime_type, ".ogg")
+        return await self.stt_service.transcribe_audio(audio_bytes, mime_type, language)
 
-        tmp_path = None
-        try:
-            # Write bytes to temp file
-            with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tmp:
-                tmp.write(audio_bytes)
-                tmp_path = tmp.name
-
-            print(f"🎙️ [STT] Transcribing {len(audio_bytes)} bytes ({mime_type})...")
-
-            with open(tmp_path, "rb") as audio_file:
-                transcription = await self.stt_client.audio.transcriptions.create(
-                    model="nvidia/whisper-large-v3",
-                    file=audio_file,
-                )
-
-            transcript = transcription.text.strip()
-            print(f"✅ [STT] Transcript: '{transcript}'")
-            return transcript
-        except Exception as e:
-            print(f"❌ [STT] NVIDIA Whisper-Large-v3 failed: {e}")
-            return None
-        finally:
-            if tmp_path and os.path.exists(tmp_path):
-                os.unlink(tmp_path)
 
     async def transcribe_and_reply(
         self, audio_bytes: bytes, mime_type: str = "audio/ogg", language: str = "en"
     ) -> Dict[str, Any]:
         """
         Full pipeline: audio → STT → AI chat → TTS
-        Returns: { transcript, text_reply, audio_reply_b64 }
+        Returns: { success, transcript, text_reply, audio_reply_b64 }
         """
         # Step 1: Transcribe
-        transcript = await self.transcribe_audio(audio_bytes, mime_type)
+        transcript = await self.transcribe_audio(audio_bytes, mime_type, language)
         if not transcript:
             return {
+                "success": False,
                 "transcript": "",
                 "text_reply": "⚠️ Sorry, I couldn't understand the audio. Please try again.",
                 "audio_reply_b64": None
@@ -387,11 +384,18 @@ class WhatsAppAIService:
             else:
                 market_context = "\n\nNOTICE: User asked about prices but no crop found. Ask which crop."
 
+        # Weather context for audio
+        weather_context = ""
+        if self._extract_weather_intent(transcript):
+            weather_data = await self._fetch_weather()
+            if weather_data:
+                weather_context = f"\n\nREAL-TIME WEATHER: {weather_data}\nSummarize briefly for the farmer."
+
         try:
             response = await self.chat_client.chat.completions.create(
                 model=self.chat_model,
                 messages=[
-                    {"role": "system", "content": f"{self.AGRO_SYSTEM_PROMPT} {lang_instruction} {market_context} Keep the reply under 100 words since it will be spoken aloud."},
+                    {"role": "system", "content": f"{self.AGRO_SYSTEM_PROMPT} {lang_instruction} {market_context} {weather_context} Keep the reply under 100 words since it will be spoken aloud."},
                     {"role": "user", "content": transcript}
                 ],
                 max_tokens=200,
@@ -407,22 +411,31 @@ class WhatsAppAIService:
 
         # Step 3: TTS (import here to avoid circular import)
         audio_reply_b64 = None
+        error_context = None
         try:
+            from services.nvidia_vision import NvidiaVisionService
             from services.nvidia_tts import NvidiaTTSService
             tts = NvidiaTTSService()
-            audio_bytes_out = await tts.generate_audio(tts_text, language)
+            # Force Edge TTS to guarantee MP3 output (WhatsApp voice notes require MP3 or OGG, not WAV)
+            audio_bytes_out = await tts.generate_audio(tts_text, language, force_edge=True)
             if audio_bytes_out:
                 audio_reply_b64 = base64.b64encode(audio_bytes_out).decode("utf-8")
                 print(f"✅ [TTS] Generated {len(bytes(audio_bytes_out))} bytes of audio reply")
+            else:
+                error_context = "TTS Service returned empty audio"
         except Exception as e:
+            error_context = f"TTS Error: {str(e)}"
             print(f"⚠️ [TTS] Could not generate audio reply: {e}")
+
 
         text_reply = build_audio_reply_wrapper(transcript, raw_reply)
 
         return {
+            "success": True,
             "transcript": transcript,
             "text_reply": text_reply,
-            "audio_reply_b64": audio_reply_b64
+            "audio_reply_b64": audio_reply_b64,
+            "error_context": error_context
         }
 
 

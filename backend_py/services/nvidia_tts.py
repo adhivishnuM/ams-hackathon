@@ -6,6 +6,12 @@ from dotenv import load_dotenv
 from typing import Optional
 
 load_dotenv()
+# Also search parent directory for .env (if running from backend_py/)
+if not os.getenv("NVIDIA_TTS_KEY"):
+    parent_env = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".env"))
+    if os.path.exists(parent_env):
+        print(f"ℹ️ Loading .env from: {parent_env}")
+        load_dotenv(parent_env)
 
 # Try to import riva.client (may fail if not installed for Edge-only mode)
 try:
@@ -183,15 +189,16 @@ class NvidiaTTSService:
         # Priotize NVIDIA for English even if force_edge is suggested (latest user preference)
         should_try_nvidia = is_nvidia_supported and self.api_key and RIVA_AVAILABLE
         
-        if should_try_nvidia and (not force_edge or lang.startswith("en")):
+        if should_try_nvidia and not force_edge:
             # Use NVIDIA TTS for supported Western languages
             audio = await self._generate_nvidia_audio(text, lang, voice)
+
             if audio:
                 return audio
             # Fall back to Edge if NVIDIA fails
             print("⚠️ NVIDIA TTS failed. Falling back to Edge TTS...")
         else:
-            if force_edge and not lang.startswith("en"):
+            if force_edge:
                 print(f"ℹ️ Forcing Edge TTS for language '{lang}' as requested...")
             elif not is_nvidia_supported:
                 # Language not supported by NVIDIA (e.g., Hindi, Tamil, Telugu, Marathi)

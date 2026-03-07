@@ -114,7 +114,7 @@ export const translations = {
   // Home Screen
   home: {
     en: {
-      greeting: "Hello, Farmer!",
+      greeting: "Hello Farmer!",
       greetingSubtext: "How can I help you today?",
       recentQueries: "Recent Queries",
       tapToSpeak: "Tap to ask a question",
@@ -122,7 +122,7 @@ export const translations = {
       noRecentScans: "No recent scans yet",
     },
     hi: {
-      greeting: "नमस्ते, किसान!",
+      greeting: "नमस्ते किसान!",
       greetingSubtext: "आज मैं आपकी कैसे मदद कर सकता हूँ?",
       recentQueries: "हाल के प्रश्न",
       tapToSpeak: "सवाल पूछने के लिए टैप करें",
@@ -130,7 +130,7 @@ export const translations = {
       noRecentScans: "अभी कोई स्कैन नहीं",
     },
     ta: {
-      greeting: "வணக்கம், விவசாயி!",
+      greeting: "வணக்கம் விவசாயி!",
       greetingSubtext: "இன்று நான் உங்களுக்கு எப்படி உதவ முடியும்?",
       recentQueries: "சமீபத்திய கேள்விகள்",
       tapToSpeak: "கேள்வி கேட்க தட்டவும்",
@@ -138,7 +138,7 @@ export const translations = {
       noRecentScans: "சமீபத்திய ஸ்கேன்கள் இல்லை",
     },
     te: {
-      greeting: "నమస్కారం, రైతు!",
+      greeting: "నమస్కారం రైతు!",
       greetingSubtext: "ఈ రోజు నేను మీకు ఎలా సహాయం చేయగలను?",
       recentQueries: "ఇటీవలి ప్రశ్నలు",
       tapToSpeak: "ప్రశ్న అడగడానికి నొక్కండి",
@@ -146,7 +146,7 @@ export const translations = {
       noRecentScans: "ఇటీవలి స్కాన్లు లేవు",
     },
     mr: {
-      greeting: "नमस्कार, शेतकरी!",
+      greeting: "नमस्कार शेतकरी!",
       greetingSubtext: "आज मी तुम्हाला कशी मदत करू शकतो?",
       recentQueries: "अलीकडील प्रश्न",
       tapToSpeak: "प्रश्न विचारण्यासाठी टॅप करा",

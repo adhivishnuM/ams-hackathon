@@ -44,7 +44,6 @@ export function ImageAnalysis({ isOpen, onClose, language, onShareChat, variant 
   const handleShareToChat = () => {
     if (analysisResult && onShareChat) {
       onShareChat(analysisResult);
-      onClose();
       toast.success(language === "hi" ? "चैट बॉक्स में भेज दिया गया!" : "Sent to chat!");
     }
   };
@@ -155,7 +154,7 @@ export function ImageAnalysis({ isOpen, onClose, language, onShareChat, variant 
 
       const stepTimer = setTimeout(() => setAnalysisStep("disease"), 1200);
       // Pass language to analyzeImage
-      const visionResult = await analyzeImage(file, "nvidia", language);
+      const visionResult = await analyzeImage(file, language);
       clearTimeout(stepTimer);
 
       if (!visionResult.success || !visionResult.analysis) {
@@ -444,7 +443,7 @@ export function ImageAnalysis({ isOpen, onClose, language, onShareChat, variant 
             {/* Upload/Camera Area */}
             <div
               className={cn(
-                "relative w-full max-w-sm aspect-[4/3] rounded-apple-lg border-2 border-dashed flex flex-col items-center justify-center overflow-hidden transition-all",
+                "relative w-full max-sm aspect-[4/3] rounded-apple-lg border-2 border-dashed flex flex-col items-center justify-center overflow-hidden transition-all",
                 isCameraActive ? "border-primary shadow-apple-lg" : "border-primary bg-background hover:bg-green-wash hover:border-primary/70 cursor-pointer"
               )}
               onClick={() => !isCameraActive && fileInputRef.current?.click()}
@@ -763,7 +762,7 @@ export function ImageAnalysis({ isOpen, onClose, language, onShareChat, variant 
                       ) : (
                         <>
                           <Languages size={18} />
-                          {language === "hi" ? "अनुवाद" : language === "ta" ? "மொழிபெயர்" : language === "te" ? "అనువాదం" : language === "mr" ? "भाषांतर" : "Translate"}
+                          {language === "hi" ? "अनुवाद" : language === "ta" ? "மொழிபெயர்" : language === "te" ? "అనువాదం" : language === "mr" ? "மொழிபெயர்ப்பு" : "Translate"}
                         </>
                       )}
                     </Button>

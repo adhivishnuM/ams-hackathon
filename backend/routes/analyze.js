@@ -1,84 +1,79 @@
 /**
- * Image Analysis Route
- * 
- * POST /analyze-image
- * Accepts multipart form data with an image file.
- * Returns agricultural advisory based on vision analysis.
+ * Image Analysis Route (Updated to use NVIDIA Vision natively)
  */
-
 const express = require('express');
 const multer = require('multer');
-const visionService = require('../services/visionService');
+const nvidiaVisionService = require('../services/nvidiaVisionService');
 const inferenceService = require('../services/inferenceService');
 const storageService = require('../services/storageService');
 
 const router = express.Router();
 
-// Configure multer for file uploads (memory storage)
 const upload = multer({
     storage: multer.memoryStorage(),
-    limits: {
-        fileSize: 10 * 1024 * 1024 // 10MB limit
-    },
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
     fileFilter: (req, file, cb) => {
-        // Accept only images
-        if (file.mimetype.startsWith('image/')) {
-            cb(null, true);
-        } else {
-            cb(new Error('Only image files are allowed'), false);
-        }
+        if (file.mimetype.startsWith('image/')) cb(null, true);
+        else cb(new Error('Only image files are allowed'), false);
     }
 });
 
-// POST /analyze-image
+// POST /analyze-image (multipart/form-data with 'image' field)
 router.post('/', upload.single('image'), async (req, res) => {
     console.log('\n📥 Received image analysis request');
 
     try {
-        // Validate file exists
-        if (!req.file) {
-            console.log('❌ No image file provided');
-            return res.status(400).json({
-                success: false,
-                error: 'No image file provided. Please upload an image.'
-            });
+        if (!req.file && !req.body.image) {
+            return res.status(400).json({ success: false, error: 'No image provided.' });
         }
 
-        console.log(`📷 Image: ${req.file.originalname} (${req.file.mimetype}, ${req.file.size} bytes)`);
+        const language = req.body.language || 'en';
+        let base64Image;
 
-        // Step 1: Call Hugging Face Vision API
-        console.log('🔍 Calling Vision API...');
-        const visionResult = await visionService.analyzeImage(req.file.buffer);
-
-        if (!visionResult.success) {
-            console.log('❌ Vision API failed:', visionResult.error);
-            return res.status(503).json({
-                success: false,
-                error: visionResult.error || 'Vision analysis failed'
-            });
+        if (req.file) {
+            base64Image = req.file.buffer.toString('base64');
+        } else {
+            base64Image = req.body.image; // Base64 direct from WhatsApp bridge
         }
 
-        console.log(`✅ Vision API returned ${visionResult.labels.length} labels`);
+        console.log(`📷 Analyzing image (lang: ${language})...`);
 
-        // Step 2: Apply agricultural inference
-        console.log('🌾 Applying agricultural inference...');
-        const advisory = inferenceService.inferAdvice(visionResult.labels);
+        // Use NVIDIA Vision (fully native Node.js)
+        const result = await nvidiaVisionService.analyzeImage(base64Image, language);
 
-        console.log(`✅ Generated advisory: ${advisory.condition} (${advisory.confidence})`);
+        if (!result.success) {
+            return res.status(503).json({ success: false, error: result.error || 'Vision analysis failed' });
+        }
 
-        // Return success response
         return res.json({
             success: true,
-            data: advisory,
-            labels: visionResult.labels.slice(0, 5) // Return top 5 labels for transparency
+            analysis: result.analysis,
+            timestamp: new Date().toISOString(),
+            mode: 'nvidia'
         });
 
     } catch (error) {
-        console.error('❌ Error processing request:', error);
-        return res.status(500).json({
-            success: false,
-            error: 'Failed to process image. Please try again.'
+        console.error('❌ analyze-image error:', error);
+        return res.status(500).json({ success: false, error: 'Failed to process image.' });
+    }
+});
+
+// POST /analyze-image/base64 (JSON body with base64 image)
+router.post('/base64', async (req, res) => {
+    const { image, language = 'en', cropType } = req.body;
+    if (!image) return res.status(400).json({ success: false, error: 'No image data provided' });
+
+    try {
+        const result = await nvidiaVisionService.analyzeImage(image, language);
+        return res.json({
+            success: result.success,
+            analysis: result.analysis,
+            error: result.error,
+            timestamp: new Date().toISOString(),
+            mode: 'nvidia'
         });
+    } catch (err) {
+        return res.status(500).json({ success: false, error: err.message });
     }
 });
 

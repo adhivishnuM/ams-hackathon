@@ -184,9 +184,8 @@ async function inferAdviceFromText(text, language = 'en', weatherContext = null,
     // 1. LANGUAGE RULE: Local Wisdom is English-only.
     // For other languages, we MUST use an AI model (Remote or Local).
     if (lang !== 'en') {
-        console.log(`📡 Non-English query (${lang}) detected. Routing to AI...`);
+        console.log(`📡 Non-English query (${lang}) detected. Routing to OpenRouter AI...`);
 
-        // A. Attempt Remote AI (OpenRouter)
         if (process.env.OPENROUTER_API_KEY && process.env.OFFLINE_MODE !== 'true') {
             try {
                 const aiResponse = await getAgriAdvice(normalized, weatherContext, null, 'image/jpeg', lang, conversationHistory);
@@ -202,30 +201,7 @@ async function inferAdviceFromText(text, language = 'en', weatherContext = null,
             }
         }
 
-        // B. Fallback to Local AI Assistant (Offline Python LLM)
-        try {
-            const response = await fetch('http://localhost:8000/api/chat_offline', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    text: normalized,
-                    language: lang,
-                    context: { weather: weatherContext, history: conversationHistory }
-                })
-            });
-            const localAi = await response.json();
-            if (localAi && localAi.success) {
-                return {
-                    condition: 'General',
-                    confidence: 'High',
-                    recommendation: localAi.text
-                };
-            }
-        } catch (e) {
-            console.log('⚠️ Local AI for non-English unavailable.');
-        }
-
-        // C. Final Fallback if all AI fail for non-English
+        // Fallback messages for offline / AI failure
         const languageFallbacks = {
             'hi': "क्षमा करें, इस भाषा में सलाह देने के लिए मुझे एआई सेवा की आवश्यकता है जो अभी उपलब्ध नहीं है। कृपया अपना इंटरनेट जांचें।",
             'ta': "மன்னிக்கவும், இந்த மொழியில் ஆலோசனை வழங்க எனக்கு AI சேவை தேவை, அது தற்போது கிடைக்கவில்லை. உங்கள் இணையத்தை சரிபார்க்கவும்.",
@@ -240,30 +216,9 @@ async function inferAdviceFromText(text, language = 'en', weatherContext = null,
         };
     }
 
-    // 2. ENGLISH-ONLY TIERED SEARCH (Local AI -> Cloud AI (if history) -> Local Wisdom)
+    // 2. English — if OFFLINE_MODE is set, skip AI and go straight to local wisdom
     if (process.env.OFFLINE_MODE === 'true' || !process.env.OPENROUTER_API_KEY) {
-        console.log('🤖 Attempting Local Offline Model (English)...');
-        try {
-            const response = await fetch('http://localhost:8000/api/chat_offline', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    text: normalized,
-                    language: 'en',
-                    context: { weather: weatherContext, history: conversationHistory }
-                })
-            });
-            const localAi = await response.json();
-            if (localAi && localAi.success) {
-                return {
-                    condition: 'General',
-                    confidence: 'High',
-                    recommendation: localAi.text
-                };
-            }
-        } catch (e) {
-            console.log('⚠️ Local AI for English failed, falling back to Local Wisdom.');
-        }
+        console.log('📖 Offline mode or no API key — using local knowledge base.');
     }
 
     // 2. AI Assistant (Online Priority)

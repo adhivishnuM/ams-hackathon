@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
+const cacheService = require('../services/cacheService');
+
 /**
  * GET /api/weather
  * Fetches weather data from Open-Meteo API
@@ -16,6 +18,20 @@ router.get('/', async (req, res) => {
         });
     }
 
+    // Cache key based on rounded coordinates (to group nearby users)
+    const roundedLat = parseFloat(lat).toFixed(2);
+    const roundedLon = parseFloat(lon).toFixed(2);
+    const cacheKey = `weather:${roundedLat}:${roundedLon}`;
+    const cachedData = cacheService.get(cacheKey);
+
+    if (cachedData) {
+        console.log(`📦 Returning cached weather for ${roundedLat}, ${roundedLon}`);
+        return res.json({
+            success: true,
+            data: cachedData
+        });
+    }
+
     try {
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`;
 
@@ -25,6 +41,9 @@ router.get('/', async (req, res) => {
         if (data.error) {
             throw new Error(data.reason || 'Failed to fetch weather data');
         }
+
+        // Cache for 15 minutes
+        cacheService.set(cacheKey, data, 900);
 
         res.json({
             success: true,

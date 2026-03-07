@@ -48,31 +48,28 @@ class NvidiaVisionService:
             }
             target_lang_name = lang_names.get(language, "English")
             
-            # Always generate ALL 5 languages for storage
-            all_lang_keys = (
-                "disease_name, disease_name_hindi, disease_name_tamil, disease_name_telugu, disease_name_marathi, "
-                "confidence, severity, "
-                "description, description_hindi, description_tamil, description_telugu, description_marathi, "
-                "symptoms, symptoms_hindi, symptoms_tamil, symptoms_telugu, symptoms_marathi, "
-                "treatment_steps, treatment_steps_hindi, treatment_steps_tamil, treatment_steps_telugu, treatment_steps_marathi, "
-                "organic_options, organic_options_hindi, organic_options_tamil, organic_options_telugu, organic_options_marathi, "
-                "prevention_tips, prevention_tips_hindi, prevention_tips_tamil, prevention_tips_telugu, prevention_tips_marathi, "
-                "crop_identified, crop_identified_hindi, crop_identified_tamil, crop_identified_telugu, crop_identified_marathi"
-            )
-
-            # Clear, strict prompt for JSON-only output
+            # Simplified prompt for faster processing and better compliance
             system_prompt = (
-                f"You are an expert plant pathologist AI. Your ONLY output must be a valid JSON object.\n"
-                f"DO NOT include any text, explanation, or code blocks before or after the JSON.\n"
-                f"DO NOT use asterisks, bullet symbols, or markdown formatting in any string values.\n\n"
-                f"Return EXACTLY this JSON structure (all text in {target_lang_name}):\n"
-                f'{{"crop_identified":"<plant name>","disease_name":"<disease or Healthy>","confidence":95,"severity":"<low|medium|high>","description":"<plain text explanation>","symptoms":["<symptom 1>","<symptom 2>","<symptom 3>"],"treatment_steps":["<step 1>","<step 2>","<step 3>"],"prevention_tips":["<tip 1>","<tip 2>"],"organic_options":["<option 1>","<option 2>"],"is_healthy":false}}\n\n'
-                f"STRICT Rules:\n"
-                f"- If the plant appears healthy: disease_name=\"Healthy\", severity=\"low\", is_healthy=true\n"
-                f"- All string values must be plain text with NO asterisks, NO dashes, NO bullets\n"
-                f"- confidence is an integer 0-100\n"
-                f"- severity is exactly \"low\", \"medium\", or \"high\"\n"
-                f"- Output ONLY the JSON object, nothing else"
+                f"You are a world-class plant pathologist. Analyze the image and provide a diagnosis.\n"
+                f"Language: {target_lang_name}.\n"
+                f"Your output MUST be a valid JSON object with NO additional text.\n\n"
+                f"JSON Structure:\n"
+                f"{{\n"
+                f'  "crop_identified": "Specific plant name",\n'
+                f'  "disease_name": "Specific disease or \'Healthy\'",\n'
+                f'  "confidence": 0-100,\n'
+                f'  "severity": "low", "medium", or "high",\n'
+                f'  "is_healthy": true/false,\n'
+                f'  "description": "Brief explanation of the condition",\n'
+                f'  "symptoms": ["list", "of", "symptoms"],\n'
+                f'  "treatment_steps": ["step 1", "step 2"],\n'
+                f'  "prevention_tips": ["tip 1", "tip 2"],\n'
+                f'  "organic_options": ["option 1", "option 2"]\n'
+                f"}}\n\n"
+                f"Rules:\n"
+                f"- If healthy: disease_name=\"Healthy\", is_healthy=true, severity=\"low\"\n"
+                f"- Use plain text only, no markdown formatting inside strings.\n"
+                f"- Respond ONLY with the JSON code."
             )
 
             response = await self.client.chat.completions.create(
@@ -85,7 +82,7 @@ class NvidiaVisionService:
                     {
                         "role": "user",
                         "content": [
-                            {"type": "text", "text": "Analyze this plant image and return the JSON diagnosis."},
+                            {"type": "text", "text": f"Strictly diagnose this plant in {target_lang_name}. Output JSON ONLY."},
                             {
                                 "type": "image_url",
                                 "image_url": {"url": f"data:image/jpeg;base64,{base64_image_data}"},
@@ -93,79 +90,51 @@ class NvidiaVisionService:
                         ],
                     }
                 ],
-                max_tokens=2048,
+                max_tokens=1024,
                 temperature=0.1,
-                timeout=45.0
+                timeout=40.0
             )
 
             raw_content = response.choices[0].message.content.strip()
             print(f"📄 [NVIDIA] Raw Response Length: {len(raw_content)} chars")
-            print(f"📄 [NVIDIA] First 200 chars: {raw_content[:200]}")
             
             import json
             import re
             
-            # 1. Try JSON parsing - multiple strategies
-            result_json = None
-            
-            # Strategy A: Strip markdown code blocks if present
-            cleaned = re.sub(r'^```(?:json)?\s*', '', raw_content, flags=re.MULTILINE)
-            cleaned = re.sub(r'\s*```$', '', cleaned, flags=re.MULTILINE).strip()
-            
-            # Strategy B: Parse cleaned content directly
-            try:
-                result_json = json.loads(cleaned)
-            except:
-                pass
-            
-            # Strategy C: Find first { to last }
-            if not result_json:
-                start_idx = cleaned.find('{')
-                end_idx = cleaned.rfind('}')
-                if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
-                    try:
-                        result_json = json.loads(cleaned[start_idx:end_idx+1])
-                    except:
-                        pass
-            
-            if result_json:
-                # Clean up list fields - strip any markdown artifacts from list items
-                list_fields = ["symptoms", "treatment_steps", "prevention_tips", "organic_options"]
-                for field in list_fields:
-                    if field in result_json and isinstance(result_json[field], list):
-                        result_json[field] = [
-                            re.sub(r'^[\s\*\-•\d\.]+', '', str(item)).strip()
-                            for item in result_json[field]
-                            if item and str(item).strip()
-                        ]
-                
-                # Clean string fields of markdown artifacts
-                for field in ["disease_name", "crop_identified", "description"]:
-                    if field in result_json and isinstance(result_json[field], str):
-                        result_json[field] = re.sub(r'\*+', '', result_json[field]).strip()
-                
-                # Normalize confidence to a proper integer
+            # Strategy: Find JSON block
+            json_match = re.search(r'(\{.*\})', raw_content, re.DOTALL)
+            if json_match:
                 try:
-                    conf = int(float(str(result_json.get("confidence", 95))))
-                    result_json["confidence"] = max(80, min(99, conf)) if conf > 0 else 95
-                except:
-                    result_json["confidence"] = 95
-                
-                # Ensure is_healthy matches disease_name
-                if "disease_name" in result_json:
-                    is_healthy = "healthy" in str(result_json["disease_name"]).lower()
-                    result_json["is_healthy"] = is_healthy
+                    result_json = json.loads(json_match.group(1))
+                    
+                    # Normalize fields
+                    result_json["confidence"] = max(80, min(99, int(float(result_json.get("confidence", 95)))))
+                    
+                    # Ensure healthy status is consistent
+                    is_healthy = "healthy" in str(result_json.get("disease_name", "")).lower() or result_json.get("is_healthy") == True
                     if is_healthy:
+                        result_json["is_healthy"] = True
+                        result_json["disease_name"] = "Healthy"
                         result_json["severity"] = "low"
-                
-                # Validate severity
-                if result_json.get("severity") not in ["low", "medium", "high"]:
-                    result_json["severity"] = "medium"
-                
-                print(f"✅ [NVIDIA] Parsed: Crop={result_json.get('crop_identified')}, Disease={result_json.get('disease_name')}")
-                return {"success": True, "analysis": result_json}
+                    
+                    # Ensure localized keys exist for frontend compatibility (fallback to English/Current)
+                    # The frontend might expect disease_name_hindi etc.
+                    current_lang_suffix = f"_{language}" if language != "en" else ""
+                    if current_lang_suffix:
+                        result_json[f"disease_name{current_lang_suffix}"] = result_json.get("disease_name")
+                        result_json[f"description{current_lang_suffix}"] = result_json.get("description")
+                        result_json[f"symptoms{current_lang_suffix}"] = result_json.get("symptoms", [])
+                        result_json[f"treatment_steps{current_lang_suffix}"] = result_json.get("treatment_steps", [])
+                        result_json[f"prevention_tips{current_lang_suffix}"] = result_json.get("prevention_tips", [])
+                        result_json[f"organic_options{current_lang_suffix}"] = result_json.get("organic_options", [])
+                        result_json[f"crop_identified{current_lang_suffix}"] = result_json.get("crop_identified")
 
-            # 2. Smart Parsing Fallback
+                    print(f"✅ [NVIDIA] Successful Analysis: {result_json.get('disease_name')}")
+                    return {"success": True, "analysis": result_json}
+                except Exception as e:
+                    print(f"⚠️ [NVIDIA] JSON Parse Error: {e}")
+
+            # Fallback to smart parse if JSON fails
             structured_result = self._smart_parse_text(raw_content, language)
             return {
                 "success": True,

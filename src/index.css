@@ -139,6 +139,8 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
+    margin: 0;
+    padding: 0;
   }
 
   body {
@@ -147,6 +149,8 @@
     font-size: 17px;
     line-height: 1.47;
     overflow-x: hidden;
+    margin: 0;
+    padding: 0;
   }
 
   /* Touch targets */

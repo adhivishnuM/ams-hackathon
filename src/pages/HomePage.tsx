@@ -135,7 +135,7 @@ export default function HomePage() {
         try {
             const cleanedText = cleanMarkdown(text);
             if (navigator.onLine) {
-                const audioBlob = await getNvidiaTts(cleanedText, language);
+                const audioBlob = await getNvidiaTts(cleanedText, language, selectedVoice);
                 if (audioBlob) {
                     const audioUrl = URL.createObjectURL(audioBlob);
                     const audio = new Audio(audioUrl);
@@ -612,7 +612,16 @@ export default function HomePage() {
         <div className="flex flex-col flex-1 pb-32 bg-background">
             <header className="px-5 pt-4 pb-4 max-w-lg mx-auto w-full">
                 <div className="flex items-center justify-between mb-4">
-                    <ConnectionStatus isOnline={isOnline} />
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => navigate('/call-agent')}
+                            className="w-10 h-10 flex items-center justify-center rounded-full bg-card border border-border/50 shadow-apple-sm hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 active:scale-95"
+                            aria-label="Call AI Agent"
+                        >
+                            <PhoneCall size={20} className="text-primary" />
+                        </button>
+                        <ConnectionStatus isOnline={isOnline} />
+                    </div>
                     <LanguageSelector selectedLanguage={language} onLanguageChange={setLanguage} />
                 </div>
 
@@ -688,24 +697,7 @@ export default function HomePage() {
                 </form>
                 <p className="text-center text-muted-foreground mt-4 text-subhead">{t.tapToSpeak}</p>
 
-                {/* Call AI Agent Button - Primary CTA */}
-                <button
-                    onClick={() => navigate('/call-agent')}
-                    className="mt-6 w-full inline-flex items-center justify-between gap-4 px-10 py-6 rounded-[32px] bg-primary text-white hover:bg-primary-dark transition-all active:scale-95 group overflow-hidden relative border border-white/10"
-                >
-                    <div className="flex items-center gap-5 relative z-10">
-                        <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-all duration-500 group-hover:rotate-6">
-                            <PhoneCall size={26} className="text-white" />
-                        </div>
-                        <div className="flex flex-col items-start text-left">
-                            <span className="font-black text-[15px] uppercase tracking-[0.1em] text-white">{tCall.callAgent}</span>
-                            <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest mt-1">{tCall.callAgentSub}</span>
-                        </div>
-                    </div>
-                    <div className="w-10 h-10 rounded-full bg-black/5 flex items-center justify-center group-hover:bg-black/10 transition-all relative z-10">
-                        <ArrowRight size={20} className="text-white opacity-80 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                </button>
+
             </div>
 
             {/* Recent Queries */}

@@ -251,9 +251,9 @@ export function SettingsScreen({
   const selectedLangName = languages.find(l => l.code === language)?.nativeName;
 
   return (
-    <div className="flex flex-col flex-1 bg-background pb-32 animate-fade-in min-h-screen">
+    <div className="flex flex-col flex-1 bg-background pt-0 pb-32 animate-fade-in min-h-screen">
       {/* Header with improved styling */}
-      <div className="px-6 pt-12 pb-8 sticky top-0 z-30 bg-background/60 backdrop-blur-2xl border-b border-white/10 shadow-sm">
+      <div className="px-6 pt-0 pb-4 sticky top-0 z-30 bg-background/60 backdrop-blur-2xl border-b border-white/10 shadow-sm">
         <h1 className="text-3xl font-extrabold text-foreground tracking-tight">{t.settings}</h1>
         <p className="text-sm text-muted-foreground mt-1 font-medium opacity-80">Personalize your AgroTalk experience</p>
       </div>
@@ -287,59 +287,6 @@ export function SettingsScreen({
               </select>
             </div>
 
-            <div className="w-full h-px bg-white/5 mx-4" />
-
-            {/* Location */}
-            <SettingRow
-              icon={MapPin}
-              title={t.location}
-              subtitle={locationName}
-              action={<RefreshCw size={16} className="text-primary animate-spin-slow opacity-60" />}
-              onClick={() => {
-                setLocationName(t.detecting);
-                setTimeout(() => {
-                  navigator.geolocation?.getCurrentPosition(
-                    (p) => {
-                      setLocationName(`${p.coords.latitude.toFixed(1)}, ${p.coords.longitude.toFixed(1)}`);
-                      toast.success("Location updated");
-                    },
-                    (e) => {
-                      console.error(e);
-                      setLocationName("Permission denied");
-                      toast.error("Could not detect location");
-                    }
-                  );
-                }, 1000);
-              }}
-            />
-
-            <div className="w-full h-px bg-white/5 mx-4" />
-
-            {/* Voice Speed */}
-            <div className="p-5">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                  <Volume2 size={20} className="text-primary" />
-                </div>
-                <span className="text-[17px] font-semibold text-foreground">{t.voiceSpeed}</span>
-              </div>
-              <div className="flex bg-muted/50 backdrop-blur-md rounded-2xl p-1.5 border border-white/5">
-                {(["slow", "normal", "fast"] as const).map((speed) => (
-                  <button
-                    key={speed}
-                    onClick={() => onVoiceSpeedChange(speed)}
-                    className={cn(
-                      "flex-1 py-2 rounded-xl text-sm font-bold transition-all duration-300",
-                      voiceSpeed === speed
-                        ? "bg-white dark:bg-zinc-100 text-primary shadow-xl scale-100"
-                        : "text-muted-foreground hover:text-foreground hover:bg-white/5 scale-95"
-                    )}
-                  >
-                    {t[speed]}
-                  </button>
-                ))}
-              </div>
-            </div>
 
           </div>
         </section>

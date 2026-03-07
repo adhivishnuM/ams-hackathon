@@ -7,6 +7,7 @@
  * - Markdown-formatted responses
  * - Natural human-like TTS via OpenAI
  */
+const cacheService = require('./cacheService');
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const MODEL = 'google/gemini-2.0-flash-001';
@@ -41,6 +42,14 @@ async function getAgriAdvice(userQuery, weatherContext, imageBuffer = null, mime
     };
 
     const targetLang = languageNames[language] || 'English';
+
+    // Generate cache key
+    const cacheKey = cacheService.generateKey('agri-advice', userQuery, language, !!imageBuffer);
+    const cachedResponse = cacheService.get(cacheKey);
+    if (cachedResponse && !imageBuffer) {
+        console.log('📦 Returning cached AI advice');
+        return cachedResponse;
+    }
 
     const currentDate = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
@@ -131,10 +140,15 @@ async function getAgriAdvice(userQuery, weatherContext, imageBuffer = null, mime
 
         const data = await response.json();
         if (data.choices && data.choices.length > 0) {
-            return {
+            const result = {
                 text: data.choices[0].message.content,
                 model: data.model
             };
+            // Cache for 2 hours if no image (image analysis is too dynamic)
+            if (!imageBuffer) {
+                cacheService.set(cacheKey, result, 7200);
+            }
+            return result;
         }
         return null;
 
@@ -145,53 +159,15 @@ async function getAgriAdvice(userQuery, weatherContext, imageBuffer = null, mime
 }
 
 /**
- * Generate natural human-like speech using local Python Backend (Edge-TTS)
- * Free, high-quality, and unlimited.
- * 
+ * Generate speech using the native Node.js TTS service (no Python required).
  * @param {string} text - Text to convert to speech
- * @param {string} voice - Voice name (ignored, handled by Python backend mapping)
- * @returns {Buffer|null} - Audio buffer (mp3) or null on failure
+ * @param {string} language - Language code
+ * @param {string} gender - Unused (kept for API compatibility)
+ * @returns {Buffer|null}
  */
 async function generateSpeech(text, language = 'en', gender = 'male') {
-    // Clean text for TTS (remove markdown)
-    const cleanText = text
-        .replace(/\*\*/g, '')
-        .replace(/\*/g, '')
-        .replace(/^[-•]\s*/gm, '')
-        .replace(/#{1,6}\s*/g, '')
-        .trim();
-
-    console.log(`🔊 Generating speech via Python Backend...`);
-
-    try {
-        const response = await fetch('http://localhost:8000/api/tts', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                text: cleanText.slice(0, 4000), // Max chars
-                language: language,
-                gender: gender
-            })
-        });
-
-        if (!response.ok) {
-            console.warn(`⚠️ Python TTS failed(${response.status}).Is backend_py running with edge - tts installed ? `);
-            return null;
-        }
-
-        const data = await response.json();
-        if (data.success && data.audio) {
-            console.log(`✅ Generated TTS audio(${data.audio.length} bytes base64)`);
-            return Buffer.from(data.audio, 'base64');
-        }
-        return null;
-
-    } catch (error) {
-        console.error('❌ TTS Service Exception:', error.message);
-        return null; // Fail gracefully (client will fall back to browser TTS)
-    }
+    const { generateNvidiaSpeech } = require('./nvidiaTtsService');
+    return generateNvidiaSpeech(text, language, false, 'mia');
 }
 
 /**
@@ -207,6 +183,8 @@ async function getMarketAnalysis(mandiData, language = 'en', onProgress = null) 
         return null;
     }
 
+    const ONLINE_MODEL = 'perplexity/sonar';
+
     const languageNames = {
         'en': 'English',
         'hi': 'Hindi',
@@ -216,48 +194,51 @@ async function getMarketAnalysis(mandiData, language = 'en', onProgress = null) 
     };
     const targetLang = languageNames[language] || 'English';
 
+    // Generate cache key for market analysis
+    const cacheKey = cacheService.generateKey('market-analysis', mandiData.commodity, mandiData.market, language);
+    const cachedMarket = cacheService.get(cacheKey);
+    if (cachedMarket) {
+        console.log('📦 Returning cached market analysis');
+        return cachedMarket;
+    }
+
     try {
-        const currentDate = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         const { commodity, market, min_price, max_price, modal_price, arrival_date, district, state } = mandiData;
+        const currentDateStr = arrival_date || new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-        // Normalize to /kg (assuming input is /quintal as per Data.gov.in standard)
+        // Normalize to /kg
         const modalPerKg = (parseFloat(modal_price) / 100).toFixed(2);
-        const minPerKg = (parseFloat(min_price) / 100).toFixed(2);
-        const maxPerKg = (parseFloat(max_price) / 100).toFixed(2);
 
-        const systemPrompt = `You are "AgroTalk Expert", a professional agricultural advisor. Speak directly to a farmer.
+        const systemPrompt = `You are "AgroTalk Real-Time Expert", a professional agricultural market analyst.
         
-        CONTEXT:
-        - Current Date: ${currentDate}
-        - Factual Data: ${commodity} at ${market} (${arrival_date}).
+        TASK:
+        You must perform a WEB SEARCH to find the ABSOLUTE LATEST market trends, news, and price forecasts for the specified crop in India for the date: ${currentDateStr}.
         
         RULES:
-        1. Be "Short and Sweet": Max 3 short bullet points.
-        2. NO HALLUCINATIONS: Never invent links (like kisandeals.com), dates, or news.
-        3. Grounded Advice: Only use the data provided above. If data is old, mention the arrival date clearly.
-        4. Language: ${targetLang}.
-        
-        STRUCTURE:
-        📈 **Market Summary**: 1 clear sentence on current price.
-        🌍 **Why Prices move**: 1-2 sentences on general trends for this crop. No fake websites.
-        💡 **Expert Action**: **[SELL NOW]**, **[HOLD]**, or **[WAIT]**. 1 short reason.`;
+        1. BE ACCURATE: Use real-time data from the web.
+        2. STRUCTURE:
+           📈 **Market Summary**: Today's latest price trend vs the provided Mandi data (${arrival_date}).
+           🌍 **Market Trends**: 2-3 sentences on WHY prices are moving today (demand, supply, exports, weather).
+           💡 **Expert Action**: Provide a bold recommendation: **[SELL NOW]**, **[HOLD]**, or **[WAIT FOR PRICE RISE]**. Give a data-backed reason.
+           🔗 **Referral**: Provide exactly one valid, clickable URL to a reputable agricultural news source or market portal (e.g., Agmarknet, Commodity Online, Krishi Jagran) where the farmer can verify this.
+        3. LANGUAGE: Respond ONLY in ${targetLang}.
+        4. No hallucinations. If you cannot find today's data, say so but still provide the best possible analysis.`;
 
         const userPrompt = `
-        MARKET DATA:
+        MANDI DATA TO ANALYZE:
         - Crop: ${commodity}
-        - Market: ${market}, ${district}, ${state}
-        - Reference Date: ${arrival_date}
-        - Prices: ₹${modal_price}/quintal (₹${modalPerKg}/kg)
-        - Price Range: ₹${min_price} - ₹${max_price}/quintal (₹${minPerKg} - ₹${maxPerKg}/kg)
-        `;
+        - Market: ${market}, ${district}, ${state} (Arrival: ${arrival_date})
+        - Mandi Price: ₹${modal_price}/quintal (₹${modalPerKg}/kg)
+        - Current Date: ${currentDateStr}
+        
+        Search for today's market situation and give your expert advice.`;
 
-        console.log(`📊 Analyzing market data (GROUNDED) for ${commodity} in ${targetLang}...`);
+        console.log(`🌐 Performing REAL-TIME search analysis for ${commodity} in ${targetLang}...`);
 
-        if (onProgress) onProgress({ type: 'status', message: 'Analyzing market trends...' });
+        if (onProgress) onProgress({ type: 'status', message: 'Performing real-time market search...' });
 
-        // Add timeout to prevent hanging requests
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+        const timeoutId = setTimeout(() => controller.abort(), 45000); // Higher timeout for search
 
         const response = await fetch(OPENROUTER_URL, {
             method: 'POST',
@@ -268,13 +249,13 @@ async function getMarketAnalysis(mandiData, language = 'en', onProgress = null) 
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: MODEL,
+                model: ONLINE_MODEL,
                 messages: [
                     { role: 'system', content: systemPrompt },
                     { role: 'user', content: userPrompt }
                 ],
-                temperature: 0.2, // Lower temp for more factual output
-                max_tokens: 300
+                temperature: 0.1,
+                max_tokens: 500
             }),
             signal: controller.signal
         });
@@ -283,16 +264,21 @@ async function getMarketAnalysis(mandiData, language = 'en', onProgress = null) 
 
         if (!response.ok) {
             const errText = await response.text();
-            console.error('❌ OpenRouter API Error (Market):', response.status, errText);
-            return null;
+            console.error('❌ OpenRouter API Error (Online Market):', response.status, errText);
+            // Fallback to non-online model if search model fails
+            if (onProgress) onProgress({ type: 'status', message: 'Search failed, using standard analysis...' });
+            return await getGroundedMarketAnalysis(mandiData, language, onProgress);
         }
 
         const data = await response.json();
         if (data.choices && data.choices.length > 0) {
-            return {
+            const result = {
                 text: data.choices[0].message.content,
                 model: data.model
             };
+            // Cache market analysis for 1 hour
+            cacheService.set(cacheKey, result, 3600);
+            return result;
         }
         return null;
 
@@ -300,6 +286,34 @@ async function getMarketAnalysis(mandiData, language = 'en', onProgress = null) 
         console.error('❌ Market AI Exception:', error);
         return null;
     }
+}
+
+/**
+ * Fallback Grounded Analysis (Original Logic)
+ */
+async function getGroundedMarketAnalysis(mandiData, language = 'en', onProgress = null) {
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    const languageNames = { 'en': 'English', 'hi': 'Hindi', 'ta': 'Tamil', 'te': 'Telugu', 'mr': 'Marathi' };
+    const targetLang = languageNames[language] || 'English';
+    const { commodity, market, modal_price, arrival_date } = mandiData;
+    const currentDateStr = arrival_date || new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+    const systemPrompt = `You are "AgroTalk Expert". Use ONLY provided data.
+    1. Short and Sweet (3 points). 2. Language: ${targetLang}.
+    📈 Summary: Price today. 🌍 Trends: General info. 💡 Action: [SELL/HOLD/WAIT].`;
+
+    const response = await fetch(OPENROUTER_URL, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            model: MODEL,
+            messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: `Analyze: ${commodity} at ${market} (${modal_price})` }],
+            temperature: 0.2,
+            max_tokens: 300
+        })
+    });
+    const data = await response.json();
+    return data.choices?.[0] ? { text: data.choices[0].message.content, model: data.model } : null;
 }
 
 module.exports = { getAgriAdvice, generateSpeech, getMarketAnalysis };

@@ -1,91 +1,149 @@
 /**
- * NVIDIA TTS Service (Proxy to Python Backend)
- * 
- * Routes TTS requests to the Python backend which handles:
- * - NVIDIA gRPC TTS for English
- * - Edge TTS fallback for Indian languages (Hindi, Tamil, Telugu, Marathi)
+ * NVIDIA TTS Service (Node.js Native)
+ * Uses NVIDIA Magpie Multilingual via gRPC-REST for English.
+ * Uses edge-tts Node.js wrapper for Indian languages.
  */
+const { execFile } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
 
-const PYTHON_TTS_URL = 'http://localhost:8000/api/tts';
+const EDGE_VOICE_MAP = {
+    en: 'en-US-ChristopherNeural',
+    hi: 'hi-IN-MadhurNeural',
+    ta: 'ta-IN-ValluvarNeural',
+    te: 'te-IN-MohanNeural',
+    mr: 'mr-IN-ManoharNeural'
+};
+
+const cacheService = require('./cacheService');
 
 /**
- * Generate speech audio by proxying to Python TTS service
- * 
- * @param {string} text - The text to convert to speech
- * @param {string} language - Language code (en, hi, ta, te, mr)
- * @returns {Buffer|null} - Audio buffer (mp3/wav) or null on failure
+ * Clean text for TTS output.
  */
-async function generateNvidiaSpeech(text, language = 'en', forceEdge = false) {
-    // Clean text for TTS (remove markdown formatting)
-    const cleanText = text
+function cleanText(text) {
+    return text
         .replace(/\*\*/g, '')
         .replace(/\*/g, '')
         .replace(/^[-•]\s*/gm, '')
         .replace(/#{1,6}\s*/g, '')
-        .trim();
+        .trim()
+        .slice(0, 4000);
+}
 
-    if (!cleanText) {
-        console.warn('⚠️ Empty text provided to TTS');
-        return null;
-    }
+/**
+ * Generate audio via edge-tts CLI (npm package must be installed globally or as npx).
+ */
+function generateEdgeAudio(text, language = 'en') {
+    return new Promise((resolve) => {
+        const voice = EDGE_VOICE_MAP[language] || EDGE_VOICE_MAP.en;
+        const tmpFile = path.join(os.tmpdir(), `agrotalk_tts_${Date.now()}.mp3`);
+        console.log(`🎤 [TTS] Edge TTS (${voice}) for: "${text.slice(0, 40)}..."`);
 
-    console.log(`🔊 [TTS Proxy] Requesting speech for: "${cleanText.slice(0, 30)}..." (${language}, forceEdge: ${forceEdge})`);
+        // Try npx edge-tts first, fall back to installed binary
+        execFile('npx', ['-y', 'edge-tts', '--voice', voice, '--text', text, '--write-media', tmpFile],
+            { timeout: 30000 },
+            (err) => {
+                if (err) {
+                    console.warn('⚠️ [TTS] edge-tts via npx failed:', err.message);
+                    resolve(null);
+                    return;
+                }
+                try {
+                    const buf = fs.readFileSync(tmpFile);
+                    fs.unlinkSync(tmpFile);
+                    console.log(`✅ [TTS] Edge audio: ${buf.length} bytes`);
+                    resolve(buf);
+                } catch (readErr) {
+                    console.warn('⚠️ [TTS] Could not read edge-tts output:', readErr.message);
+                    resolve(null);
+                }
+            }
+        );
+    });
+}
 
-    // Add timeout to prevent hanging
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+/**
+ * Generate audio via NVIDIA Magpie Multilingual (REST/NVCF).
+ * Only called for English (all Indian languages use Edge TTS).
+ */
+async function generateNvidiaAudio(text, voice = 'mia') {
+    const apiKey = process.env.NVIDIA_TTS_KEY;
+    const functionId = process.env.NVIDIA_TTS_FUNCTION_ID;
+    if (!apiKey || !functionId) return null;
 
     try {
-        const response = await fetch(PYTHON_TTS_URL, {
+        const voiceName = `Magpie-Multilingual.EN-US.${voice.charAt(0).toUpperCase() + voice.slice(1)}`;
+        const response = await fetch(`https://api.nvcf.nvidia.com/v2/nvcf/pexec/functions/${functionId}`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json',
+                'Accept': 'audio/wav'
             },
             body: JSON.stringify({
-                text: cleanText.slice(0, 4000), // Max chars
-                language: language,
-                voice: 'mia', // Default voice for NVIDIA, ignored for Edge TTS
-                force_edge: forceEdge
+                text,
+                voice_name: voiceName,
+                language_code: 'en-US',
+                sample_rate_hz: 22050
             }),
-            signal: controller.signal
+            signal: AbortSignal.timeout(30000)
         });
 
-        clearTimeout(timeoutId);
-
         if (!response.ok) {
-            let errText = '';
-            try {
-                const errBody = await response.json();
-                errText = JSON.stringify(errBody);
-            } catch (e) {
-                errText = await response.text();
-            }
-            console.error(`❌ Python TTS Error (${response.status}):`, errText);
+            const err = await response.text();
+            console.warn(`⚠️ [TTS] NVIDIA failed (${response.status}): ${err.slice(0, 100)}`);
             return null;
         }
 
-        const data = await response.json();
-
-        if (data.success && data.audio) {
-            const audioBuffer = Buffer.from(data.audio, 'base64');
-            console.log(`✅ Received audio buffer (${audioBuffer.length} bytes)`);
-            return audioBuffer;
+        const buf = Buffer.from(await response.arrayBuffer());
+        if (buf.length > 0) {
+            console.log(`✅ [TTS] NVIDIA audio: ${buf.length} bytes`);
+            return buf;
         }
-
-        console.warn('⚠️ TTS returned success but no audio data');
         return null;
-
-    } catch (error) {
-        clearTimeout(timeoutId);
-
-        if (error.name === 'AbortError') {
-            console.error('❌ TTS request timed out after 30 seconds');
-        } else {
-            console.error('❌ TTS Service Exception:', error.message);
-        }
-
+    } catch (err) {
+        console.warn('⚠️ [TTS] NVIDIA exception:', err.message);
         return null;
     }
+}
+
+/**
+ * Main TTS generation function.
+ * @param {string} text - Text to synthesize
+ * @param {string} language - Language code (en, hi, ta, te, mr)
+ * @param {boolean} forceEdge - Force Edge TTS even for English
+ * @param {string} voice - NVIDIA voice personality (mia, aria, sofia)
+ * @returns {Promise<Buffer|null>}
+ */
+async function generateNvidiaSpeech(text, language = 'en', forceEdge = false, voice = 'mia') {
+    const clean = cleanText(text);
+    if (!clean) return null;
+
+    const cacheKey = cacheService.generateKey('tts-native', clean, language, voice, forceEdge);
+    const cached = cacheService.get(cacheKey);
+    if (cached) {
+        console.log('📦 [TTS] Cache hit');
+        return Buffer.from(cached);
+    }
+
+    let audioBuffer = null;
+
+    // English: try NVIDIA first, then Edge TTS
+    if (language === 'en' && !forceEdge) {
+        audioBuffer = await generateNvidiaAudio(clean, voice);
+    }
+
+    // Fallback to Edge TTS for all other languages or if NVIDIA failed
+    if (!audioBuffer) {
+        audioBuffer = await generateEdgeAudio(clean, language);
+    }
+
+    if (audioBuffer) {
+        cacheService.set(cacheKey, audioBuffer, 86400); // cache 24h
+    }
+
+    return audioBuffer;
 }
 
 module.exports = { generateNvidiaSpeech };
