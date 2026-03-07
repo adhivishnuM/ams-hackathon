@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mic, MicOff, PhoneOff, Volume2, VolumeX, ArrowLeft, Phone, PhoneCall } from 'lucide-react';
+import { Mic, MicOff, PhoneOff, Volume2, VolumeX, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useApp } from '@/contexts/AppContext';
 import { getTextAdvice, getNvidiaTts } from '@/lib/apiClient';
 import { toast } from 'sonner';
+import { getTranslation } from '@/lib/translations';
 
 interface IWindow {
     webkitSpeechRecognition: any;
@@ -16,7 +17,6 @@ export default function CallAgentPage() {
     const {
         language,
         selectedVoice,
-        isOnline,
         isMuted,
         setIsMuted,
         conversationHistory,
@@ -28,23 +28,27 @@ export default function CallAgentPage() {
         setConversationId
     } = useApp();
 
+    const tCall = getTranslation('call', language);
+
+    // --- State ---
     const [callState, setCallState] = useState<'connecting' | 'listening' | 'processing' | 'speaking' | 'idle'>('connecting');
     const [transcript, setTranscript] = useState('');
     const [agentSubtitles, setAgentSubtitles] = useState('');
+
+    // --- Refs for Async Safety ---
     const recognitionRef = useRef<any>(null);
-    const accumulatedTranscriptRef = useRef('');
     const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
-    const isActiveRef = useRef(true);
-    const callStateRef = useRef(callState);
+    const isActiveRef = useRef(false);
+    const accumulatedTextRef = useRef('');
 
-    // Keep callStateRef in sync
+    // --- Cleanup & Lifecycle ---
     useEffect(() => {
-        callStateRef.current = callState;
-    }, [callState]);
+        isActiveRef.current = true;
+        setCallState('connecting');
 
-    // Start connection simulation
-    useEffect(() => {
-        const timer = setTimeout(() => {
+        // Initial Greeting
+        const greetingTimer = setTimeout(() => {
+            if (!isActiveRef.current) return;
             const greetings = {
                 en: "Hello, I am the AgroTalk Agronomist. How can I help you today?",
                 hi: "नमस्ते, मैं एग्रोटॉक कृषिविज्ञानी हूँ। मैं आज आपकी कैसे मदद कर सकता हूँ?",
@@ -54,167 +58,146 @@ export default function CallAgentPage() {
             };
             const text = greetings[language as keyof typeof greetings] || greetings.en;
             playResponse(text);
-        }, 1000);
-        return () => clearTimeout(timer);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+        }, 1500);
 
-    // Cleanup on unmount
-    useEffect(() => {
-        isActiveRef.current = true;
         return () => {
             isActiveRef.current = false;
-            // Immediate cleanup
-            if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-            if (recognitionRef.current) {
-                // Remove listeners to prevent onend restart
-                recognitionRef.current.onend = null;
-                recognitionRef.current.onerror = null;
-                recognitionRef.current.stop();
-            }
-            if (ttsAudio) {
-                ttsAudio.pause();
-                ttsAudio.currentTime = 0;
-            }
-            window.speechSynthesis?.cancel();
+            clearTimeout(greetingTimer);
+            handleCleanup();
         };
-    }, [ttsAudio]); // Keep ttsAudio here to handle state-based audio cleanup
+    }, []);
 
-    const endCall = () => {
-        isActiveRef.current = false;
-        setCallState('idle');
-
+    const handleCleanup = () => {
         if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
         if (recognitionRef.current) {
             recognitionRef.current.onend = null;
-            recognitionRef.current.onerror = null;
-            recognitionRef.current.stop();
+            recognitionRef.current.onresult = null;
+            try { recognitionRef.current.stop(); } catch (e) { }
+            recognitionRef.current = null;
         }
         if (ttsAudio) {
             ttsAudio.pause();
-            ttsAudio.currentTime = 0;
-            setTtsAudio(null);
+            ttsAudio.src = "";
         }
         window.speechSynthesis?.cancel();
+    };
+
+    const endCall = () => {
+        isActiveRef.current = false;
+        handleCleanup();
+        setCallState('idle');
         navigate(-1);
     };
 
-    const cleanMarkdown = (text: string) => {
-        return text
-            .replace(/\*\*(.*?)\*\*/g, '$1')
-            .replace(/\*(.*?)\*/g, '$1')
-            .replace(/\[(.+?)\]\(.+?\)/g, '$1')
-            .replace(/#{1,6}\s+(.*)/g, '$1')
-            .replace(/[-*]\s+/g, '')
-            .replace(/[`](.*?)[`]/g, '$1')
-            .trim();
-    };
+    // --- Speech Recognition ---
+    const startListening = () => {
+        if (!isActiveRef.current || isMuted) return;
 
-    const speakText = async (text: string) => {
-        if (isMuted) {
-            setCallState('idle');
+        const WindowObj = window as unknown as IWindow;
+        const Recognition = WindowObj.webkitSpeechRecognition || WindowObj.SpeechRecognition;
+
+        if (!Recognition) {
+            toast.error("Speech recognition not supported");
             return;
         }
-        setCallState('speaking');
 
-        window.speechSynthesis?.cancel();
-        if (ttsAudio) {
-            ttsAudio.pause();
-            ttsAudio.currentTime = 0;
-        }
+        handleCleanup(); // Ensure fresh start
 
-        try {
-            const cleanedText = cleanMarkdown(text);
-            if (navigator.onLine) {
-                const audioBlob = await getNvidiaTts(cleanedText, language);
-                if (audioBlob) {
-                    const audioUrl = URL.createObjectURL(audioBlob);
-                    const audio = new Audio(audioUrl);
-                    audio.onended = () => {
-                        if (!isActiveRef.current) return;
-                        setCallState('idle');
-                        setAgentSubtitles('');
-                        URL.revokeObjectURL(audioUrl);
-                        if (!isMuted) startListening();
-                    };
-                    audio.onerror = () => {
-                        if (!isActiveRef.current) return;
-                        setCallState('idle');
-                        setAgentSubtitles('');
-                        if (!isMuted) startListening();
-                    };
-                    setTtsAudio(audio);
-                    setAgentSubtitles(text);
-                    await audio.play();
-                    return;
+        const recognition = new Recognition();
+        const langMap: Record<string, string> = {
+            'hi': 'hi-IN', 'ta': 'ta-IN', 'te': 'te-IN', 'mr': 'mr-IN', 'en': 'en-US'
+        };
+        recognition.lang = langMap[language] || 'en-US';
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        recognition.onstart = () => {
+            if (!isActiveRef.current) return;
+            setCallState('listening');
+            setTranscript('');
+            accumulatedTextRef.current = '';
+        };
+
+        recognition.onresult = (event: any) => {
+            if (!isActiveRef.current) return;
+
+            let interim = '';
+            let final = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    final += event.results[i][0].transcript;
+                } else {
+                    interim += event.results[i][0].transcript;
                 }
             }
-        } catch (e) {
-            console.warn("Cloud TTS failed, fallback to browser", e);
-        }
 
-        // Fallback to browser TTS
-        if ('speechSynthesis' in window) {
-            const cleanedText = cleanMarkdown(text);
-            const utterance = new SpeechSynthesisUtterance(cleanedText);
-            const langMap: Record<string, string> = {
-                'en': 'en-IN', 'hi': 'hi-IN', 'ta': 'ta-IN', 'te': 'te-IN', 'mr': 'mr-IN'
-            };
-            utterance.lang = langMap[language] || 'en-IN';
-            utterance.onend = () => {
-                if (!isActiveRef.current) return;
-                setCallState('idle');
-                setAgentSubtitles('');
-                if (!isMuted) startListening();
-            };
-            utterance.onerror = () => {
-                if (!isActiveRef.current) return;
-                setCallState('idle');
-                setAgentSubtitles('');
-                if (!isMuted) startListening();
-            };
-            setAgentSubtitles(text);
-            window.speechSynthesis.speak(utterance);
-        } else {
-            setCallState('idle');
+            if (final) accumulatedTextRef.current += final + ' ';
+            const currentFull = (accumulatedTextRef.current + interim).trim();
+            setTranscript(currentFull);
+
+            // Silence Detection (2s)
+            if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+            if (currentFull.length > 0) {
+                silenceTimerRef.current = setTimeout(() => {
+                    if (isActiveRef.current) {
+                        submitUserQuery(currentFull);
+                    }
+                }, 2000);
+            }
+        };
+
+        recognition.onend = () => {
+            if (isActiveRef.current && callState === 'listening' && !isMuted) {
+                // If it died unexpectedly but we should be listening, restart
+                try { recognition.start(); } catch (e) { }
+            }
+        };
+
+        recognition.onerror = (e: any) => {
+            console.error("Recognition error:", e);
+        };
+
+        try {
+            recognition.start();
+            recognitionRef.current = recognition;
+        } catch (e) {
+            console.error("Start error:", e);
         }
     };
 
-    const playResponse = (text: string, audioBase64?: string) => {
-        if (isMuted) {
-            setCallState('idle');
+    const stopListening = () => {
+        if (recognitionRef.current) {
+            recognitionRef.current.onend = null;
+            try { recognitionRef.current.stop(); } catch (e) { }
+            recognitionRef.current = null;
+        }
+        if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+    };
+
+    // --- AI Logic ---
+    const submitUserQuery = async (text: string) => {
+        if (!isActiveRef.current || !text.trim()) return;
+
+        stopListening();
+        setCallState('processing');
+        setTranscript(''); // Clear for "Thinking" state
+
+        // --- Goodbye Detect ---
+        const goodbyeWords = ["bye", "goodbye", "alvida", "khuda hafiz", "phir milenge", "bas", "end", "tata", "hang up"];
+        const lower = text.toLowerCase().trim();
+        if (goodbyeWords.some(word => lower.includes(word))) {
+            const farewell = language === 'hi' ? "नमस्ते! फिर मिलेंगे।" : "Goodbye! Have a nice day.";
+            setAgentSubtitles(farewell);
+            // Say farewell before hanging up
+            speakText(farewell, true);
             return;
         }
-        setCallState('speaking');
 
-        if (audioBase64) {
-            const audio = new Audio(`data:audio/mp3;base64,${audioBase64}`);
-            audio.onended = () => {
-                if (!isActiveRef.current) return;
-                setCallState('idle');
-                setAgentSubtitles('');
-                if (!isMuted) startListening();
-            };
-            audio.onerror = () => {
-                speakText(text);
-            };
-            setTtsAudio(audio);
-            setAgentSubtitles(text);
-            audio.play().catch(() => speakText(text));
-        } else {
-            speakText(text);
-        }
-    };
-
-    const processResponse = async (text: string) => {
-        if (!isActiveRef.current) return;
         let currentConvId = conversationId;
         if (!currentConvId) {
-            currentConvId = `call_${Math.random().toString(36).substring(2, 9)}_${Date.now()}`;
+            currentConvId = `call_${Math.random().toString(36).substring(7)}`;
             setConversationId(currentConvId);
         }
-
-        setCallState('processing');
 
         try {
             const weatherContext = weatherData ? {
@@ -223,8 +206,8 @@ export default function CallAgentPage() {
                 humidity: weatherData.current.relative_humidity_2m
             } : undefined;
 
-            const promptText = text + " (Reply in 1 short sentence)";
-            const result = await getTextAdvice(promptText, language, weatherContext, conversationHistory, true, currentConvId, selectedVoice);
+            const instruction = " (Reply in 1 short sentence)";
+            const result = await getTextAdvice(text + instruction, language, weatherContext, conversationHistory, true, currentConvId, selectedVoice);
 
             if (result.success && result.advisory) {
                 setConversationHistory(prev => [
@@ -232,157 +215,106 @@ export default function CallAgentPage() {
                     { role: 'user' as const, content: text },
                     { role: 'assistant' as const, content: result.advisory!.recommendation }
                 ].slice(-6));
-                setTimeout(() => playResponse(result.advisory!.recommendation, result.audio), 300);
+
+                playResponse(result.advisory!.recommendation, result.audio);
             } else {
                 setCallState('idle');
-                toast.error("Failed to get response");
+                toast.error("AI Error");
+                if (!isMuted) startListening();
             }
         } catch (e) {
-            console.error('Call error:', e);
+            console.error("Process error:", e);
             setCallState('idle');
-            toast.error("Network error");
+            if (!isMuted) startListening();
         }
     };
 
-    const toggleMicrophone = () => {
-        if (callState === 'connecting') return;
+    // --- Playback ---
+    const playResponse = (text: string, audioBase64?: string) => {
+        if (!isActiveRef.current) return;
 
-        if (callState === 'listening') {
-            stopListening();
-        } else {
-            startListening();
-        }
-    };
+        setTranscript(''); // Clear any remaining user text
+        setCallState('speaking');
+        setAgentSubtitles(text);
 
-    const startListening = () => {
-        const WindowObj = window as unknown as IWindow;
-        const Recognition = WindowObj.webkitSpeechRecognition || WindowObj.SpeechRecognition;
-
-        if (Recognition) {
+        if (audioBase64) {
             try {
-                if (ttsAudio) {
-                    ttsAudio.pause();
+                const byteCharacters = atob(audioBase64);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
                 }
-                window.speechSynthesis?.cancel();
+                const blob = new Blob([new Uint8Array(byteNumbers)], { type: 'audio/mp3' });
+                const url = URL.createObjectURL(blob);
+                const audio = new Audio(url);
 
-                const recognition = new Recognition();
-                const langMap: Record<string, string> = {
-                    'hi': 'hi-IN', 'ta': 'ta-IN', 'te': 'te-IN', 'mr': 'mr-IN', 'en': 'en-US'
+                audio.onended = () => {
+                    URL.revokeObjectURL(url);
+                    onPlaybackEnd();
                 };
-                recognition.lang = langMap[language] || 'en-US';
-                recognition.continuous = true;
-                recognition.interimResults = true;
-                accumulatedTranscriptRef.current = '';
-
-                recognition.onstart = () => {
-                    setCallState('listening');
-                    setTranscript('');
-                    // Initial silence timeout if user says nothing at all
-                    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-                    silenceTimerRef.current = setTimeout(() => {
-                        if (callStateRef.current === 'listening' && accumulatedTranscriptRef.current === '' && transcript === '') {
-                            console.log("Initial 2s silence, stopping listener");
-                            stopListening();
-                        }
-                    }, 2000); // 2s of initial silence as requested
+                audio.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    speakText(text); // Fallback
                 };
 
-                recognition.onresult = (event: any) => {
-                    let interimTranscript = '';
-                    let finalChunk = '';
-                    for (let i = event.resultIndex; i < event.results.length; ++i) {
-                        if (event.results[i].isFinal) {
-                            finalChunk += event.results[i][0].transcript;
-                        } else {
-                            interimTranscript += event.results[i][0].transcript;
-                        }
-                    }
-                    if (finalChunk) {
-                        accumulatedTranscriptRef.current += finalChunk + ' ';
-                    }
-                    const newTranscript = accumulatedTranscriptRef.current + interimTranscript;
-                    setTranscript(newTranscript);
-
-                    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-                    if (newTranscript.trim().length > 0) {
-                        silenceTimerRef.current = setTimeout(() => {
-                            if (callStateRef.current === 'listening') {
-                                console.log("Silence detected, processing response...");
-                                stopListening();
-                            }
-                        }, 2000); // 2s silence detection as requested
-                    }
-                };
-
-                recognition.onend = () => {
-                    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-                    if (callStateRef.current === 'listening') {
-                        stopListening();
-                    }
-                };
-
-                recognition.onerror = (e: any) => {
-                    console.error('Speech recognition error in call:', e);
-                    setCallState('idle');
-                };
-
-                recognition.start();
-                recognitionRef.current = recognition;
+                setTtsAudio(audio);
+                audio.play().catch(() => speakText(text));
             } catch (e) {
-                console.error('Speech recognition setup error:', e);
-                setCallState('idle');
+                speakText(text);
             }
         } else {
-            toast.error("Speech recognition is not supported in this browser.");
+            speakText(text);
         }
     };
 
-    const stopListening = async () => {
-        if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-        if (recognitionRef.current) {
-            recognitionRef.current.stop();
-            recognitionRef.current = null;
+    const speakText = (text: string, isExit: boolean = false) => {
+        if (!('speechSynthesis' in window)) {
+            onPlaybackEnd(isExit);
+            return;
         }
 
-        const finalPayload = accumulatedTranscriptRef.current.trim() || transcript.trim();
-        if (finalPayload) {
-            await processResponse(finalPayload);
-            setTranscript('');
-        } else {
-            setCallState('idle');
-        }
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        const langMap: Record<string, string> = {
+            'en': 'en-IN', 'hi': 'hi-IN', 'ta': 'ta-IN', 'te': 'te-IN', 'mr': 'mr-IN'
+        };
+        utterance.lang = langMap[language] || 'en-IN';
+        utterance.onend = () => onPlaybackEnd(isExit);
+        utterance.onerror = () => onPlaybackEnd(isExit);
+
+        window.speechSynthesis.speak(utterance);
     };
 
-    // UI helpers
+    const onPlaybackEnd = (isExit: boolean = false) => {
+        if (!isActiveRef.current) return;
+        if (isExit) {
+            endCall();
+            return;
+        }
+        setCallState('idle');
+        setAgentSubtitles('');
+        if (!isMuted) startListening();
+    };
+
+    // --- UI State Helpers ---
     const getStatusText = () => {
         switch (callState) {
-            case 'connecting': return 'Connecting...';
-            case 'listening': return 'Listening...';
-            case 'processing': return 'Thinking...';
-            case 'speaking': return 'Speaking...';
-            case 'idle': return 'Agent is on line';
+            case 'connecting': return tCall.statusConnecting;
+            case 'listening': return tCall.statusListening;
+            case 'processing': return tCall.statusThinking;
+            case 'speaking': return tCall.statusSpeaking;
+            case 'idle': return tCall.statusIdle;
             default: return '';
-        }
-    };
-
-    const getPulsingColor = () => {
-        switch (callState) {
-            case 'listening': return 'bg-red-500';
-            case 'speaking': return 'bg-green-500';
-            case 'processing': return 'bg-blue-500';
-            case 'connecting': return 'bg-yellow-500';
-            case 'idle': return 'bg-primary/50';
-            default: return 'bg-primary';
         }
     };
 
     return (
         <div className="flex flex-col h-screen bg-black text-white relative overflow-hidden">
-            {/* Subtle Gradient Background */}
+            {/* Background */}
             <div className="absolute inset-0 bg-gradient-to-b from-zinc-900 via-black to-black" />
             <div className="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(circle_at_center,rgba(118,185,0,0.15),transparent_70%)]" />
 
-            {/* Header - In-Call Style */}
+            {/* Header */}
             <header className="flex items-center justify-between px-6 pt-10 pb-6 z-10 relative">
                 <button
                     onClick={endCall}
@@ -391,29 +323,27 @@ export default function CallAgentPage() {
                     <ArrowLeft size={20} className="text-white/70" />
                 </button>
                 <div className="flex flex-col items-center">
-                    <span className="text-[10px] font-black tracking-[0.3em] text-primary uppercase mb-1">In Call</span>
-                    <h1 className="text-xl font-bold text-white tracking-tight">AgroTalk Agronomist</h1>
+                    <span className="text-[10px] font-black tracking-[0.3em] text-primary uppercase mb-1">{tCall.inCall}</span>
+                    <h1 className="text-xl font-bold text-white tracking-tight">{tCall.agentName}</h1>
                 </div>
                 <div className="w-10 h-10"></div>
             </header>
 
-            {/* Main Center Area - Avatar Focus */}
+            {/* Center - Avatar */}
             <div className="flex-1 flex flex-col items-center justify-center z-10 relative px-10">
-                <div className="relative">
-                    <div className={cn(
-                        "w-48 h-48 rounded-full border-2 border-white/10 p-1 transition-all duration-700",
-                        callState === 'speaking' ? 'border-primary/50 scale-105' : 'scale-100'
-                    )}>
-                        <div className="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center overflow-hidden relative group">
-                            <img src="/logo.svg" alt="AgroTalk" className="w-24 h-24 object-contain opacity-90 group-hover:scale-110 transition-transform duration-500" />
-                            {callState === 'speaking' && (
-                                <div className="absolute inset-0 bg-primary/5 animate-pulse" />
-                            )}
-                        </div>
+                <div className={cn(
+                    "w-48 h-48 rounded-full border-2 border-white/10 p-1 transition-all duration-700",
+                    callState === 'speaking' ? 'border-primary/50 scale-105' : 'scale-100'
+                )}>
+                    <div className="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center overflow-hidden relative">
+                        <img src="/logo.svg" alt="AgroTalk" className="w-24 h-24 object-contain opacity-90" />
+                        {callState === 'speaking' && (
+                            <div className="absolute inset-0 bg-primary/5 animate-pulse" />
+                        )}
                     </div>
                 </div>
 
-                <div className="mt-8 text-center">
+                <div className="mt-12 text-center h-6">
                     <p className={cn(
                         "text-sm font-bold tracking-widest uppercase transition-colors duration-500",
                         callState === 'listening' ? 'text-red-500' :
@@ -425,11 +355,11 @@ export default function CallAgentPage() {
                 </div>
             </div>
 
-            {/* Horizontal Waveform / Listening Line */}
-            <div className="h-24 w-full flex items-center justify-center px-20 z-10 relative">
-                <div className="flex items-center gap-1.5 h-12 w-full max-w-xs justify-center">
+            {/* Waveform Visualization */}
+            <div className="h-32 w-full flex items-center justify-center px-10 z-10 relative">
+                <div className="flex items-end gap-1.5 h-16 w-full max-w-xs justify-center">
                     {(callState === 'listening' || callState === 'speaking' || callState === 'processing') ? (
-                        Array.from({ length: 15 }).map((_, i) => (
+                        Array.from({ length: 20 }).map((_, i) => (
                             <div
                                 key={i}
                                 className={cn(
@@ -439,48 +369,9 @@ export default function CallAgentPage() {
                                             'bg-blue-500'
                                 )}
                                 style={{
-                                    height: callState === 'processing' ? '40%' : `${10 + Math.random() * 80}%`,
-                                    transitionDelay: `${i * 50}ms`,
-                                    animation: callState === 'processing' ? 'pulse 1.5s infinite' : 'none'
-                                }}
-                            />
-                        ))
-                    ) : (
-                        <div className="h-[2px] w-full bg-white/10 rounded-full" />
-                    )}
-                </div>
-            </div>
-
-            {/* Movie-style Subtitles (Minimal, Focused) */}
-            <div className="absolute bottom-32 left-0 right-0 z-20 pointer-events-none px-10">
-                <div className="max-w-2xl mx-auto flex flex-col items-center justify-center">
-                    {(transcript || agentSubtitles) && (
-                        <p className="text-white text-center text-xl font-bold tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,1)] animate-in fade-in slide-in-from-bottom-2 duration-500 transition-all max-w-[90%]">
-                            <span className="bg-black/40 backdrop-blur-sm px-4 py-1 rounded-lg italic">
-                                {agentSubtitles ? agentSubtitles : transcript}
-                            </span>
-                        </p>
-                    )}
-                </div>
-            </div>
-
-            {/* Horizontal Waveform / Listening Line */}
-            <div className="h-20 w-full flex items-center justify-center px-20 z-10 relative mb-4">
-                <div className="flex items-center gap-1.5 h-8 w-full max-w-xs justify-center">
-                    {(callState === 'listening' || callState === 'speaking' || callState === 'processing') ? (
-                        Array.from({ length: 24 }).map((_, i) => (
-                            <div
-                                key={i}
-                                className={cn(
-                                    "w-[3px] rounded-full transition-all duration-300",
-                                    callState === 'listening' ? 'bg-red-500' :
-                                        callState === 'speaking' ? 'bg-primary' :
-                                            'bg-blue-500'
-                                )}
-                                style={{
-                                    height: callState === 'processing' ? '40%' : `${20 + Math.random() * 80}%`,
+                                    height: callState === 'processing' ? '30%' : `${15 + Math.random() * 80}%`,
                                     transitionDelay: `${i * 30}ms`,
-                                    animation: (callState === 'listening' || callState === 'speaking') ? 'wave-simple 1.2s ease-in-out infinite' : (callState === 'processing' ? 'pulse 1.5s infinite' : 'none'),
+                                    animation: (callState === 'listening' || callState === 'speaking') ? 'wave-simple 1s ease-in-out infinite' : 'none',
                                     animationDelay: `${i * 0.05}s`
                                 }}
                             />
@@ -491,46 +382,62 @@ export default function CallAgentPage() {
                 </div>
             </div>
 
-            {/* Bottom Controls */}
-            <div className="pb-12 pt-4 px-8 z-10 relative">
-                <div className="flex items-center justify-center gap-10 max-w-md mx-auto">
-                    {/* Mute toggle */}
+            {/* Subtitles Overlay */}
+            <div className="absolute bottom-40 left-0 right-0 z-20 pointer-events-none px-8">
+                <div className="max-w-xl mx-auto">
+                    {(transcript || agentSubtitles) && (
+                        <div className="flex justify-center">
+                            <span className="bg-black/60 backdrop-blur-md text-white text-center text-lg font-medium px-4 py-2 rounded-xl border border-white/5 shadow-2xl animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                {agentSubtitles || transcript}
+                            </span>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Controls */}
+            <div className="pb-16 pt-6 px-8 z-10 relative">
+                <div className="flex items-center justify-center gap-12 max-w-md mx-auto">
                     <button
                         onClick={() => setIsMuted(!isMuted)}
                         className={cn(
-                            "w-14 h-14 rounded-full flex items-center justify-center backdrop-blur-md transition-all active:scale-95 border",
-                            isMuted
-                                ? "bg-white text-black border-white shadow-lg"
-                                : "bg-white/5 text-white border-white/10 hover:bg-white/10"
+                            "w-14 h-14 rounded-full flex items-center justify-center transition-all border",
+                            isMuted ? "bg-white text-black border-white" : "bg-white/5 text-white border-white/10"
                         )}
                     >
                         {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
                     </button>
 
-                    {/* Microphone toggle */}
                     <button
-                        onClick={toggleMicrophone}
-                        disabled={callState === 'connecting'}
+                        onClick={() => {
+                            if (callState === 'listening') stopListening();
+                            else startListening();
+                        }}
+                        disabled={callState === 'connecting' || callState === 'processing' || callState === 'speaking'}
                         className={cn(
-                            "w-20 h-20 rounded-full flex items-center justify-center transition-all active:scale-95 relative",
-                            callState === 'listening'
-                                ? "bg-red-600 shadow-[0_0_30px_rgba(220,38,38,0.5)] scale-110"
-                                : "bg-white/10 text-white hover:bg-white/20",
-                            callState === 'connecting' && "opacity-50 cursor-not-allowed"
+                            "w-20 h-20 rounded-full flex items-center justify-center transition-all bg-white/10",
+                            callState === 'listening' ? "bg-red-600 shadow-[0_0_25px_rgba(220,38,38,0.4)]" : "text-white/40",
+                            (callState === 'connecting' || callState === 'processing' || callState === 'speaking') && "opacity-20 cursor-not-allowed"
                         )}
                     >
-                        {callState === 'listening' ? <Mic size={32} /> : <MicOff size={32} className="opacity-50" />}
+                        <Mic size={32} />
                     </button>
 
-                    {/* End call */}
                     <button
                         onClick={endCall}
-                        className="w-14 h-14 rounded-full flex items-center justify-center bg-red-600/20 text-red-500 hover:bg-red-600/40 transition-all active:scale-95 border border-red-500/20"
+                        className="w-14 h-14 rounded-full flex items-center justify-center bg-red-600/20 text-red-500 border border-red-500/20"
                     >
                         <PhoneOff size={24} />
                     </button>
                 </div>
             </div>
+
+            <style>{`
+                @keyframes wave-simple {
+                    0%, 100% { transform: scaleY(1); }
+                    50% { transform: scaleY(1.5); }
+                }
+            `}</style>
         </div>
     );
 }

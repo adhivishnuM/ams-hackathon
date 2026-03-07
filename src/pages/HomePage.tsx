@@ -68,6 +68,7 @@ export default function HomePage() {
 
     const t = getTranslation('home', language);
     const tVoice = getTranslation('voice', language);
+    const tCall = getTranslation('call', language);
 
     const { items: libraryItems, refresh: refreshLibrary } = useLibrary();
     const { history: chatHistory, fetchHistory: fetchChatHistory } = useChat();
@@ -697,8 +698,8 @@ export default function HomePage() {
                             <PhoneCall size={26} className="text-white" />
                         </div>
                         <div className="flex flex-col items-start text-left">
-                            <span className="font-black text-[15px] uppercase tracking-[0.1em] text-white">Call Agronomist</span>
-                            <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest mt-1">Direct Line to Expert AI</span>
+                            <span className="font-black text-[15px] uppercase tracking-[0.1em] text-white">{tCall.callAgent}</span>
+                            <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest mt-1">{tCall.callAgentSub}</span>
                         </div>
                     </div>
                     <div className="w-10 h-10 rounded-full bg-black/5 flex items-center justify-center group-hover:bg-black/10 transition-all relative z-10">
