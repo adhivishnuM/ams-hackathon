@@ -256,13 +256,17 @@ async function startBridge() {
             clientId: 'agrotalk',
             dataPath: path.join(__dirname, '..', '.whatsapp_session')
         }),
-        webVersionCache: {
-            type: 'remote',
-            remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html'
-        },
         puppeteer: {
-            headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--no-first-run', '--no-zygote', '--single-process', '--disable-gpu']
+            headless: "new",
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-extensions',
+                '--no-first-run',
+                '--no-zygote',
+                '--disable_gpu'
+            ]
         }
     });
 

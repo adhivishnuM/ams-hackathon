@@ -5,6 +5,46 @@
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 
+const nvidiaVision = require('./services/nvidiaVisionService');
+const { generateNvidiaSpeech } = require('./services/nvidiaTtsService');
+
+// API Connectivity Test (Selective)
+async function runSelfCheck() {
+    console.log('\n🔍 [Self-Check] Verifying Hybrid AI Connectivity...');
+    console.log('   (Waiting 3s for Python AI backend to initialize...)');
+    await new Promise(r => setTimeout(r, 3000));
+
+    // 1. OpenRouter (Direct)
+    try {
+        const apiKey = process.env.OPENROUTER_API_KEY;
+        if (!apiKey) throw new Error('Key missing');
+        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: 'google/gemini-2.0-flash-001', messages: [{ role: 'user', content: 'hi' }], max_tokens: 1 })
+        });
+        if (res.ok) console.log('✅ OpenRouter: Authentication successful');
+        else console.warn(`❌ OpenRouter: ${res.status} ${res.statusText}`);
+    } catch (e) { console.warn(`❌ OpenRouter: ${e.message}`); }
+
+    // 2. NVIDIA Vision (via Python Hybrid)
+    try {
+        const testImage = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=='; // 1x1 black pixel
+        const result = await nvidiaVision.analyzeImage(testImage, 'en');
+        if (result.success) console.log('✅ NVIDIA Vision (Hybrid): Connection successful');
+        else console.warn(`❌ NVIDIA Vision (Hybrid): ${result.error}`);
+    } catch (e) { console.warn(`❌ NVIDIA Vision (Hybrid): ${e.message}`); }
+
+    // 3. NVIDIA TTS (via Python Hybrid)
+    try {
+        const audio = await generateNvidiaSpeech('test', 'en', false, 'mia');
+        if (audio && audio.length > 0) console.log('✅ NVIDIA TTS (Hybrid): Connection successful');
+        else console.warn('❌ NVIDIA TTS (Hybrid): Failed to generate test audio');
+    } catch (e) { console.warn(`❌ NVIDIA TTS (Hybrid): ${e.message}`); }
+
+    console.log('--- Hybrid Self-Check Complete ---\n');
+}
+
 const express = require('express');
 const cors = require('cors');
 const http = require('http');
@@ -85,4 +125,5 @@ httpServer.listen(PORT, () => {
     if (process.env.NVIDIA_TTS_KEY) console.log('✅ NVIDIA TTS Enabled');
     if (process.env.NVIDIA_STT_KEY) console.log('✅ NVIDIA STT Enabled');
     initFirebase(); // Attempt Firebase init
+    runSelfCheck(); // Test AI connectivity
 });

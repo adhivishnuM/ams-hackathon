@@ -65,11 +65,12 @@ export async function analyzeImage(imageFile: File, language: string = "en"): Pr
       reader.readAsDataURL(imageFile);
     });
 
-    const BACKEND_URL = "http://localhost:8000/api/analyze";
+    const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+    const ENDPOINT = `${BACKEND_URL}/analyze-image/base64`;
 
-    console.log(`🚀 Sending image to NVIDIA Specialty backend:`, BACKEND_URL);
+    console.log(`🚀 Sending image to NVIDIA Specialty backend:`, ENDPOINT);
 
-    const response = await fetch(BACKEND_URL, {
+    const response = await fetch(ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

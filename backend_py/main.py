@@ -83,8 +83,10 @@ class AnalyzeResponse(BaseModel):
     timestamp: str
     mode: str = "nvidia"
 
-@app.on_event("startup")
-async def startup_event():
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     global nvidia_service, tts_service
     print("🚀 Starting AgroVoice Specialty API...")
     
@@ -95,6 +97,15 @@ async def startup_event():
     tts_service = NvidiaTTSService()
     
     print("✅ Server ready!")
+    yield
+    print("🛑 Shutting down AgroVoice Specialty API...")
+
+app = FastAPI(
+    title="AgroVoice Specialty API",
+    description="High-accuracy plant disease detection using NVIDIA Llama 3.2 Vision",
+    version="1.2.0",
+    lifespan=lifespan
+)
 
 @app.get("/")
 async def health_check():

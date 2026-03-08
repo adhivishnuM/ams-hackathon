@@ -53,6 +53,10 @@ if [ ! -d "backend/node_modules" ]; then
     cd backend && npm install && cd ..
 fi
 
+echo "[INFO] Verifying Python dependencies..."
+# Check if we have a virtualenv or just install globally/user
+python3 -m pip install -r backend_py/requirements.txt --quiet --user 2>/dev/null || python3 -m pip install -r backend_py/requirements.txt --quiet
+
 # 2. Start the application
 echo "[INFO] Launching all services (Frontend, Node, Python)..."
 echo "[INFO] Press Ctrl+C to stop all services."
