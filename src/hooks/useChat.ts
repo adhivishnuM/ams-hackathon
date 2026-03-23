@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { dbService } from '@/services/db';
 import { syncService } from '@/services/syncService';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ams-hackathon.onrender.com';
 
 export interface ChatItem {
     id: string;

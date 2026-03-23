@@ -65,7 +65,7 @@ export async function analyzeImage(imageFile: File, language: string = "en"): Pr
       reader.readAsDataURL(imageFile);
     });
 
-    const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+    const BACKEND_URL = import.meta.env.VITE_API_URL || "https://ams-hackathon.onrender.com";
     const ENDPOINT = `${BACKEND_URL}/analyze-image/base64`;
 
     console.log(`🚀 Sending image to NVIDIA Specialty backend:`, ENDPOINT);

@@ -140,20 +140,6 @@ function UserProfileChip() {
 
 // Inner component so it can consume AuthContext
 function ProtectedApp() {
-  const { user, isAuthLoading } = useAuth();
-
-  if (isAuthLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin shadow-green" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <LoginPage />;
-  }
-
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AppProvider>

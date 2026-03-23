@@ -197,7 +197,7 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
         setAnalysisStatus(prev => ({ ...prev, [id]: t.connectingToAI }));
 
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+            const apiUrl = import.meta.env.VITE_API_URL || 'https://ams-hackathon.onrender.com';
             const response = await fetch(`${apiUrl}/market/analyze`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

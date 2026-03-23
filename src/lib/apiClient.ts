@@ -5,7 +5,7 @@
  * Now supports conversation history for context-aware AI responses.
  */
 
-const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://ams-hackathon.onrender.com';
 
 import localWisdomData from '@/data/offline_knowledge.json';
 import { localWisdom, WisdomItem } from '@/data/localWisdom';
