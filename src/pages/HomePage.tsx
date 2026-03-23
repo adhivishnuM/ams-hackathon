@@ -232,6 +232,7 @@ export default function HomePage() {
         setIsChatMode(true);
         const text = textInput.trim();
         setTextInput('');
+        accumulatedTranscriptRef.current = '';
         await processResponse(text);
     };
 
@@ -245,6 +246,7 @@ export default function HomePage() {
                 if (finalPayload) {
                     setIsChatMode(true);
                     setTextInput('');
+                    accumulatedTranscriptRef.current = '';
                     await processResponse(finalPayload);
                 }
             }
