@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 const cacheService = require('../services/cacheService');
 
@@ -35,7 +34,9 @@ router.get('/', async (req, res) => {
     try {
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`;
 
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            signal: AbortSignal.timeout(15000)
+        });
         const data = await response.json();
 
         if (data.error) {

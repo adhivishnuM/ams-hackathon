@@ -310,7 +310,8 @@ async function getGroundedMarketAnalysis(mandiData, language = 'en', onProgress 
             messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: `Analyze: ${commodity} at ${market} (${modal_price})` }],
             temperature: 0.2,
             max_tokens: 300
-        })
+        }),
+        signal: AbortSignal.timeout(30000)
     });
     const data = await response.json();
     return data.choices?.[0] ? { text: data.choices[0].message.content, model: data.model } : null;
