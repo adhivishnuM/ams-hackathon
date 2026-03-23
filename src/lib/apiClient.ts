@@ -52,6 +52,7 @@ export interface TranscribeResponse {
     transcript?: string;
     advisory?: AgriculturalAdvisory;
     audio?: string; // Base64 MP3 audio from TTS
+    newLanguage?: string; // Automatically detect language change
     error?: string;
 }
 

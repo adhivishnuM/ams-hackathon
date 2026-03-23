@@ -59,7 +59,7 @@ router.post('/', uploadFields, async (req, res) => {
             weatherContext
         }).catch(e => console.error('Failed to save chat:', e));
 
-        return res.json({ success: true, transcript, advisory, audio: audioBase64 });
+        return res.json({ success: true, transcript, advisory, audio: audioBase64, newLanguage: advisory.newLanguage });
 
     } catch (error) {
         console.error(`❌ [${requestId}] Error:`, error);

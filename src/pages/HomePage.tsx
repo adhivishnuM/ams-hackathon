@@ -180,11 +180,14 @@ export default function HomePage() {
     const playResponse = (text: string, audioBase64?: string) => {
         if (isMuted) return;
         if (audioBase64) {
-            const audio = new Audio(`data:audio/mp3;base64,${audioBase64}`);
+            const isWav = audioBase64.startsWith('UklG');
+            const mimeType = isWav ? 'audio/wav' : 'audio/mp3';
+            const audio = new Audio(`data:${mimeType};base64,${audioBase64}`);
             audio.onended = () => { setIsPlaying(false); setCurrentPlayingId(null); };
             audio.onerror = () => speakText(text);
             setTtsAudio(audio);
             setIsPlaying(true);
+            audio.playbackRate = 1.15;
             audio.play().catch(() => speakText(text));
         } else {
             speakText(text);
@@ -211,12 +214,17 @@ export default function HomePage() {
             const result = await getTextAdvice(text, language, weatherContext, conversationHistory, true, currentConvId, selectedVoice);
 
             if (result.success && result.advisory) {
+                // Handle automatic language detection/switching
+                if (result.newLanguage && result.newLanguage !== language) {
+                    setLanguage(result.newLanguage as any);
+                }
+
                 addMessage('assistant', result.advisory.recommendation, result.advisory.condition);
                 setConversationHistory(prev => [
                     ...prev,
                     { role: 'user' as const, content: text },
                     { role: 'assistant' as const, content: result.advisory!.recommendation }
-                ].slice(-6));
+                ].slice(-10)); // Increased history for better context
                 setTimeout(() => playResponse(result.advisory!.recommendation, result.audio), 300);
             }
         } catch (e) {

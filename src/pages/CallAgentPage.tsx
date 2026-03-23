@@ -16,6 +16,7 @@ export default function CallAgentPage() {
     const navigate = useNavigate();
     const {
         language,
+        setLanguage,
         selectedVoice,
         isMuted,
         setIsMuted,
@@ -225,35 +226,7 @@ export default function CallAgentPage() {
             return;
         }
 
-        // Language Switch Detection
-        const langMap: Record<string, string> = {
-            "english": "en", "angrezi": "en",
-            "hindi": "hi",
-            "tamil": "ta", "thamizh": "ta", "தமிழ்": "ta",
-            "telugu": "te", "teks": "te", "తెలుగు": "te",
-            "marathi": "mr", "मराठी": "mr"
-        };
-        for (const [word, code] of Object.entries(langMap)) {
-            if (lower.includes(`speak in ${word}`) || lower.includes(`talk in ${word}`) || lower.includes(`${word} me baat`) || lower.includes(`${word} pesu`) || lower.includes(`${word} lo matladu`) || lower.includes(`change language to ${word}`)) {
-                // Change language globally via AppContext
-                const WindowObj = window as any;
-                if (WindowObj.setGlobalLanguage) {
-                    WindowObj.setGlobalLanguage(code);
-                }
-                
-                const switchAcks: Record<string, string> = {
-                    en: "Sure! Let's talk in English.",
-                    hi: "हाँ, अब हम हिंदी में बात करेंगे।",
-                    ta: "சரி, நாம் தமிழில் பேசலாம்.",
-                    te: "సరే, మనం తెలుగులో మాట్లాడుకుందాం.",
-                    mr: "ठीक आहे, आपण मराठीत बोलूया."
-                };
-                const ack = switchAcks[code] || switchAcks.en;
-                // Wait a moment for State to flush before responding
-                setTimeout(() => playResponse(ack), 500);
-                return;
-            }
-        }
+        // (Manual Language switch detection removed in favor of backend detection)
 
         let currentConvId = conversationId;
         if (!currentConvId) {
@@ -272,11 +245,16 @@ export default function CallAgentPage() {
             const result = await getTextAdvice(text + instruction, language, weatherContext, conversationHistory, true, currentConvId, selectedVoice);
 
             if (result.success && result.advisory) {
+                // Handle automatic language detection/switching
+                if (result.newLanguage && result.newLanguage !== language) {
+                    setLanguage(result.newLanguage as any);
+                }
+
                 setConversationHistory(prev => [
                     ...prev,
                     { role: 'user' as const, content: text },
                     { role: 'assistant' as const, content: result.advisory!.recommendation }
-                ].slice(-6));
+                ].slice(-10));
 
                 playResponse(result.advisory!.recommendation, result.audio);
             } else {
@@ -319,9 +297,10 @@ export default function CallAgentPage() {
             };
             setTtsAudio(audio);
             console.log("▶️ Starting playback...");
+            audio.playbackRate = 1.15;
             audio.play().catch(err => {
                 console.error("❌ Playback play() failed:", err);
-                speakText(text);
+                speakText(text, isExit); // Match function signature
             });
         };
 

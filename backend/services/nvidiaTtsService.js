@@ -9,13 +9,10 @@
 const googleTTS = require('google-tts-api');
 const cacheService = require('./cacheService');
 
-// Voice map for NVIDIA Magpie Multilingual
+// Voice map for NVIDIA Magpie Multilingual (Only supported 9 languages)
 const NVIDIA_VOICE_MAP = {
     en: 'Magpie-Multilingual.EN-US.Mia',
-    hi: 'Magpie-Multilingual.HI-IN.Aarav',
-    ta: 'Magpie-Multilingual.TA-IN.Aasha',
-    te: 'Magpie-Multilingual.TE-IN.Aarav',
-    mr: 'Magpie-Multilingual.MR-IN.Aarav'
+    hi: 'Magpie-Multilingual.HI-IN.Aarav'
 };
 
 // Google TTS language codes
@@ -66,6 +63,7 @@ async function generateNvidiaAudio(text, language = 'en', voice = 'Mia') {
             body: JSON.stringify({
                 text,
                 voice_name: voiceName,
+                speed: 1.15,
                 language_code: language === 'en' ? 'en-US' :
                                language === 'hi' ? 'hi-IN' :
                                language === 'ta' ? 'ta-IN' :
@@ -143,8 +141,9 @@ async function generateNvidiaSpeech(text, language = 'en', forceGoogle = false, 
 
     let audioBuffer = null;
 
-    // Priority 1: NVIDIA (best quality, all languages)
-    if (!forceGoogle) {
+    // Priority 1: NVIDIA (best quality, but only for supported languages like EN, HI)
+    const nvidiaSupported = ['en', 'hi'].includes(language);
+    if (!forceGoogle && nvidiaSupported) {
         audioBuffer = await generateNvidiaAudio(clean, language, voice);
     }
 

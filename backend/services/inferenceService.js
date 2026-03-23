@@ -96,6 +96,27 @@ function detectScale(text) {
 }
 
 /**
+ * Language Intent Detection
+ * Detects if the user wants to switch to a specific language.
+ */
+function detectLanguageIntent(text) {
+    const lower = (text || "").toLowerCase();
+    
+    // Check for language keywords + switch intent
+    const intents = ["speak in", "talk in", "change to", "switch to", "bolo", "bolen", "pesu", "maatru", "badlo", "badli"];
+    const hasIntent = intents.some(i => lower.includes(i));
+    
+    // Direct mention detection (more aggressive)
+    if (lower.includes("tamil") || lower.includes("tamizh") || lower.includes("thamil")) return "ta";
+    if (lower.includes("hindi") || lower.includes("hindu") || lower.includes("hindustani")) return "hi";
+    if (lower.includes("telugu")) return "te";
+    if (lower.includes("marathi")) return "mr";
+    if (lower.includes("english") || lower.includes("angrezi")) return "en";
+    
+    return null;
+}
+
+/**
  * Identify the crop and the topic from the text.
  */
 function extractCropAndTopic(text) {
@@ -171,20 +192,25 @@ async function inferAdviceFromText(text, language = 'en', weatherContext = null,
     const normalized = (text || '').trim();
     const normalizedLower = normalized.toLowerCase();
 
+    // 0. Language Intent Detection
+    const newLanguage = detectLanguageIntent(normalized);
+    const effectiveLang = newLanguage || (['hi', 'ta', 'te', 'mr'].includes(language) ? language : 'en');
+
     if (!normalized) {
         return {
             condition: 'No audio',
             confidence: 'Low',
-            recommendation: 'I didn\'t hear anything. Please try asking about your crop care or a specific problem.'
+            recommendation: 'I didn\'t hear anything. Please try asking about your crop care or a specific problem.',
+            newLanguage: newLanguage
         };
     }
 
-    const lang = ['hi', 'ta', 'te', 'mr'].includes(language) ? language : 'en';
+    const lang = effectiveLang;
 
     // 1. LANGUAGE RULE: Local Wisdom is English-only.
     // For other languages, we MUST use an AI model (Remote or Local).
     if (lang !== 'en') {
-        console.log(`📡 Non-English query (${lang}) detected. Routing to OpenRouter AI...`);
+        console.log(`📡 Non-English query (${lang}) detected. Routing to AI...`);
 
         if (process.env.OPENROUTER_API_KEY && process.env.OFFLINE_MODE !== 'true') {
             try {
@@ -193,7 +219,8 @@ async function inferAdviceFromText(text, language = 'en', weatherContext = null,
                     return {
                         condition: 'Farmer Assist',
                         confidence: 'High',
-                        recommendation: aiResponse.text
+                        recommendation: aiResponse.text,
+                        newLanguage: newLanguage
                     };
                 }
             } catch (e) {
@@ -230,7 +257,8 @@ async function inferAdviceFromText(text, language = 'en', weatherContext = null,
                 return {
                     condition: 'Farmer Assist',
                     confidence: 'High',
-                    recommendation: aiResponse.text
+                    recommendation: aiResponse.text,
+                    newLanguage: newLanguage
                 };
             }
         } catch (e) {
