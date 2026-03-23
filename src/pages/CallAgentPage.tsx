@@ -32,6 +32,11 @@ export default function CallAgentPage() {
 
     // --- State ---
     const [callState, setCallState] = useState<'connecting' | 'listening' | 'processing' | 'speaking' | 'idle'>('connecting');
+    const callStateRef = useRef(callState);
+
+    useEffect(() => {
+        callStateRef.current = callState;
+    }, [callState]);
     const [transcript, setTranscript] = useState('');
     const [agentSubtitles, setAgentSubtitles] = useState('');
 
@@ -132,7 +137,7 @@ export default function CallAgentPage() {
         };
 
         recognition.onresult = (event: any) => {
-            if (!isActiveRef.current) return;
+            if (!isActiveRef.current || callStateRef.current !== 'listening') return;
 
             let interim = '';
             let final = '';
@@ -148,20 +153,20 @@ export default function CallAgentPage() {
             const currentFull = (accumulatedTextRef.current + interim).trim();
             setTranscript(currentFull);
 
-            // Silence Detection (2s)
+            // Silence Detection (3s)
             if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
             if (currentFull.length > 0) {
                 silenceTimerRef.current = setTimeout(() => {
-                    if (isActiveRef.current) {
+                    if (isActiveRef.current && callStateRef.current === 'listening') {
                         submitUserQuery(currentFull);
                     }
-                }, 2000);
+                }, 3000);
             }
         };
 
         recognition.onend = () => {
             // Keep it alive if we didn't explicitly transition away
-            if (isActiveRef.current && callState === 'listening') {
+            if (isActiveRef.current && callStateRef.current === 'listening') {
                 try { recognition.start(); } catch (e) { }
             }
         };
@@ -185,8 +190,9 @@ export default function CallAgentPage() {
 
     // --- AI Logic ---
     const submitUserQuery = async (text: string) => {
-        if (!isActiveRef.current || !text.trim()) return;
+        if (!isActiveRef.current || !text.trim() || callStateRef.current !== 'listening') return;
 
+        callStateRef.current = 'processing';
         stopListening();
         setCallState('processing');
         setTranscript('');
