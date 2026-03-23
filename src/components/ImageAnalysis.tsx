@@ -264,7 +264,7 @@ export function ImageAnalysis({ isOpen, onClose, language, onShareChat, variant 
     // 1. Try Nvidia TTS First
     try {
       if (navigator.onLine) {
-        const audioBlob = await getNvidiaTts(text, language, true);
+        const audioBlob = await getNvidiaTts(text, language, undefined, true);
         if (audioBlob) {
           const audioUrl = URL.createObjectURL(audioBlob);
           const audio = new Audio(audioUrl);
@@ -443,7 +443,7 @@ export function ImageAnalysis({ isOpen, onClose, language, onShareChat, variant 
             {/* Upload/Camera Area */}
             <div
               className={cn(
-                "relative w-full max-sm aspect-[4/3] rounded-apple-lg border-2 border-dashed flex flex-col items-center justify-center overflow-hidden transition-all",
+                "relative w-full max-w-sm aspect-[4/3] rounded-apple-lg border-2 border-dashed flex flex-col items-center justify-center overflow-hidden transition-all",
                 isCameraActive ? "border-primary shadow-apple-lg" : "border-primary bg-background hover:bg-green-wash hover:border-primary/70 cursor-pointer"
               )}
               onClick={() => !isCameraActive && fileInputRef.current?.click()}

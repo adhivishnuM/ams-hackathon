@@ -176,6 +176,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
                     setWeatherData(cached.data);
                     setWeatherLastUpdated(cached.lastUpdated);
                     setIsWeatherLoading(false);
+                    return; // Early return if cache is hot
                 }
             } catch (e) { console.error(e); }
 
@@ -184,19 +185,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 return;
             }
 
-            const response = await fetch(`${API_BASE_URL}/weather?lat=${lat}&lon=${lon}`);
-            const result = await response.json();
-            if (result.success) {
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`;
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (!data.error) {
                 const now = Date.now();
-                setWeatherData(result.data);
+                setWeatherData(data);
                 setWeatherLastUpdated(now);
                 await dbService.put('weather_cache', {
                     id: 'current',
-                    data: result.data,
+                    data: data,
                     lastUpdated: now
                 });
             } else {
-                setWeatherError(result.error || 'Failed to fetch weather');
+                setWeatherError(data.reason || 'Failed to fetch weather');
             }
         } catch (err) {
             setWeatherError('Connection to weather service failed');

@@ -190,6 +190,7 @@ export default function CallAgentPage() {
         stopListening();
         setCallState('processing');
         setTranscript('');
+        accumulatedTextRef.current = '';
 
         // Goodbye Detection
         const goodbyeWords = ["bye", "goodbye", "alvida", "khuda hafiz", "bas", "end", "tata", "hang up", "poitu", "vellostha", "avlo"];

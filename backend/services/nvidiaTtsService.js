@@ -70,8 +70,7 @@ async function generateNvidiaAudio(text, language = 'en', voice = 'Mia') {
                                language === 'hi' ? 'hi-IN' :
                                language === 'ta' ? 'ta-IN' :
                                language === 'te' ? 'te-IN' :
-                               language === 'mr' ? 'mr-IN' : 'en-US',
-                sample_rate_hz: 22050
+                               language === 'mr' ? 'mr-IN' : 'en-US'
             }),
             signal: AbortSignal.timeout(30000)
         });
