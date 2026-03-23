@@ -21,6 +21,10 @@ services:
         sync: false
       - key: NVIDIA_STT_KEY
         sync: false
+      - key: MANDI_API_KEY
+        value: 579b464db66ec23bdd000001fe9d36968d1d4e8e62fee0cc92cefecd
+      - key: MANDI_API_BASE_URL
+        value: https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070
       - key: FIREBASE_SERVICE_ACCOUNT
         sync: false
       - key: FRONTEND_URL

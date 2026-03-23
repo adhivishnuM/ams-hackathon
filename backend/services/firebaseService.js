@@ -1,59 +1,52 @@
 /**
  * Firebase Admin Service
- * Centralizes Firebase Admin SDK setup for the Node.js backend.
- * Used for: Firestore (chat history), Firebase Storage (WhatsApp session).
+ * Provides Firestore for shared, persistent storage across all users.
+ * Library items, chat history, and market analyses are stored here.
+ * Falls back to local JSON files if Firebase is not configured.
  */
 
 const admin = require('firebase-admin');
 
 let db = null;
-let storage = null;
 let initialized = false;
 
 function initFirebase() {
-    if (initialized) return;
+    if (initialized) return db;
+
+    const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT;
+    if (!serviceAccountJson) {
+        console.log('ℹ️  FIREBASE_SERVICE_ACCOUNT not set — using local file storage.');
+        initialized = true;
+        return null;
+    }
 
     try {
-        // Option 1: Use service account JSON from env variable
-        const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT;
-        if (serviceAccountJson) {
-            const serviceAccount = JSON.parse(serviceAccountJson);
-            admin.initializeApp({
-                credential: admin.credential.cert(serviceAccount),
-                storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET || `${process.env.VITE_FIREBASE_PROJECT_ID}.firebasestorage.app`
-            });
-            db = admin.firestore();
-            storage = admin.storage();
-            initialized = true;
-            console.log('✅ Firebase Admin initialized with service account');
-            return;
-        }
-
-        // Option 2: Use Application Default Credentials (if running on GCP/Firebase)
+        const serviceAccount = JSON.parse(serviceAccountJson);
         admin.initializeApp({
-            credential: admin.credential.applicationDefault(),
-            storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET || `${process.env.VITE_FIREBASE_PROJECT_ID}.firebasestorage.app`
+            credential: admin.credential.cert(serviceAccount)
         });
         db = admin.firestore();
-        storage = admin.storage();
         initialized = true;
-        console.log('✅ Firebase Admin initialized with application default credentials');
+        console.log('✅ Firebase Firestore initialized — data will sync across all users');
+        return db;
     } catch (err) {
-        console.warn('⚠️ Firebase Admin SDK not initialized:', err.message);
-        console.warn('   Set FIREBASE_SERVICE_ACCOUNT env var to enable Firebase features.');
-        initialized = false; // Mark as failed but don't crash
+        console.warn('⚠️ Firebase init failed:', err.message);
+        console.warn('   Falling back to local file storage.');
+        initialized = true;
+        return null;
     }
 }
 
-// Lazy initialization
 function getDb() {
     if (!initialized) initFirebase();
     return db;
 }
 
-function getStorage() {
-    if (!initialized) initFirebase();
-    return storage;
+/**
+ * Check if Firestore is available
+ */
+function isFirestoreAvailable() {
+    return !!getDb();
 }
 
-module.exports = { getDb, getStorage, initFirebase };
+module.exports = { initFirebase, getDb, isFirestoreAvailable };

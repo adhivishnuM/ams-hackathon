@@ -4,29 +4,27 @@ const storageService = require('../services/storageService');
 const { v4: uuidv4 } = require('uuid');
 
 /**
- * GET /library
- * Fetch all items
+ * GET /library — Fetch all items (shared via Firestore or local fallback)
  */
-router.get('/', (req, res) => {
-    const items = storageService.getLibraryItems();
-    res.json({ success: true, data: items });
+router.get('/', async (req, res) => {
+    try {
+        const items = await storageService.getLibraryItems();
+        res.json({ success: true, data: items });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
 });
 
 /**
- * POST /library
- * Create a new item
+ * POST /library — Create a new item
  */
-router.post('/', (req, res) => {
-    console.log('📬 Received library item to save:', req.body.diseaseName);
+router.post('/', async (req, res) => {
     try {
         const newItemData = req.body;
-        const items = storageService.getLibraryItems();
-
         const id = uuidv4();
         const timestamp = new Date().toISOString();
 
-        // If image is base64, save it as a file
-        console.log('🖼️ Saving image for item:', id);
+        // Save image locally (served via /uploads)
         const imageUrl = storageService.saveImage(newItemData.thumbnail, id);
 
         const newItem = {
@@ -36,14 +34,12 @@ router.post('/', (req, res) => {
             thumbnail: imageUrl
         };
 
-        items.unshift(newItem);
-        const saved = storageService.saveLibraryItems(items);
-
+        const saved = await storageService.saveLibraryItem(newItem);
         if (saved) {
-            console.log('✅ Item saved successfully:', id);
+            console.log('✅ Library item saved:', id);
             res.status(201).json({ success: true, data: newItem });
         } else {
-            throw new Error('storageService.saveLibraryItems returned false');
+            throw new Error('Failed to save item');
         }
     } catch (error) {
         console.error('❌ Error creating library item:', error);
@@ -52,56 +48,46 @@ router.post('/', (req, res) => {
 });
 
 /**
- * PATCH /library/:id
- * Update an existing item
+ * PATCH /library/:id — Update an existing item
  */
-router.patch('/:id', (req, res) => {
+router.patch('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const updates = req.body;
-        const items = storageService.getLibraryItems();
 
-        const index = items.findIndex(item => item.id === id);
-        if (index === -1) {
+        const items = await storageService.getLibraryItems();
+        const existing = items.find(item => item.id === id);
+        if (!existing) {
             return res.status(404).json({ success: false, error: 'Item not found' });
         }
 
-        // Update fields
-        items[index] = { ...items[index], ...updates };
-        storageService.saveLibraryItems(items);
-
-        res.json({ success: true, data: items[index] });
+        const updated = { ...existing, ...updates };
+        await storageService.saveLibraryItem(updated);
+        res.json({ success: true, data: updated });
     } catch (error) {
-        console.error('Error updating library item:', error);
-        res.status(500).json({ success: false, error: 'Failed to update item' });
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
 /**
- * DELETE /library/:id
- * Remove an item and its image
+ * DELETE /library/:id — Remove an item
  */
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const items = storageService.getLibraryItems();
+        const items = await storageService.getLibraryItems();
+        const item = items.find(i => i.id === id);
 
-        const index = items.findIndex(item => item.id === id);
-        if (index === -1) {
+        if (!item) {
             return res.status(404).json({ success: false, error: 'Item not found' });
         }
 
-        // Delete image file
-        storageService.deleteImage(items[index].thumbnail);
-
-        // Remove from list
-        items.splice(index, 1);
-        storageService.saveLibraryItems(items);
+        storageService.deleteImage(item.thumbnail);
+        await storageService.deleteLibraryItem(id);
 
         res.json({ success: true, message: 'Item deleted' });
     } catch (error) {
-        console.error('Error deleting library item:', error);
-        res.status(500).json({ success: false, error: 'Failed to delete item' });
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 

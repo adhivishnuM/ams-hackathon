@@ -46,6 +46,7 @@ backend_py/__pycache__/
 debug_output*.txt
 test_output*.txt
 *.mp3
+*.wav
 
 # Test audio folder
 test_audio/
@@ -55,4 +56,15 @@ backend/data/*
 !backend/data/agricultural_knowledge.json
 backend/uploads/*
 backend_py/uploads/
+
+# WhatsApp session data (DO NOT COMMIT - 300MB+)
 .whatsapp_session/
+.wwebjs_cache/
+.wwebjs_auth/
+
+# Large test/debug audio files at root
+test_*.wav
+verify_*.wav
+
+# Python backend (not needed for production)
+backend_py/

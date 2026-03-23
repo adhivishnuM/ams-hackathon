@@ -1,65 +1,18 @@
 /**
- * AgroTalk Backend Server (Consolidated - No Python Dependency)
+ * AgroTalk Backend Server — Lean Production Build
+ * Pure Node.js, no Python, no WhatsApp, no Puppeteer.
  */
 
 const path = require('path');
 const fs = require('fs');
 
-// Load .env: prefer local .env (for Render deployment), fallback to parent .env (local dev)
+// Load .env: prefer local (Render deployment), fallback to parent (local dev)
 const localEnv = path.resolve(__dirname, '.env');
 const parentEnv = path.resolve(__dirname, '..', '.env');
-if (fs.existsSync(localEnv)) {
-    require('dotenv').config({ path: localEnv });
-} else {
-    require('dotenv').config({ path: parentEnv });
-}
-
-
-
-
-// API Connectivity Test (Non-blocking, fast)
-async function runSelfCheck() {
-    console.log('\n🔍 [Self-Check] Verifying AI Service Connectivity...');
-
-    // 1. OpenRouter
-    try {
-        const apiKey = process.env.OPENROUTER_API_KEY;
-        if (!apiKey) throw new Error('Key missing');
-        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ model: 'google/gemini-2.0-flash-001', messages: [{ role: 'user', content: 'hi' }], max_tokens: 1 }),
-            signal: AbortSignal.timeout(10000)
-        });
-        if (res.ok) console.log('✅ OpenRouter: Connected');
-        else console.warn(`⚠️ OpenRouter: ${res.status} ${res.statusText}`);
-    } catch (e) { console.warn(`⚠️ OpenRouter: ${e.message}`); }
-
-    // 2. NVIDIA Vision
-    try {
-        if (!process.env.NVIDIA_VISION_KEY) throw new Error('Key missing');
-        console.log('✅ NVIDIA Vision: Key configured');
-    } catch (e) { console.warn(`⚠️ NVIDIA Vision: ${e.message}`); }
-
-    // 3. NVIDIA TTS
-    try {
-        if (!process.env.NVIDIA_TTS_KEY) throw new Error('Key missing');
-        console.log('✅ NVIDIA TTS: Key configured');
-    } catch (e) { console.warn(`⚠️ NVIDIA TTS: ${e.message}`); }
-
-    // 4. NVIDIA STT
-    try {
-        if (!process.env.NVIDIA_STT_KEY) throw new Error('Key missing');
-        console.log('✅ NVIDIA STT: Key configured');
-    } catch (e) { console.warn(`⚠️ NVIDIA STT: ${e.message}`); }
-
-    console.log('--- Self-Check Complete ---\n');
-}
+require('dotenv').config({ path: fs.existsSync(localEnv) ? localEnv : parentEnv });
 
 const express = require('express');
 const cors = require('cors');
-const http = require('http');
-const { Server: SocketIOServer } = require('socket.io');
 
 // Routes
 const analyzeRoute = require('./routes/analyze');
@@ -69,40 +22,41 @@ const weatherRoute = require('./routes/weather');
 const chatRoute = require('./routes/chat');
 const marketRoute = require('./routes/market');
 const ttsRoute = require('./routes/tts');
-const whatsappRoute = require('./routes/whatsapp');
 
-// Firebase Admin (lazy init)
+// Firebase (lazy init — only if FIREBASE_SERVICE_ACCOUNT is set)
 const { initFirebase } = require('./services/firebaseService');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Create HTTP server and attach Socket.io
-const httpServer = http.createServer(app);
-const io = new SocketIOServer(httpServer, {
-    cors: { origin: '*', methods: ['GET', 'POST'] }
-});
-
-// Make io available globally so whatsapp_bridge can emit events
-global.socketIO = io;
-
-// Enable CORS
+// CORS — allow any origin (frontend can be anywhere)
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Parse JSON bodies
+// Body parsers
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Health check
 app.get('/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        services: {
+            openrouter: !!process.env.OPENROUTER_API_KEY,
+            nvidia_vision: !!process.env.NVIDIA_VISION_KEY,
+            nvidia_tts: !!process.env.NVIDIA_TTS_KEY,
+            nvidia_stt: !!process.env.NVIDIA_STT_KEY,
+            mandi: !!process.env.MANDI_API_KEY,
+            firebase: !!process.env.FIREBASE_SERVICE_ACCOUNT
+        }
+    });
 });
 
-// Routes
+// API Routes
 app.use('/analyze-image', analyzeRoute);
 app.use('/weather', weatherRoute);
 app.use('/transcribe', transcribeRoute);
@@ -110,31 +64,24 @@ app.use('/library', libraryRoute);
 app.use('/chat', chatRoute);
 app.use('/market', marketRoute);
 app.use('/api/tts', ttsRoute);
-app.use('/api/whatsapp', whatsappRoute);
 
-// Serve uploads
+// Serve uploads (local fallback if Firebase Storage not configured)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Error handler
+// Global error handler
 app.use((err, req, res, next) => {
     console.error('Server error:', err);
     res.status(500).json({ success: false, error: 'Internal server error' });
 });
 
-// Socket.io connection log
-io.on('connection', (socket) => {
-    console.log(`🔌 Frontend client connected: ${socket.id}`);
-    socket.on('disconnect', () => console.log(`🔌 Frontend client disconnected: ${socket.id}`));
-});
-
 // Start
-httpServer.listen(PORT, () => {
-    console.log(`🌱 AgroTalk Backend running on http://localhost:${PORT}`);
-    console.log(`🔌 Socket.io enabled for real-time QR delivery`);
-    if (process.env.OPENROUTER_API_KEY) console.log('✅ OpenRouter AI Enabled');
-    if (process.env.NVIDIA_VISION_KEY) console.log('✅ NVIDIA Vision Enabled');
-    if (process.env.NVIDIA_TTS_KEY) console.log('✅ NVIDIA TTS Enabled');
-    if (process.env.NVIDIA_STT_KEY) console.log('✅ NVIDIA STT Enabled');
-    initFirebase(); // Attempt Firebase init
-    runSelfCheck(); // Test AI connectivity
+app.listen(PORT, () => {
+    console.log(`\n🌱 AgroTalk Backend running on port ${PORT}`);
+    console.log(`   OpenRouter: ${process.env.OPENROUTER_API_KEY ? '✅' : '❌ missing'}`);
+    console.log(`   NVIDIA Vision: ${process.env.NVIDIA_VISION_KEY ? '✅' : '❌ missing'}`);
+    console.log(`   NVIDIA TTS: ${process.env.NVIDIA_TTS_KEY ? '✅' : '❌ missing'}`);
+    console.log(`   NVIDIA STT: ${process.env.NVIDIA_STT_KEY ? '✅' : '❌ missing'}`);
+    console.log(`   Mandi API: ${process.env.MANDI_API_KEY ? '✅' : '❌ missing'}`);
+    console.log(`   Firebase: ${process.env.FIREBASE_SERVICE_ACCOUNT ? '✅' : '⚠️  optional — using local storage'}\n`);
+    initFirebase(); // Non-blocking, graceful if not configured
 });

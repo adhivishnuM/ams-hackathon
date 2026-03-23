@@ -1,25 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const storageService = require('../services/storageService');
-const { generateSpeech } = require('../services/openRouterService');
+const { generateNvidiaSpeech } = require('../services/nvidiaTtsService');
 
 /**
- * POST /api/chat/tts
- * Generate TTS for a given text
+ * POST /chat/tts — Generate TTS for text
  */
 router.post('/tts', async (req, res) => {
     try {
         const { text, language = 'en' } = req.body;
-        if (!text) {
-            return res.status(400).json({ success: false, error: 'Text is required' });
-        }
+        if (!text) return res.status(400).json({ success: false, error: 'Text is required' });
 
-        const audioBuffer = await generateSpeech(text, language);
+        const audioBuffer = await generateNvidiaSpeech(text, language);
         if (audioBuffer) {
-            return res.json({
-                success: true,
-                audio: audioBuffer.toString('base64')
-            });
+            return res.json({ success: true, audio: audioBuffer.toString('base64') });
         }
         res.status(500).json({ success: false, error: 'Failed to generate speech' });
     } catch (error) {
@@ -28,40 +22,26 @@ router.post('/tts', async (req, res) => {
 });
 
 /**
- * GET /api/chat
- * Get chat history
+ * GET /chat — Get shared chat history (Firestore or local)
  */
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
     try {
-        const history = storageService.getChatHistory();
-        res.json({
-            success: true,
-            data: history
-        });
+        const history = await storageService.getChatHistory();
+        res.json({ success: true, data: history });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
 /**
- * DELETE /api/chat
- * Clear chat history
+ * DELETE /chat — Clear all chat history
  */
-router.delete('/', (req, res) => {
+router.delete('/', async (req, res) => {
     try {
-        storageService.clearChatHistory();
-        res.json({
-            success: true,
-            message: 'Chat history cleared'
-        });
+        await storageService.clearChatHistory();
+        res.json({ success: true, message: 'Chat history cleared' });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
