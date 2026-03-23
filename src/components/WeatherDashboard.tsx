@@ -32,7 +32,7 @@ interface WeatherDashboardProps {
 const WeatherIcon: React.FC<{ code: number; size?: 'sm' | 'md' | 'lg'; isNight?: boolean }> = ({ code, size = 'md', isNight = false }) => {
   const iconClass = cn(
     size === 'sm' ? 'w-5 h-5' : size === 'md' ? 'w-8 h-8' : 'w-12 h-12',
-    'drop-shadow-sm transition-transform duration-500 hover:scale-110'
+    'drop-shadow-sm'
   );
 
   // Map weather codes to icons with appropriate colors
@@ -109,7 +109,7 @@ export const WeatherDashboard: React.FC<WeatherDashboardProps> = ({
 
   if (loading) {
     return (
-      <div className="bg-card/50 backdrop-blur-md rounded-[28px] p-6 border border-border/50 animate-pulse">
+      <div className="bg-card/50 backdrop-blur-md rounded-[28px] p-6 border border-border/50">
         <div className="flex items-center justify-between mb-4">
           <div className="w-24 h-4 bg-muted rounded-full" />
           <div className="w-12 h-12 bg-muted rounded-full" />
@@ -139,15 +139,10 @@ export const WeatherDashboard: React.FC<WeatherDashboardProps> = ({
   return (
     <div className="relative group">
       {/* Premium Glass Card - Tactical Upgrade */}
-      <motion.div
-        layout
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
+      <div
         onClick={() => setIsExpanded(!isExpanded)}
         className={cn(
           "bg-card/40 backdrop-blur-xl rounded-[32px] transition-all duration-500 cursor-pointer overflow-hidden border border-white/10",
-          "hover:bg-card/60 hover:shadow-2xl hover:scale-[1.01] active:scale-[0.99]",
           isExpanded ? "ring-2 ring-primary/30 shadow-2xl" : "shadow-apple-card"
         )}
       >
@@ -155,13 +150,11 @@ export const WeatherDashboard: React.FC<WeatherDashboardProps> = ({
           <div className="flex items-center justify-between">
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
-                <motion.div
-                  initial={{ scale: 0.8 }}
-                  animate={{ scale: 1 }}
+                <div
                   className="px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20"
                 >
                   <span className="text-[9px] font-black uppercase tracking-[0.1em] text-primary">{t.liveWeather}</span>
-                </motion.div>
+                </div>
                 {lastUpdated && (
                   <span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-widest">
                     {new Date(lastUpdated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -182,16 +175,14 @@ export const WeatherDashboard: React.FC<WeatherDashboardProps> = ({
               <p className="text-[12px] font-semibold text-muted-foreground/90 italic leading-none">{currentLabel}</p>
             </div>
 
-            <motion.div
-              whileHover={{ rotate: 15, scale: 1.1 }}
-              transition={{ type: "spring", stiffness: 300 }}
+            <div
               className="relative"
             >
               <div className="relative z-10 p-4 bg-white/5 dark:bg-black/20 backdrop-blur-md rounded-3xl border border-white/10 shadow-apple-lg">
                 <WeatherIcon code={data.current.weather_code} size="lg" isNight={isNight} />
               </div>
               <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full -z-0 opacity-50" />
-            </motion.div>
+            </div>
           </div>
 
           <div className="flex items-center justify-between mt-6 pt-5 border-t border-border/10">
@@ -215,23 +206,18 @@ export const WeatherDashboard: React.FC<WeatherDashboardProps> = ({
                 </div>
               </div>
             </div>
-            <motion.div
-              animate={{ rotate: isExpanded ? 180 : 0 }}
+            <div
               className="p-1 rounded-full bg-muted/30"
             >
-              <ChevronDown size={20} className="text-muted-foreground/60" />
-            </motion.div>
+              <ChevronDown size={20} className={cn("text-muted-foreground/60 transition-transform", isExpanded && "rotate-180")} />
+            </div>
           </div>
         </div>
 
         {/* Forecast Content */}
         <AnimatePresence>
           {isExpanded && data.daily && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+            <div
               className="px-6 pb-8"
             >
               <div className="pt-4">
@@ -243,17 +229,13 @@ export const WeatherDashboard: React.FC<WeatherDashboardProps> = ({
                     const dateInfo = formatDate(time, language);
                     const isToday = idx === 0;
                     return (
-                      <motion.div
+                      <div
                         key={idx}
-                        initial={{ opacity: 0, scale: 0.9, y: 10 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        transition={{ delay: idx * 0.05 + 0.2 }}
-                        whileHover={{ y: -4, backgroundColor: "rgba(var(--primary), 0.1)" }}
                         className={cn(
                           "flex flex-col items-center p-3 rounded-[24px] border transition-all duration-300",
                           isToday
                             ? "bg-primary/10 border-primary/30 shadow-apple-sm ring-1 ring-primary/20"
-                            : "bg-muted/10 border-white/5 hover:bg-muted/20"
+                            : "bg-muted/10 border-white/5"
                         )}
                       >
                         <p className={cn("text-[9px] font-black uppercase tracking-widest mb-2.5", isToday ? "text-primary" : "text-muted-foreground")}>
@@ -264,15 +246,15 @@ export const WeatherDashboard: React.FC<WeatherDashboardProps> = ({
                           <p className="text-[14px] font-black text-foreground">{Math.round(data.daily!.temperature_2m_max[idx])}°</p>
                           <p className="text-[10px] text-muted-foreground/60 font-bold mt-1">{Math.round(data.daily!.temperature_2m_min[idx])}°</p>
                         </div>
-                      </motion.div>
+                      </div>
                     );
                   })}
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
         </AnimatePresence>
-      </motion.div>
+      </div>
     </div>
   );
 };
