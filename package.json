@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "start": "cd backend && npm install && node server.js",
     "dev": "vite",
     "dev:backend": "cd backend && node server.js",
     "dev:whatsapp": "node backend/whatsapp_bridge.js",

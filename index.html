@@ -14,6 +14,22 @@
   <link rel="icon" type="image/svg+xml" href="/logo.svg" />
   <link rel="icon" type="image/png" href="/logo.svg" />
 
+  <!-- PWA Cache Buster -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(let registration of registrations) {
+          registration.unregister();
+        }
+      });
+      // Force reload once if arriving from cache
+      if (!sessionStorage.getItem('pwa_busted')) {
+        sessionStorage.setItem('pwa_busted', 'true');
+        setTimeout(() => window.location.reload(true), 500);
+      }
+    }
+  </script>
+
   <!-- Open Graph -->
   <meta property="og:title" content="AgroVoice - AI Assistant for Farmers" />
   <meta property="og:description"
