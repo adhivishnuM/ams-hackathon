@@ -95,8 +95,16 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
             const normalizedRecords = (data.records || []).map(normalizeRecord);
 
             if (isLoadMore) {
-                setPrices(prev => [...prev, ...normalizedRecords]);
-                setOriginalPrices(prev => [...prev, ...normalizedRecords]);
+                setPrices(prev => {
+                    const existingKeys = new Set(prev.map(p => `${p.market}-${p.commodity}-${p.variety}`));
+                    const newRecords = normalizedRecords.filter(p => !existingKeys.has(`${p.market}-${p.commodity}-${p.variety}`));
+                    return [...prev, ...newRecords];
+                });
+                setOriginalPrices(prev => {
+                    const existingKeys = new Set(prev.map(p => `${p.market}-${p.commodity}-${p.variety}`));
+                    const newRecords = normalizedRecords.filter(p => !existingKeys.has(`${p.market}-${p.commodity}-${p.variety}`));
+                    return [...prev, ...newRecords];
+                });
                 setOffset(currentOffset);
             } else {
                 setPrices(normalizedRecords);
@@ -493,7 +501,7 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                                             </div>
                                         </div>
 
-                                        <div className="flex flex-wrap items-center gap-4 pt-4 pt-2">
+                                        <div className="flex flex-wrap items-center gap-4 pt-4">
                                             <div className="flex items-center gap-2">
                                                 <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-primary">
                                                     <MapPin size={14} />

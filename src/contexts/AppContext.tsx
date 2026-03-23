@@ -110,6 +110,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // Persist language changes
     useEffect(() => {
         localStorage.setItem('agro_language', language);
+        (window as any).setGlobalLanguage = setLanguage;
     }, [language]);
 
     // Persist voice selection

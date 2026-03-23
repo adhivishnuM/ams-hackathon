@@ -24,7 +24,8 @@ router.get('/prices', async (req, res) => {
             return res.status(500).json({ success: false, error: 'Market API key not configured' });
         }
 
-        let url = `${BASE_URL}?api-key=${API_KEY}&format=json&limit=${limit}&offset=${offset}`;
+        // Add deterministic sorting by arrival_date to prevent pagination duplication
+        let url = `${BASE_URL}?api-key=${API_KEY}&format=json&limit=${limit}&offset=${offset}&sort[arrival_date]=desc`;
 
         // Transform commodity to Title Case for API compatibility
         const formattedCommodity = commodity ? commodity.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ') : null;
