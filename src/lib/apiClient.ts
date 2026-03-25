@@ -169,6 +169,27 @@ export async function transcribeAndGetAdvice(
             };
         }
 
+        if (result.advisory?.recommendation) {
+            const orderMatch = result.advisory.recommendation.match(/\[B2B_ORDER_CONFIRMED:\s*([^\]]+)\]/i);
+            if (orderMatch) {
+                const cropName = orderMatch[1].trim();
+                
+                const newOrder = {
+                    id: `ord_${Date.now()}`,
+                    crop: cropName || "Farm Produce",
+                    quantity: "As requested in call",
+                    location: "Verified Location",
+                    price_estimate: "Live Market Rate",
+                    status: "Pending Buyer Pickup",
+                    buyer_name: "AgroTalk Network Buyer",
+                    timestamp: Date.now()
+                };
+                
+                dbService.put('agent_orders', newOrder).catch(console.error);
+                result.advisory.recommendation = result.advisory.recommendation.replace(/\[B2B_ORDER_CONFIRMED:\s*[^\]]+\]/i, '').trim();
+            }
+        }
+
         return {
             success: true,
             transcript: result.transcript,
@@ -245,10 +266,7 @@ export async function getTextAdvice(
         }
 
         // B. Check for Market keywords -> Direct user to Mandi tab match
-        if (!offlineResponse && (lowerText.includes('price') || lowerText.includes('rate') || lowerText.includes('market') || lowerText.includes('mandi') || lowerText.includes('bhav'))) {
-            const marketWisdom = localWisdom.find(w => w.keywords.includes('market'));
-            if (marketWisdom) offlineResponse = marketWisdom.response[language as keyof typeof marketWisdom.response] || marketWisdom.response.en;
-        }
+        // Removed so that market queries can go directly to the backend AI B2B simulator.
 
         // C. Check for cached AI response from previous queries
         if (!offlineResponse) {
@@ -367,6 +385,26 @@ export async function getTextAdvice(
             // Cache TTS audio if present
             if (result.audio) {
                 ttsCacheService.cacheAudio(result.advisory.recommendation, result.audio, language);
+            }
+
+            // Check for B2B Order Confirmation
+            const orderMatch = result.advisory.recommendation.match(/\[B2B_ORDER_CONFIRMED:\s*([^\]]+)\]/i);
+            if (orderMatch) {
+                const cropName = orderMatch[1].trim();
+                
+                const newOrder = {
+                    id: `ord_${Date.now()}`,
+                    crop: cropName || "Farm Produce",
+                    quantity: "As requested in chat",
+                    location: "Verified Location",
+                    price_estimate: "Live Market Rate",
+                    status: "Pending Buyer Pickup",
+                    buyer_name: "AgroTalk Network Buyer",
+                    timestamp: Date.now()
+                };
+                
+                dbService.put('agent_orders', newOrder).catch(console.error);
+                result.advisory.recommendation = result.advisory.recommendation.replace(/\[B2B_ORDER_CONFIRMED:\s*[^\]]+\]/i, '').trim();
             }
         }
 

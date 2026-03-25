@@ -6,6 +6,9 @@ import { useLibrary, LibraryItem } from "@/hooks/useLibrary";
 import { toast } from "sonner";
 import { getTranslation } from "@/lib/translations";
 import { WeatherDashboard } from "./WeatherDashboard";
+import { useOrders } from "@/hooks/useOrders";
+import { PackageOpen, MapPin, IndianRupee, Clock as ClockIcon, TrendingUp, ShoppingCart, Phone } from "lucide-react";
+import { getRecommendations } from "@/data/products";
 
 interface WeatherData {
   current: {
@@ -33,6 +36,9 @@ export function LibraryScreen({ language, weatherData, isWeatherLoading, onShare
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDisease, setEditDisease] = useState("");
   const [editCrop, setEditCrop] = useState("");
+  const [activeTab, setActiveTab] = useState<"scans" | "orders">("scans");
+
+  const { orders } = useOrders();
 
   const tLib = getTranslation('library', language);
 
@@ -162,7 +168,37 @@ export function LibraryScreen({ language, weatherData, isWeatherLoading, onShare
           />
         </div>
 
-        <div className="grid grid-cols-3 gap-3 animate-in fade-in duration-700 delay-300">
+        {/* Top Tabs */}
+        <div className="flex p-1 bg-muted/40 rounded-[28px] border border-border/50 animate-in fade-in duration-700 delay-200 shadow-apple-sm">
+          <button
+            onClick={() => setActiveTab("scans")}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2 py-3 rounded-[24px] text-body font-bold transition-all duration-300",
+              activeTab === "scans"
+                ? "bg-card text-foreground shadow-sm border border-border/60"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <LayoutGrid size={18} />
+            Diagnostic Scans
+          </button>
+          <button
+            onClick={() => setActiveTab("orders")}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2 py-3 rounded-[24px] text-body font-bold transition-all duration-300",
+              activeTab === "orders"
+                ? "bg-primary text-white shadow-sm border border-primary/20"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <PackageOpen size={18} />
+            Agent Orders
+          </button>
+        </div>
+
+        {activeTab === "scans" ? (
+          <>
+            <div className="grid grid-cols-3 gap-3 animate-in fade-in duration-700 delay-300">
           <div className="p-4 bg-card rounded-[24px] border border-border/50 text-center shadow-apple-sm">
             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
               <Leaf className="w-4 h-4 text-primary" />
@@ -310,6 +346,75 @@ export function LibraryScreen({ language, weatherData, isWeatherLoading, onShare
             ))}
           </div>
         )}
+        </>
+        ) : (
+          <div className="animate-in fade-in slide-in-from-right-8 duration-500">
+            {orders.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                  <PackageOpen className="w-10 h-10 text-primary/40" />
+                </div>
+                <h3 className="text-headline font-bold text-foreground mb-2">No Active Orders</h3>
+                <p className="text-body text-muted-foreground max-w-[240px]">Orders placed via the Call Agent will appear here automatically.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-6">
+                {orders.map((order) => (
+                  <div key={order.id} className="bg-card rounded-[32px] border border-border/60 shadow-apple-lg overflow-hidden relative">
+                    {/* Header line */}
+                    <div className="h-1.5 w-full bg-gradient-to-r from-green-400 to-emerald-600"></div>
+                    
+                    <div className="p-6 space-y-5">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-2xl bg-green-500/10 flex items-center justify-center border border-green-500/20">
+                            <TrendingUp className="w-6 h-6 text-green-500" />
+                          </div>
+                          <div>
+                            <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground mb-0.5">Verified B2B Lead</p>
+                            <h3 className="text-title-2 font-black text-foreground tracking-tight">{order.crop}</h3>
+                          </div>
+                        </div>
+                        <div className="px-3 py-1 bg-green-500/10 rounded-full border border-green-500/20 flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                          <span className="text-[10px] font-black uppercase text-green-500 tracking-wider flex items-center gap-1">
+                            {order.status}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-muted/40 p-4 rounded-2xl border border-border/50">
+                          <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1 flex items-center gap-1.5">
+                            <IndianRupee size={12} className="text-primary"/> Est. Market Rate
+                          </p>
+                          <p className="text-subhead font-black tracking-tight text-foreground">{order.price_estimate}</p>
+                        </div>
+                        <div className="bg-muted/40 p-4 rounded-2xl border border-border/50">
+                          <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1 flex items-center gap-1.5">
+                            <PackageOpen size={12} className="text-primary"/> Quantity Requested
+                          </p>
+                          <p className="text-subhead font-black tracking-tight text-foreground">{order.quantity}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-4 border-t border-border/40">
+                        <div className="flex items-center gap-2">
+                          <MapPin size={16} className="text-muted-foreground" />
+                          <p className="text-caption font-medium text-muted-foreground">Location: <span className="font-bold text-foreground">{order.location}</span></p>
+                        </div>
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase opacity-60 flex items-center gap-1">
+                          <ClockIcon size={12} />
+                          {new Date(order.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </main>
 
       {selectedItem && (
@@ -419,6 +524,50 @@ export function LibraryScreen({ language, weatherData, isWeatherLoading, onShare
                             <CheckCircle size={14} />
                           </div>
                           <p className="text-slate-300 text-[14px] font-medium leading-relaxed flex-1">{t}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                {/* Recommended Products Affiliate Feature */}
+                {selectedItem && selectedItem.severity !== 'low' && (
+                  <section className="space-y-3 mt-8">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <ShoppingCart size={16} className="text-primary" />
+                        <h4 className="text-[11px] font-black uppercase tracking-widest text-foreground">Recommended Products</h4>
+                      </div>
+                      <span className="text-[9px] font-bold text-muted-foreground uppercase bg-muted px-2 py-0.5 rounded-sm">Sponsored</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3">
+                      {getRecommendations(getLocalizedField(selectedItem, 'diseaseName'), getLocalizedArray(selectedItem, 'symptoms') || []).map(product => (
+                        <div key={product.id} className="flex gap-4 p-4 rounded-[20px] border border-primary/20 bg-primary/5 shadow-sm hover:shadow-apple-md transition-all">
+                          <div className="w-16 h-16 rounded-xl bg-white overflow-hidden shrink-0 border border-border/50 shadow-sm flex items-center justify-center">
+                            <img src={product.image} className="w-full h-full object-contain p-1" alt={product.name} />
+                          </div>
+                          <div className="flex flex-col justify-between flex-1">
+                            <div>
+                              <p className="text-[9px] font-black uppercase text-primary tracking-wider">{product.brand}</p>
+                              <h5 className="text-[14px] font-bold text-foreground leading-tight">{product.name}</h5>
+                              <p className="text-subhead font-black text-foreground mt-0.5">₹{product.price}</p>
+                            </div>
+                            <div className="flex gap-2 mt-3">
+                              <button 
+                                onClick={() => window.open(`https://wa.me/919999999999?text=I want to order ${product.name} for my affected ${selectedItem.cropType}`, '_blank')} 
+                                className="flex-1 bg-green-500 hover:bg-green-600 active:scale-95 text-white text-[11px] font-bold uppercase tracking-wide py-2 rounded-xl flex justify-center items-center transition-all"
+                              >
+                                Buy Now
+                              </button>
+                              <button 
+                                onClick={() => window.open(`tel:${product.phoneOrder}`)} 
+                                className="w-10 flex items-center justify-center bg-card border border-border/60 hover:border-primary text-foreground rounded-xl active:scale-95 transition-all"
+                              >
+                                <Phone size={14} className="text-primary"/>
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       ))}
                     </div>

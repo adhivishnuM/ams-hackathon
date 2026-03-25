@@ -54,8 +54,14 @@ async function getAgriAdvice(userQuery, weatherContext, imageBuffer = null, mime
     const currentDate = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
     try {
+        const marketKeywords = ['price', 'market', 'rate', 'sell', 'mandi', 'bhav', 'விலை', 'விற்க', 'சந்தை', 'भाव', 'कीमत', 'बेचना', 'मंडी', 'ధర', 'అమ్మకానికి', 'మార్కెట్', 'किंमत', 'विक्री', 'बाजार'];
+        let activeModel = MODEL;
+        if (marketKeywords.some(kw => userQuery.toLowerCase().includes(kw))) {
+            activeModel = 'perplexity/sonar'; // Use sonar for live web search and current prices
+        }
+
         // Human AI prompt for quick chat
-        let systemPrompt = `You are AgroTalk, a professional agricultural expert. 
+        let systemPrompt = `You are AgroTalk, a professional agricultural expert and a B2B marketplace connector. 
         
         CONTEXT: 
         Current Date: ${currentDate}
@@ -64,9 +70,14 @@ async function getAgriAdvice(userQuery, weatherContext, imageBuffer = null, mime
         1. Speak professionally, concisely, and with authority on farming. 
         2. Keep it "SHORT AND SWEET": Max 2 sentences. Use friendly but professional tone.
         3. NO AI filler, NO markdown. Plain text ONLY.
-        4. NO HALLUCINATIONS: Never make up links, dates, or prices not in context.
-        5. Focus on direct answers to user queries.
-        6. Respond ONLY in ${targetLang}.`;
+        4. Focus on direct answers to user queries.
+        5. Respond ONLY in ${targetLang}.
+        
+        MONEY MAKING MACHINE / MARKETPLACE FEATURE:
+        - If the user asks for the price or market rate of a crop, provide a realistic current market price estimate for today.
+        - ALWAYS end your price response by asking (translated to ${targetLang}): "If you'd like to sell, please tell me the quantity you want to sell and your location, and I can connect you to the nearest buyer."
+        - If the user provides their selling details (e.g., name, phone number, location, crop, quantity), confirm by saying exactly (translated to ${targetLang}): "Order confirmed successfully! We have connected your listing to the nearest verified buyers in your area."
+        - CRITICAL RULE FOR ORDERS: When you confirm an order, you MUST append the exact English tag [B2B_ORDER_CONFIRMED: <Crop Name in English>] at the very end of your response so the system can process it. Example: [B2B_ORDER_CONFIRMED: Carrot]`;
 
         if (weatherContext) {
             systemPrompt += `\nWeather: ${weatherContext.temp}°C, humidity ${weatherContext.humidity}%. Give advice considering this.`;
@@ -122,7 +133,7 @@ async function getAgriAdvice(userQuery, weatherContext, imageBuffer = null, mime
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: MODEL,
+                model: activeModel,
                 messages: messages,
                 temperature: 0.8,
                 max_tokens: 180

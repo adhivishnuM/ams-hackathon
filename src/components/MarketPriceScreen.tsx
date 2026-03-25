@@ -6,6 +6,10 @@ import { cn } from '@/lib/utils';
 import { getTranslation } from '@/lib/translations';
 import { getNvidiaTts } from '@/lib/apiClient';
 import { mandiService, type MandiPriceRecord } from '@/services/mandiService';
+import { useOrders } from '@/hooks/useOrders';
+import { storeProducts, type StoreProduct } from '@/data/storeProducts';
+import { toast } from 'sonner';
+import { Store, ShoppingCart } from 'lucide-react';
 
 interface MarketPriceScreenProps {
     language: string;
@@ -40,6 +44,12 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
     const [selectedState, setSelectedState] = useState<string>('all');
     const [maxPrice, setMaxPrice] = useState<number>(0);
     const [showFilters, setShowFilters] = useState(false);
+
+    // Agro Store State
+    const [activeTab, setActiveTab] = useState<'mandi' | 'store'>('mandi');
+    const [storeSearch, setStoreSearch] = useState('');
+    const [activeStoreCategory, setActiveStoreCategory] = useState('All');
+    const { addOrder } = useOrders();
 
     const t = getTranslation('market', language);
 
@@ -274,6 +284,28 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
     // Find max price for range
     const absoluteMaxPrice = Math.max(...originalPrices.map(p => parseInt(p.modal_price) || 0), 0);
 
+    // Store Derived State
+    const storeCategories = ['All', ...Array.from(new Set(storeProducts.map(p => p.category)))];
+    const filteredStoreProducts = storeProducts.filter(p => {
+        const matchesSearch = p.name.toLowerCase().includes(storeSearch.toLowerCase()) || p.brand.toLowerCase().includes(storeSearch.toLowerCase());
+        const matchesCat = activeStoreCategory === 'All' || p.category === activeStoreCategory;
+        return matchesSearch && matchesCat;
+    });
+
+    const handleBuyProduct = (product: StoreProduct) => {
+        addOrder({
+            id: `ord_${Date.now()}`,
+            crop: product.name,
+            quantity: "1 Unit",
+            location: "Home Delivery",
+            price_estimate: `₹${product.price}`,
+            status: "Processing Order",
+            buyer_name: "AgroTalk Supply",
+            timestamp: Date.now()
+        });
+        toast.success("Order Placed!", { description: "View in Library -> Agent Orders" });
+    };
+
     return (
         <div className="flex flex-col flex-1 pb-32 animate-fade-in">
             {/* Premium Header */}
@@ -285,18 +317,46 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                         </div>
                         <p className="text-caption font-bold text-muted-foreground uppercase tracking-widest opacity-70">{t.subtitle}</p>
                     </div>
-                    <button
-                        onClick={() => loadPrices(true)}
-                        disabled={isRefreshing}
-                        className={cn(
-                            "w-12 h-12 rounded-2xl bg-card border border-border text-primary flex items-center justify-center transition-all active:scale-90 shadow-apple-sm hover:shadow-apple-md",
-                            isRefreshing && "animate-spin"
-                        )}
-                    >
-                        <RefreshCw size={20} />
-                    </button>
+                    {activeTab === 'mandi' && (
+                        <button
+                            onClick={() => loadPrices(true)}
+                            disabled={isRefreshing}
+                            className={cn(
+                                "w-12 h-12 rounded-2xl bg-card border border-border text-primary flex items-center justify-center transition-all active:scale-90 shadow-apple-sm hover:shadow-apple-md",
+                                isRefreshing && "animate-spin"
+                            )}
+                        >
+                            <RefreshCw size={20} />
+                        </button>
+                    )}
                 </div>
 
+                {/* Top Tabs */}
+                <div className="flex p-1 bg-muted/40 rounded-[28px] border border-border/50 shadow-apple-sm mb-6">
+                  <button
+                    onClick={() => setActiveTab("mandi")}
+                    className={cn(
+                      "flex-1 flex items-center justify-center gap-2 py-3 rounded-[24px] text-body font-bold transition-all duration-300",
+                      activeTab === "mandi" ? "bg-card text-foreground shadow-sm border border-border/60" : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <TrendingUp size={18} />
+                    Live Mandi
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("store")}
+                    className={cn(
+                      "flex-1 flex items-center justify-center gap-2 py-3 rounded-[24px] text-body font-bold transition-all duration-300",
+                      activeTab === "store" ? "bg-primary text-white shadow-sm border border-primary/20" : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <Store size={18} />
+                    Agro Store
+                  </button>
+                </div>
+
+                {activeTab === 'mandi' && (
+                  <>
                 {/* Search Bar */}
                 <div className="relative mb-6 group">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
@@ -432,10 +492,14 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                         </div>
                     </div>
                 )}
+                  </>
+                )}
             </header>
 
             {/* Main Content */}
             <main className="px-5 max-w-lg mx-auto w-full">
+                {activeTab === 'mandi' ? (
+                  <>
                 {loading ? (
                     <div className="space-y-4">
                         {[1, 2, 3, 4].map(i => (
@@ -653,6 +717,77 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                             </div>
                         )}
                     </div>
+                )}
+                  </>
+                ) : (
+                  <div className="animate-in fade-in slide-in-from-right-8 duration-500">
+                      {/* Store Search */}
+                      <div className="relative mb-6">
+                          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+                          <input
+                              type="text"
+                              placeholder="Search products, brands..."
+                              value={storeSearch}
+                              onChange={(e) => setStoreSearch(e.target.value)}
+                              className="w-full h-16 pl-12 pr-4 rounded-2xl bg-card border border-border shadow-apple-sm focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-body font-bold"
+                          />
+                      </div>
+
+                      {/* Store Categories Filter Scroll */}
+                      <div className="flex gap-2 overflow-x-auto pb-4 mb-2 scrollbar-hide -mx-6 px-6 mask-edges">
+                          {storeCategories.map(cat => (
+                              <button
+                                  key={cat}
+                                  onClick={() => setActiveStoreCategory(cat)}
+                                  className={cn(
+                                      "px-4 py-2 rounded-full whitespace-nowrap text-xs font-black uppercase tracking-widest transition-all",
+                                      activeStoreCategory === cat
+                                          ? "bg-primary text-white shadow-apple-sm"
+                                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                                  )}
+                              >
+                                  {cat}
+                              </button>
+                          ))}
+                      </div>
+
+                      {/* Products Grid */}
+                      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                          {filteredStoreProducts.map(product => (
+                              <div key={product.id} className="bg-card rounded-[24px] overflow-hidden border border-border/50 shadow-apple-sm flex flex-col hover:shadow-apple-md transition-all group">
+                                  <div className="w-full h-32 bg-white flex items-center justify-center p-4 border-b border-border/30 relative">
+                                      <img src={product.image} className="h-full object-contain group-hover:scale-110 transition-transform duration-500" alt={product.name} />
+                                      <div className="absolute top-2 left-2 px-2 py-0.5 bg-background/80 backdrop-blur-sm rounded-md text-[8px] font-black uppercase tracking-widest text-primary">
+                                        {product.brand}
+                                      </div>
+                                  </div>
+                                  <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                                      <div>
+                                          <p className="text-[10px] font-black uppercase text-muted-foreground mb-1">{product.category}</p>
+                                          <h3 className="text-body font-bold text-foreground leading-tight line-clamp-2">{product.name}</h3>
+                                      </div>
+                                      <div className="flex items-end justify-between">
+                                          <p className="text-title-2 font-black text-foreground tracking-tight">₹{product.price}</p>
+                                          <button 
+                                              onClick={() => handleBuyProduct(product)}
+                                              className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-all active:scale-90"
+                                          >
+                                              <ShoppingCart size={16} />
+                                          </button>
+                                      </div>
+                                  </div>
+                              </div>
+                          ))}
+                      </div>
+
+                      {filteredStoreProducts.length === 0 && (
+                          <div className="text-center py-12">
+                              <ShoppingCart className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+                              <p className="text-subhead font-bold text-foreground">No products found</p>
+                              <p className="text-caption text-muted-foreground">Try a different search term.</p>
+                          </div>
+                      )}
+                  </div>
                 )}
             </main>
         </div>

@@ -76,6 +76,20 @@ interface AgroTalkDB extends DBSchema {
             timestamp: number;
         };
     };
+    agent_orders: {
+        key: string;
+        value: {
+            id: string;
+            crop: string;
+            quantity: string;
+            location: string;
+            price_estimate: string;
+            status: string;
+            buyer_name: string;
+            timestamp: number;
+        };
+        indexes: { 'by-timestamp': number };
+    };
 }
 
 const DB_NAME = 'agrotalk-db';
@@ -110,6 +124,10 @@ export const dbService = {
 
                     // AI Cache Store
                     db.createObjectStore('ai_cache', { keyPath: 'key' });
+
+                    // Agent Orders Store
+                    const ordersStore = db.createObjectStore('agent_orders', { keyPath: 'id' });
+                    ordersStore.createIndex('by-timestamp', 'timestamp');
                 },
             });
         }
