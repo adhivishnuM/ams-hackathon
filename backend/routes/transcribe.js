@@ -4,8 +4,7 @@
 const express = require('express');
 const multer = require('multer');
 const inferenceService = require('../services/inferenceService');
-const { generateNvidiaSpeech } = require('../services/nvidiaTtsService');
-const { transcribeAudio } = require('../services/nvidiaSttService');
+const { generateSpeech, transcribeAudio } = require('../services/pythonService');
 const { saveChatItem } = require('../services/storageService');
 
 const router = express.Router();
@@ -39,13 +38,19 @@ router.post('/', uploadFields, async (req, res) => {
 
         let audioBase64 = null;
         if (req.body.useTts === 'true') {
-            const audioBuffer = await generateNvidiaSpeech(
+            console.log(`🔊 [${requestId}] Generating TTS (lang=${language}, voice=${req.body.voice || 'mia'})...`);
+            const audioBuffer = await generateSpeech(
                 advisory.recommendation,
                 language,
                 false,
-                req.body.voice || 'Mia'
+                req.body.voice || 'mia'
             );
-            if (audioBuffer) audioBase64 = audioBuffer.toString('base64');
+            if (audioBuffer) {
+                audioBase64 = audioBuffer.toString('base64');
+                console.log(`✅ [${requestId}] TTS audio: ${audioBuffer.length} bytes`);
+            } else {
+                console.error(`❌ [${requestId}] TTS returned null — call agent will use browser fallback`);
+            }
         }
 
         // Save to Firestore (or local fallback) — non-blocking

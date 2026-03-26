@@ -33,6 +33,9 @@ export function useOrders() {
 
     useEffect(() => {
         loadOrders();
+        // Re-check for new orders every 3s (handles orders placed via voice agent in apiClient)
+        const interval = setInterval(loadOrders, 3000);
+        return () => clearInterval(interval);
     }, []);
 
     const addOrder = async (order: AgentOrder) => {

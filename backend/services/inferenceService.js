@@ -2,6 +2,30 @@ const fs = require('fs');
 const path = require('path');
 const { getAgriAdvice, generateSpeech } = require('./openRouterService');
 
+// Internal helper for live market prices
+async function fetchLiveMandiPrice(commodity) {
+    if (!commodity) return null;
+    try {
+        const apiKey = process.env.VITE_MANDI_API_KEY || process.env.MANDI_API_KEY;
+        if (!apiKey) return null;
+
+        const formatted = commodity.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+        const url = `https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070?api-key=${apiKey}&format=json&limit=5&filters[commodity]=${encodeURIComponent(formatted)}`;
+
+        console.log(`🌐 [AI-Internal] Fetching live price for ${formatted}...`);
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.records && data.records.length > 0) {
+            return data.records[0]; // Return the latest record
+        }
+        return null;
+    } catch (e) {
+        console.error('Failed to fetch live market price for AI:', e);
+        return null;
+    }
+}
+
 // Load Knowledge Base
 let knowledgeBase = { crops: {}, topics: {}, general: {} };
 try {
@@ -207,6 +231,27 @@ async function inferAdviceFromText(text, language = 'en', weatherContext = null,
 
     const lang = effectiveLang;
 
+    // 1. Live Market Detection & Injection
+    const marketKeywords = ['price', 'market', 'rate', 'cost', 'sell', 'how much', 'mandi', 'bhav', 'விலை', 'சந்தை', 'भाव', 'कीमत', 'కిమ్మత్', 'ధర', 'మొత్తం', 'किंमत', 'विक्री'];
+    const askingPrice = marketKeywords.some(kw => normalizedLower.includes(kw));
+    let { crop, topic } = extractCropAndTopic(normalized);
+    let liveMarketContext = null;
+
+    if (askingPrice && crop) {
+        liveMarketContext = await fetchLiveMandiPrice(crop);
+        if (liveMarketContext) {
+            console.log(`📈 [AI-Context] Injecting live price for ${crop}: ₹${liveMarketContext.modal_price}`);
+            // Merge with weatherContext or pass separately
+            weatherContext = { 
+                ...weatherContext, 
+                market_price: liveMarketContext.modal_price,
+                market_name: liveMarketContext.market,
+                market_state: liveMarketContext.state,
+                market_commodity: liveMarketContext.commodity
+            };
+        }
+    }
+
     // 1. LANGUAGE RULE: Local Wisdom is English-only.
     // For other languages, we MUST use an AI model (Remote or Local).
     if (lang !== 'en') {
@@ -243,14 +288,8 @@ async function inferAdviceFromText(text, language = 'en', weatherContext = null,
         };
     }
 
-    // 2. English — if OFFLINE_MODE is set, skip AI and go straight to local wisdom
-    if (process.env.OFFLINE_MODE === 'true' || !process.env.OPENROUTER_API_KEY) {
-        console.log('📖 Offline mode or no API key — using local knowledge base.');
-    }
-
-    // 2. AI Assistant (Online Priority)
-    if (process.env.OPENROUTER_API_KEY && conversationHistory && conversationHistory.length > 0) {
-        // ... (existing AI logic)
+    // 2. AI Assistant (Always use AI when API key is available)
+    if (process.env.OPENROUTER_API_KEY && process.env.OFFLINE_MODE !== 'true') {
         try {
             const aiResponse = await getAgriAdvice(normalized, weatherContext, null, 'image/jpeg', lang, conversationHistory);
             if (aiResponse) {
@@ -267,7 +306,7 @@ async function inferAdviceFromText(text, language = 'en', weatherContext = null,
     }
 
     // 3. EXTENSIVE LOCAL WISDOM SEARCH (The "Farming Buddy" Layer)
-    const { crop, topic } = extractCropAndTopic(normalized);
+    ({ crop, topic } = extractCropAndTopic(normalized));
 
     // Internal Helper for Direct Advice
     const makeConversational = (content, header, scale = 'small') => {

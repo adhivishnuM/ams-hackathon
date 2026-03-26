@@ -1,4 +1,4 @@
-import { Home, Camera, BookOpen, Settings, User, ShoppingBag } from "lucide-react";
+import { Home, Camera, BookOpen, Settings, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getTranslation } from "@/lib/translations";
 
@@ -14,70 +14,84 @@ export function BottomNavigation({ activeTab, onTabChange, language = 'en' }: Bo
   const t = getTranslation('nav', language);
 
   const tabs: { id: NavTab; icon: typeof Home; label: string }[] = [
-    { id: "home", icon: Home, label: t.home },
-    { id: "market", icon: ShoppingBag, label: t.market },
-    { id: "analyze", icon: Camera, label: t.analyze },
-    { id: "library", icon: BookOpen, label: t.library },
-    { id: "settings", icon: Settings, label: t.settings },
+    { id: "home",     icon: Home,        label: t.home },
+    { id: "market",   icon: ShoppingBag, label: t.market },
+    { id: "analyze",  icon: Camera,      label: t.analyze },
+    { id: "library",  icon: BookOpen,    label: t.library },
+    { id: "settings", icon: Settings,    label: t.settings },
   ];
 
-
   return (
-    <nav className="fixed bottom-6 left-6 right-6 z-50 animate-in slide-in-from-bottom-10 duration-1000">
-      <div
-        className="glass-card rounded-[32px] flex justify-around items-center w-full max-w-lg mx-auto px-2 shadow-2xl border-white/10"
-        style={{
-          height: "88px",
-        }}
-      >
-        {tabs.map(({ id, icon: Icon, label }) => {
-          const isActive = activeTab === id;
-          const isAnalyze = id === "analyze";
+    <nav className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-safe">
+      {/* Glass pill */}
+      <div className="max-w-lg mx-auto mb-4">
+        <div
+          className="relative flex items-center justify-around rounded-[28px] px-1 py-2"
+          style={{
+            background: 'rgba(255,255,255,0.82)',
+            backdropFilter: 'blur(32px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(32px) saturate(180%)',
+            border: '1px solid rgba(255,255,255,0.7)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.10), 0 1px 0 rgba(255,255,255,0.9) inset',
+          }}
+        >
+          {tabs.map(({ id, icon: Icon, label }) => {
+            const isActive = activeTab === id;
+            const isAnalyze = id === "analyze";
 
-          return (
-            <button
-              key={id}
-              onClick={() => onTabChange(id)}
-              className={cn(
-                "relative flex flex-col items-center justify-center gap-1.5 min-w-[70px] transition-all duration-300",
-                "focus:outline-none focus:ring-0 rounded-3xl",
-                "active:scale-[0.85] touch-none group",
-                isActive ? "text-primary" : "text-muted-foreground/40 hover:text-foreground"
-              )}
-              aria-label={label}
-              aria-current={isActive ? "page" : undefined}
-            >
-              {/* Icon container */}
-              <div
+            return (
+              <button
+                key={id}
+                onClick={() => onTabChange(id)}
                 className={cn(
-                  "flex items-center justify-center transition-all duration-500 p-3 rounded-2xl relative z-10",
-                  isActive ? "bg-primary/10 scale-105" : "bg-transparent"
+                  "relative flex flex-col items-center justify-center gap-1 transition-all duration-300",
+                  "focus:outline-none active:scale-90 touch-none",
+                  isAnalyze ? "w-14 h-14" : "flex-1 py-2"
                 )}
+                aria-label={label}
               >
-                <Icon
-                  size={id === "analyze" ? 28 : 22}
-                  strokeWidth={isActive ? 2.5 : 2}
-                  className={cn(
-                    "transition-all duration-500",
-                    isActive ? "scale-100" : "scale-100"
-                  )}
-                />
-              </div>
-
-              <span className={cn(
-                "text-[9px] font-black tracking-[0.15em] uppercase transition-all duration-500 relative z-10",
-                isActive ? "opacity-100 translate-y-0 text-primary" : "opacity-0 translate-y-2"
-              )}>
-                {label}
-              </span>
-
-              {/* Dot indicator */}
-              {isActive && (
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary animate-in zoom-in duration-500" />
-              )}
-            </button>
-          );
-        })}
+                {isAnalyze ? (
+                  /* Camera — raised centre button */
+                  <div className={cn(
+                    "w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300",
+                    isActive
+                      ? "bg-primary shadow-green scale-105"
+                      : "bg-primary/90 hover:bg-primary"
+                  )}>
+                    <Icon size={26} strokeWidth={2} className="text-white" />
+                  </div>
+                ) : (
+                  <>
+                    {/* Icon with active background pill */}
+                    <div className={cn(
+                      "flex items-center justify-center w-10 h-8 rounded-xl transition-all duration-300",
+                      isActive ? "bg-primary/12" : ""
+                    )}>
+                      <Icon
+                        size={20}
+                        strokeWidth={isActive ? 2.5 : 1.8}
+                        className={cn(
+                          "transition-all duration-300",
+                          isActive ? "text-primary" : "text-muted-foreground/60"
+                        )}
+                      />
+                    </div>
+                    <span className={cn(
+                      "text-[9.5px] font-semibold tracking-wide uppercase transition-all duration-300",
+                      isActive ? "text-primary opacity-100" : "text-muted-foreground/50 opacity-80"
+                    )}>
+                      {label}
+                    </span>
+                    {/* Active dot */}
+                    {isActive && (
+                      <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+                    )}
+                  </>
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </nav>
   );

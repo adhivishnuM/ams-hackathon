@@ -1,6 +1,6 @@
 import { dbService } from './db';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ams-hackathon.onrender.com';
+const API_BASE_URL = 'http://localhost:3001';
 
 // Utility: Fetch with timeout
 async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs: number = 10000): Promise<Response> {

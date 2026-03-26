@@ -4,12 +4,49 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { cn } from '@/lib/utils';
 import { getTranslation } from '@/lib/translations';
+import { useApp } from '@/contexts/AppContext';
 import { getNvidiaTts } from '@/lib/apiClient';
 import { mandiService, type MandiPriceRecord } from '@/services/mandiService';
 import { useOrders } from '@/hooks/useOrders';
 import { storeProducts, type StoreProduct } from '@/data/storeProducts';
 import { toast } from 'sonner';
-import { Store, ShoppingCart } from 'lucide-react';
+import { Store, ShoppingCart, Sprout, FlaskConical, Zap, Wrench, Truck } from 'lucide-react';
+
+const ProductImage = ({ product, className }: { product: StoreProduct, className: string }) => {
+    const [error, setError] = useState(false);
+
+    if (error) {
+        const icons: Record<string, any> = {
+            'Seeds': <Sprout className="w-12 h-12 text-emerald-500" />,
+            'Fertilizers': <FlaskConical className="w-12 h-12 text-blue-500" />,
+            'Pesticides': <Zap className="w-12 h-12 text-orange-500" />,
+            'Farming Tools': <Wrench className="w-12 h-12 text-slate-500" />,
+            'Machinery': <Truck className="w-12 h-12 text-indigo-500" />,
+        };
+        const colors: Record<string, string> = {
+            'Seeds': 'bg-emerald-50',
+            'Fertilizers': 'bg-blue-50',
+            'Pesticides': 'bg-orange-50',
+            'Farming Tools': 'bg-slate-50',
+            'Machinery': 'bg-indigo-50',
+        };
+
+        return (
+            <div className={cn("w-full h-full flex items-center justify-center", colors[product.category] || 'bg-muted', className)}>
+                {icons[product.category] || <ShoppingBag className="w-12 h-12 text-muted-foreground" />}
+            </div>
+        );
+    }
+
+    return (
+        <img 
+            src={product.image} 
+            className={cn("h-full object-contain group-hover:scale-110 transition-transform duration-500", className)} 
+            alt={product.name}
+            onError={() => setError(true)}
+        />
+    );
+};
 
 interface MarketPriceScreenProps {
     language: string;
@@ -50,6 +87,7 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
     const [storeSearch, setStoreSearch] = useState('');
     const [activeStoreCategory, setActiveStoreCategory] = useState('All');
     const { addOrder } = useOrders();
+    const { setIsChatMode, setTextInput, setChatMessages } = useApp();
 
     const t = getTranslation('market', language);
 
@@ -105,24 +143,20 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
             const normalizedRecords = (data.records || []).map(normalizeRecord);
 
             if (isLoadMore) {
-                setPrices(prev => {
-                    const existingKeys = new Set(prev.map(p => `${p.market}-${p.commodity}-${p.variety}`));
-                    const newRecords = normalizedRecords.filter(p => !existingKeys.has(`${p.market}-${p.commodity}-${p.variety}`));
-                    return [...prev, ...newRecords];
-                });
-                setOriginalPrices(prev => {
-                    const existingKeys = new Set(prev.map(p => `${p.market}-${p.commodity}-${p.variety}`));
-                    const newRecords = normalizedRecords.filter(p => !existingKeys.has(`${p.market}-${p.commodity}-${p.variety}`));
-                    return [...prev, ...newRecords];
-                });
+                // Compute deduplication eagerly so we know how many new records were actually added
+                const existingKeys = new Set(prices.map(p => `${p.market}-${p.commodity}-${p.variety}`));
+                const newRecords = normalizedRecords.filter(p => !existingKeys.has(`${p.market}-${p.commodity}-${p.variety}`));
+                setPrices(prev => [...prev, ...newRecords]);
+                setOriginalPrices(prev => [...prev, ...newRecords]);
                 setOffset(currentOffset);
+                // If API returned a full page but 0 were actually new, we've reached the end
+                setHasMore(newRecords.length > 0 && normalizedRecords.length === itemsPerPage);
             } else {
                 setPrices(normalizedRecords);
                 setOriginalPrices(normalizedRecords);
                 setOffset(0);
+                setHasMore(normalizedRecords.length === itemsPerPage);
             }
-
-            setHasMore(normalizedRecords.length === itemsPerPage);
             setError(null);
         } catch (err) {
             console.error("Load prices failed", err);
@@ -156,36 +190,85 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                 p.state.toLowerCase().includes(query)
             );
 
-            // 2. If locally found more than 3, just use them for now to be fast
+            // 2. If locally found more than 3, just show those filtered results — fast path
             if (localMatches.length > 3) {
-                if (prices !== originalPrices) {
-                    setPrices(originalPrices);
-                }
+                setPrices(localMatches);
                 return;
             }
 
-            // 3. Otherwise, search the Database (API)
+            // 3. Otherwise, search via API
             setIsSearchingOnline(true);
             try {
-                // Try to be smart: if it's two words, maybe it's "Crop Location"
-                const parts = searchQuery.split(' ');
-                let fetchFilters = { q: searchQuery };
+                // State name alias map — handles common concatenated/abbreviated forms
+                const STATE_ALIASES: Record<string, string> = {
+                    'tamilnadu': 'Tamil Nadu', 'tn': 'Tamil Nadu', 'tamilnad': 'Tamil Nadu',
+                    'maharashtra': 'Maharashtra', 'maha': 'Maharashtra',
+                    'andhra': 'Andhra Pradesh', 'andhrapradesh': 'Andhra Pradesh', 'ap': 'Andhra Pradesh',
+                    'telangana': 'Telangana', 'ts': 'Telangana',
+                    'karnataka': 'Karnataka', 'kk': 'Karnataka',
+                    'kerala': 'Kerala', 'kl': 'Kerala',
+                    'gujarat': 'Gujarat', 'gj': 'Gujarat',
+                    'rajasthan': 'Rajasthan', 'rj': 'Rajasthan',
+                    'uttarpradesh': 'Uttar Pradesh', 'up': 'Uttar Pradesh',
+                    'madhyapradesh': 'Madhya Pradesh', 'mp': 'Madhya Pradesh',
+                    'westbengal': 'West Bengal', 'wb': 'West Bengal',
+                    'punjab': 'Punjab', 'pb': 'Punjab',
+                    'haryana': 'Haryana', 'hr': 'Haryana',
+                    'himachalpradesh': 'Himachal Pradesh', 'hp': 'Himachal Pradesh',
+                    'odisha': 'Odisha', 'orissa': 'Odisha',
+                    'bihar': 'Bihar', 'jharkhand': 'Jharkhand',
+                    'chhattisgarh': 'Chhattisgarh', 'assam': 'Assam',
+                };
 
-                const data = await mandiService.fetchPrices(50, 0, { q: searchQuery });
-                let records = data.records || [];
+                const resolveState = (raw: string): string | null => {
+                    const lower = raw.toLowerCase().replace(/\s+/g, '');
+                    if (STATE_ALIASES[lower]) return STATE_ALIASES[lower];
+                    const lowerSpaced = raw.toLowerCase();
+                    if (STATE_ALIASES[lowerSpaced]) return STATE_ALIASES[lowerSpaced];
+                    const match = states.find(s => s.toLowerCase() === raw.toLowerCase() || s.toLowerCase().replace(/\s+/g, '') === lower);
+                    return match || null;
+                };
 
-                // If q search return nothing and it's a single word, try it as a commodity filter
-                if (records.length === 0 && !searchQuery.includes(' ')) {
-                    const exactData = await mandiService.fetchPrices(50, 0, { commodity: searchQuery });
-                    if (exactData.records && exactData.records.length > 0) {
-                        records = exactData.records;
+                // Parse "carrot tamilnadu" or "carrot, Tamil Nadu" into commodity + optional state
+                const cleanQuery = searchQuery.replace(/,/g, ' ').replace(/\s+/g, ' ').trim();
+                const parts = cleanQuery.split(' ');
+                const commodityTerm = parts[0];
+
+                // Use q= (broad search) as primary — avoids exact-filter empty-result cascades
+                let fetchFilters: any = { q: commodityTerm };
+
+                // Try to find a state in the remaining parts
+                if (parts.length >= 2) {
+                    const candidates = [
+                        parts.slice(1).join(' '),
+                        parts.slice(-1).join(' '),
+                        parts.slice(-2).join(' '),
+                    ];
+                    for (const candidate of candidates) {
+                        const resolved = resolveState(candidate);
+                        if (resolved) {
+                            fetchFilters.state = resolved;
+                            break;
+                        }
                     }
                 }
 
+                console.log('🔍 Deep search filters:', fetchFilters);
+                const data = await mandiService.fetchPrices(50, 0, fetchFilters);
+                const records = data.records || [];
+
                 if (records.length > 0) {
                     const normalized = records.map(normalizeRecord);
-                    setPrices(normalized);
-                } else if (localMatches.length === 0) {
+                    // Only keep records that actually relate to the search term
+                    const term = commodityTerm.toLowerCase();
+                    const relevant = normalized.filter(p =>
+                        p.commodity.toLowerCase().includes(term) ||
+                        p.market.toLowerCase().includes(term) ||
+                        p.district.toLowerCase().includes(term) ||
+                        p.state.toLowerCase().includes(term)
+                    );
+                    setPrices(relevant.length > 0 ? relevant : normalized);
+                } else {
                     setPrices([]);
                 }
             } catch (err) {
@@ -207,7 +290,7 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
         setAnalysisStatus(prev => ({ ...prev, [id]: t.connectingToAI }));
 
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'https://ams-hackathon.onrender.com';
+            const apiUrl = 'http://localhost:3001';
             const response = await fetch(`${apiUrl}/market/analyze`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -266,13 +349,20 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
 
 
     const filteredPrices = prices.filter(p => {
-        const matchesSearch = p.commodity.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            p.market.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            p.district.toLowerCase().includes(searchQuery.toLowerCase());
+        const searchParts = searchQuery.toLowerCase().replace(/,/g, ' ').split(' ').filter(s => s.trim());
+        const normalize = (str: string) => str.toLowerCase().replace(/\s+/g, '');
+        
+        const matchesSearch = searchParts.length === 0 || searchParts.every(part => {
+            const nPart = normalize(part);
+            return normalize(p.commodity).includes(nPart) ||
+                   normalize(p.market).includes(nPart) ||
+                   normalize(p.district).includes(nPart) ||
+                   normalize(p.state).includes(nPart);
+        });
 
         const matchesState = selectedState === 'all' || p.state === selectedState;
 
-        const price = parseInt(p.modal_price);
+        const price = parseInt(p.modal_price) || 0;
         const matchesPrice = maxPrice === 0 || price <= maxPrice;
 
         return matchesSearch && matchesState && matchesPrice;
@@ -306,16 +396,24 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
         toast.success("Order Placed!", { description: "View in Library -> Agent Orders" });
     };
 
+    const handleAskAI = (product: StoreProduct) => {
+        setIsChatMode(true);
+        setTextInput(`Tell me more about ${product.name} from ${product.brand}. How should I use it for my crops?`);
+        // Force a scroll to chat or similar logic if needed, but setIsChatMode should be enough if the layout listens to it.
+    };
+
     return (
         <div className="flex flex-col flex-1 pb-32 animate-fade-in">
             {/* Premium Header */}
-            <header className="px-6 pt-10 pb-6 max-w-lg mx-auto w-full">
+            <header className="px-6 lg:px-8 pt-8 pb-6 w-full">
                 <div className="flex items-center justify-between mb-8">
                     <div>
-                        <div className="flex items-center gap-3 mb-1">
-                            <h1 className="text-display font-black text-foreground tracking-tight">{t.title}</h1>
-                        </div>
-                        <p className="text-caption font-bold text-muted-foreground uppercase tracking-widest opacity-70">{t.subtitle}</p>
+                        <h1 className="text-display font-black text-foreground tracking-tight mb-0.5">
+                            {activeTab === 'store' ? 'Agro Store' : t.title}
+                        </h1>
+                        <p className="text-caption font-bold text-muted-foreground uppercase tracking-widest opacity-70">
+                            {activeTab === 'store' ? `${filteredStoreProducts.length} products available` : t.subtitle}
+                        </p>
                     </div>
                     {activeTab === 'mandi' && (
                         <button
@@ -497,7 +595,7 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
             </header>
 
             {/* Main Content */}
-            <main className="px-5 max-w-lg mx-auto w-full">
+            <main className="px-5 lg:px-8 w-full">
                 {activeTab === 'mandi' ? (
                   <>
                 {loading ? (
@@ -524,15 +622,17 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                         </p>
                     </div>
                 ) : (
-                    <div className="space-y-6 pb-12">
+                    <>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
                         {filteredPrices.map((record, index) => {
+
                             const id = `${record.market}-${record.commodity}-${record.modal_price}`;
                             const analysis = analyses[id];
 
                             return (
                                 <div
                                     key={`${record.market}-${record.commodity}-${index}`}
-                                    className="group relative bg-card rounded-apple-xl border border-border shadow-apple-sm hover:shadow-apple-md transition-all duration-300 overflow-hidden"
+                                    className="group relative bg-card rounded-[40px] border border-border shadow-apple-sm hover:shadow-apple-md transition-all duration-300 overflow-hidden"
                                 >
                                     {/* Prominent Header Section with Crop Name */}
                                     <div className="p-6 bg-transparent border-b border-border/30">
@@ -553,7 +653,7 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                                                         })()}
                                                     </span>
                                                 </div>
-                                                <h3 className="text-display font-black text-foreground leading-tight tracking-tight">
+                                                <h3 className="text-title-lg font-black text-foreground leading-tight tracking-tight line-clamp-1 overflow-hidden">
                                                     {record.commodity}
                                                 </h3>
                                             </div>
@@ -694,12 +794,14 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                             );
                         })}
 
-                        {/* Load More Button */}
+                    </div>
+
+                        {/* Load More Button — outside grid */}
                         {hasMore && !searchQuery && (
-                            <div className="pt-4 flex justify-center">
+                            <div className="py-6 flex justify-center">
                                 <button
                                     onClick={() => loadPrices(false, true)}
-                                    className="px-12 py-5 rounded-[24px] bg-primary text-white font-black text-xs uppercase tracking-widest shadow-apple-md hover:shadow-apple-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center border border-white/20 min-w-[200px]"
+                                    className="px-8 py-3 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 active:scale-95 transition-all shadow-sm"
                                 >
                                     {t.loadMore}
                                 </button>
@@ -707,73 +809,107 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                         )}
 
                         {!hasMore && filteredPrices.length > 0 && !searchQuery && (
-                            <div className="text-center py-8">
-                                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 border border-border">
-                                    <div className="w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center">
-                                        <img src="/logo.svg" alt="AgroTalk" className="w-2.5 h-2.5" />
-                                    </div>
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t.seenAllPrices}</p>
-                                </div>
+                            <div className="py-6 text-center">
+                                <p className="text-xs text-muted-foreground">{t.seenAllPrices}</p>
                             </div>
                         )}
-                    </div>
+                    </>
                 )}
                   </>
                 ) : (
                   <div className="animate-in fade-in slide-in-from-right-8 duration-500">
                       {/* Store Search */}
-                      <div className="relative mb-6">
+                      <div className="relative mb-5">
                           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
                           <input
                               type="text"
                               placeholder="Search products, brands..."
                               value={storeSearch}
                               onChange={(e) => setStoreSearch(e.target.value)}
-                              className="w-full h-16 pl-12 pr-4 rounded-2xl bg-card border border-border shadow-apple-sm focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-body font-bold"
+                              className="w-full h-14 pl-12 pr-4 rounded-2xl bg-card border border-border shadow-apple-sm focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-body font-bold"
                           />
                       </div>
 
-                      {/* Store Categories Filter Scroll */}
-                      <div className="flex gap-2 overflow-x-auto pb-4 mb-2 scrollbar-hide -mx-6 px-6 mask-edges">
-                          {storeCategories.map(cat => (
-                              <button
-                                  key={cat}
-                                  onClick={() => setActiveStoreCategory(cat)}
-                                  className={cn(
-                                      "px-4 py-2 rounded-full whitespace-nowrap text-xs font-black uppercase tracking-widest transition-all",
-                                      activeStoreCategory === cat
-                                          ? "bg-primary text-white shadow-apple-sm"
-                                          : "bg-muted text-muted-foreground hover:bg-muted/80"
-                                  )}
-                              >
-                                  {cat}
-                              </button>
-                          ))}
+                      {/* Store Categories Filter */}
+                      <div className="flex gap-2 overflow-x-auto pb-3 mb-5 scrollbar-hide -mx-5 px-5">
+                          {storeCategories.map(cat => {
+                              const catIcons: Record<string, any> = {
+                                  'All': <ShoppingBag size={13} />, 'Fertilizers': <FlaskConical size={13} />,
+                                  'Pesticides': <Zap size={13} />, 'Seeds': <Sprout size={13} />,
+                                  'Farming Tools': <Wrench size={13} />, 'Machinery': <Truck size={13} />,
+                              };
+                              return (
+                                  <button
+                                      key={cat}
+                                      onClick={() => setActiveStoreCategory(cat)}
+                                      className={cn(
+                                          "flex items-center gap-1.5 px-4 py-2 rounded-full whitespace-nowrap text-[11px] font-black uppercase tracking-widest transition-all border",
+                                          activeStoreCategory === cat
+                                              ? "bg-primary text-white border-primary shadow-apple-sm"
+                                              : "bg-card text-muted-foreground border-border hover:border-primary/40 hover:text-foreground"
+                                      )}
+                                  >
+                                      {catIcons[cat] || <ShoppingBag size={13} />}
+                                      {cat}
+                                  </button>
+                              );
+                          })}
                       </div>
 
-                      {/* Products Grid */}
-                      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                      {/* Products — single-column cards for clarity */}
+                      <div className="space-y-4 pb-8">
                           {filteredStoreProducts.map(product => (
-                              <div key={product.id} className="bg-card rounded-[24px] overflow-hidden border border-border/50 shadow-apple-sm flex flex-col hover:shadow-apple-md transition-all group">
-                                  <div className="w-full h-32 bg-white flex items-center justify-center p-4 border-b border-border/30 relative">
-                                      <img src={product.image} className="h-full object-contain group-hover:scale-110 transition-transform duration-500" alt={product.name} />
-                                      <div className="absolute top-2 left-2 px-2 py-0.5 bg-background/80 backdrop-blur-sm rounded-md text-[8px] font-black uppercase tracking-widest text-primary">
-                                        {product.brand}
+                              <div
+                                  key={product.id}
+                                  className="bg-card rounded-3xl border border-border/60 shadow-apple-sm hover:shadow-apple-md transition-all duration-300 overflow-hidden group"
+                              >
+                                  <div className="flex gap-0">
+                                      {/* Image panel */}
+                                      <div className="w-36 shrink-0 bg-gradient-to-br from-white to-muted/30 flex items-center justify-center p-4 relative">
+                                          <ProductImage product={product} className="w-full h-28 object-contain" />
+                                          <div className="absolute top-2.5 left-2.5 px-2 py-0.5 bg-white/90 backdrop-blur-sm rounded-full text-[9px] font-black uppercase tracking-widest text-primary border border-primary/10 shadow-sm">
+                                              {product.brand}
+                                          </div>
                                       </div>
-                                  </div>
-                                  <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
-                                      <div>
-                                          <p className="text-[10px] font-black uppercase text-muted-foreground mb-1">{product.category}</p>
-                                          <h3 className="text-body font-bold text-foreground leading-tight line-clamp-2">{product.name}</h3>
-                                      </div>
-                                      <div className="flex items-end justify-between">
-                                          <p className="text-title-2 font-black text-foreground tracking-tight">₹{product.price}</p>
-                                          <button 
-                                              onClick={() => handleBuyProduct(product)}
-                                              className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-all active:scale-90"
-                                          >
-                                              <ShoppingCart size={16} />
-                                          </button>
+
+                                      {/* Content panel */}
+                                      <div className="flex-1 p-4 flex flex-col justify-between min-w-0">
+                                          {/* Top row */}
+                                          <div>
+                                              <div className="mb-2">
+                                                  <span className={cn(
+                                                      "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest",
+                                                      product.category === 'Fertilizers' ? 'bg-blue-50 text-blue-600' :
+                                                      product.category === 'Pesticides' ? 'bg-orange-50 text-orange-600' :
+                                                      product.category === 'Seeds' ? 'bg-emerald-50 text-emerald-600' :
+                                                      product.category === 'Machinery' ? 'bg-indigo-50 text-indigo-600' :
+                                                      'bg-muted text-muted-foreground'
+                                                  )}>
+                                                      {product.category}
+                                                  </span>
+                                              </div>
+                                              <h3 className="text-[15px] font-bold text-foreground leading-snug mb-1.5">
+                                                  {product.name}
+                                              </h3>
+                                              <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
+                                                  {product.description}
+                                              </p>
+                                          </div>
+
+                                          {/* Bottom row — price + buy */}
+                                          <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/40">
+                                              <div>
+                                                  <p className="text-[9px] font-black uppercase text-muted-foreground leading-none mb-0.5">Price</p>
+                                                  <p className="text-[22px] font-black text-foreground leading-none tracking-tight">₹{product.price}</p>
+                                              </div>
+                                              <button
+                                                  onClick={() => handleBuyProduct(product)}
+                                                  className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-primary text-white font-black text-[11px] uppercase tracking-widest hover:bg-primary/90 active:scale-95 transition-all shadow-apple-sm"
+                                              >
+                                                  <ShoppingCart size={14} />
+                                                  Buy Now
+                                              </button>
+                                          </div>
                                       </div>
                                   </div>
                               </div>
@@ -781,10 +917,12 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                       </div>
 
                       {filteredStoreProducts.length === 0 && (
-                          <div className="text-center py-12">
-                              <ShoppingCart className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-                              <p className="text-subhead font-bold text-foreground">No products found</p>
-                              <p className="text-caption text-muted-foreground">Try a different search term.</p>
+                          <div className="text-center py-16">
+                              <div className="w-16 h-16 rounded-3xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
+                                  <ShoppingCart className="w-8 h-8 text-muted-foreground/40" />
+                              </div>
+                              <p className="text-subhead font-bold text-foreground mb-1">No products found</p>
+                              <p className="text-caption text-muted-foreground">Try a different search or category.</p>
                           </div>
                       )}
                   </div>

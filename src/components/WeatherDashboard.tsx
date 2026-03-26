@@ -120,7 +120,7 @@ export const WeatherDashboard: React.FC<WeatherDashboardProps> = ({
     );
   }
 
-  if (error || !data) {
+  if (error || !data || !data.current) {
     return (
       <div className="bg-destructive/5 backdrop-blur-md rounded-[28px] p-6 border border-destructive/20 text-center">
         <Cloud size={32} className="mx-auto text-destructive/40 mb-2" />
@@ -136,6 +136,74 @@ export const WeatherDashboard: React.FC<WeatherDashboardProps> = ({
   const todayDateStr = data.daily?.time?.[0] || today.toISOString().split('T')[0];
   const formattedToday = formatDate(todayDateStr, language);
 
+  if (compact) {
+    return (
+      <div
+        onClick={() => setIsExpanded(!isExpanded)}
+        className={cn(
+          "bg-card/40 backdrop-blur-xl rounded-2xl cursor-pointer overflow-hidden border border-white/10 transition-all duration-300",
+          isExpanded ? "ring-1 ring-primary/30" : "shadow-sm"
+        )}
+      >
+        <div className="px-4 py-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="p-1.5 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 shrink-0">
+                <WeatherIcon code={data.current.weather_code} size="sm" isNight={isNight} />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-[22px] font-black tracking-tighter text-foreground leading-none">
+                    {Math.round(data.current.temperature_2m)}°
+                  </span>
+                  <span className="text-[11px] font-semibold text-muted-foreground/70 truncate">{currentLabel}</span>
+                </div>
+                <div className="flex items-center gap-3 mt-0.5">
+                  <span className="flex items-center gap-1 text-[10px] text-muted-foreground/60">
+                    <Droplets size={10} className="text-blue-400" />
+                    {data.current.relative_humidity_2m}%
+                  </span>
+                  <span className="flex items-center gap-1 text-[10px] text-muted-foreground/60">
+                    <Wind size={10} className="text-teal-400" />
+                    {data.current.wind_speed_10m} km/h
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <ChevronDown size={14} className={cn("text-muted-foreground/50 transition-transform", isExpanded && "rotate-180")} />
+            </div>
+          </div>
+        </div>
+        <AnimatePresence>
+          {isExpanded && data.daily && (
+            <div className="px-4 pb-4 pt-2 border-t border-border/10">
+              <div className="grid grid-cols-5 gap-2">
+                {data.daily.time.slice(0, 5).map((time, idx) => {
+                  const dateInfo = formatDate(time, language);
+                  const isToday = idx === 0;
+                  return (
+                    <div key={idx} className={cn(
+                      "flex flex-col items-center p-2 rounded-xl border transition-all",
+                      isToday ? "bg-primary/10 border-primary/20" : "bg-muted/10 border-white/5"
+                    )}>
+                      <p className={cn("text-[8px] font-black uppercase tracking-widest mb-1", isToday ? "text-primary" : "text-muted-foreground")}>
+                        {isToday ? t.today : dateInfo.day.slice(0, 3)}
+                      </p>
+                      <WeatherIcon code={data.daily!.weather_code[idx]} size="sm" isNight={false} />
+                      <p className="text-[12px] font-black text-foreground mt-1">{Math.round(data.daily!.temperature_2m_max[idx])}°</p>
+                      <p className="text-[9px] text-muted-foreground/50 font-bold">{Math.round(data.daily!.temperature_2m_min[idx])}°</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  }
+
   return (
     <div className="relative group">
       {/* Premium Glass Card - Tactical Upgrade */}
@@ -150,11 +218,6 @@ export const WeatherDashboard: React.FC<WeatherDashboardProps> = ({
           <div className="flex items-center justify-between">
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
-                <div
-                  className="px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20"
-                >
-                  <span className="text-[9px] font-black uppercase tracking-[0.1em] text-primary">{t.liveWeather}</span>
-                </div>
                 {lastUpdated && (
                   <span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-widest">
                     {new Date(lastUpdated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

@@ -1045,7 +1045,6 @@ export default function Index() {
         {activeTab === "home" && renderHomeScreen()}
         {activeTab === "library" && (
           <LibraryScreen
-            language={language}
             weatherData={weatherData}
             isWeatherLoading={isWeatherLoading}
             onShareChat={(analysis) => {

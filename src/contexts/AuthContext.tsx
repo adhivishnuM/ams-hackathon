@@ -1,14 +1,13 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import {
-    User,
-    onAuthStateChanged,
-    signInWithPopup,
-    signOut,
-    ConfirmationResult,
-    RecaptchaVerifier,
-    signInWithPhoneNumber,
-} from 'firebase/auth';
-import { auth, googleProvider } from '@/lib/firebase';
+
+interface User {
+    uid: string;
+    displayName: string | null;
+    email: string | null;
+    phoneNumber: string | null;
+    photoURL: string | null;
+    providerData: Array<{ providerId: string }>;
+}
 
 interface AuthContextType {
     user: User | null;
@@ -21,49 +20,36 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-    const [user, setUser] = useState<User | null>(null);
-    const [isAuthLoading, setIsAuthLoading] = useState(true);
-    const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+const GUEST_USER: User = {
+    uid: 'guest_user',
+    displayName: 'Guest Farmer',
+    email: 'guest@agrotalk.local',
+    phoneNumber: null,
+    photoURL: null,
+    providerData: [{ providerId: 'local' }]
+};
 
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-            setUser(firebaseUser);
-            setIsAuthLoading(false);
-        });
-        return unsubscribe;
-    }, []);
+export function AuthProvider({ children }: { children: ReactNode }) {
+    const [user, setUser] = useState<User | null>(GUEST_USER);
+    const [isAuthLoading, setIsAuthLoading] = useState(false);
 
     const signInWithGoogle = async () => {
-        await signInWithPopup(auth, googleProvider);
+        console.log("Mock Google Sign-in");
+        setUser(GUEST_USER);
     };
 
     const sendOtp = async (phoneNumber: string, recaptchaContainerId: string) => {
-        try {
-            const recaptchaVerifier = new RecaptchaVerifier(auth, recaptchaContainerId, {
-                size: 'invisible',
-            });
-            const result = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
-            setConfirmationResult(result);
-        } catch (error) {
-            console.error("Error sending OTP", error);
-            throw error;
-        }
+        console.log("Mock Send OTP to", phoneNumber);
     };
 
     const confirmOtp = async (otp: string) => {
-        if (!confirmationResult) throw new Error("No confirmation result found");
-        try {
-            await confirmationResult.confirm(otp);
-            setConfirmationResult(null);
-        } catch (error) {
-            console.error("Error confirming OTP", error);
-            throw error;
-        }
+        console.log("Mock Confirm OTP", otp);
+        setUser(GUEST_USER);
     };
 
     const logout = async () => {
-        await signOut(auth);
+        console.log("Mock Logout");
+        setUser(null);
     };
 
     return (
@@ -75,6 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
     const context = useContext(AuthContext);
-    if (!context) throw new Error('useAuth must be used within AuthProvider');
+    if (context === undefined) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
     return context;
 }

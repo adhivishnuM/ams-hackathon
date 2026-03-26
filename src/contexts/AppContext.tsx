@@ -72,7 +72,7 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ams-hackathon.onrender.com';
+const API_BASE_URL = 'http://localhost:3001';
 
 export function AppProvider({ children }: { children: ReactNode }) {
     // Language & Voice
@@ -173,10 +173,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
             try {
                 const cached = await dbService.get('weather_cache', 'current');
                 if (cached && (Date.now() - cached.lastUpdated < 3600000)) {
-                    setWeatherData(cached.data);
+                    // Resilient read: handle both new direct data and legacy wrapped data
+                    const actualData = (cached.data && cached.data.data) ? cached.data.data : cached.data;
+                    setWeatherData(actualData);
                     setWeatherLastUpdated(cached.lastUpdated);
                     setIsWeatherLoading(false);
-                    return; // Early return if cache is hot
+                    return; 
                 }
             } catch (e) { console.error(e); }
 
@@ -185,17 +187,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 return;
             }
 
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`;
+            const url = `${API_BASE_URL}/weather?lat=${lat}&lon=${lon}`;
             const response = await fetch(url);
             const data = await response.json();
 
-            if (!data.error) {
+            if (data.success && data.data) {
                 const now = Date.now();
-                setWeatherData(data);
+                setWeatherData(data.data);
                 setWeatherLastUpdated(now);
                 await dbService.put('weather_cache', {
                     id: 'current',
-                    data: data,
+                    data: data.data,
                     lastUpdated: now
                 });
             } else {

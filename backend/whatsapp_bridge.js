@@ -1,10 +1,19 @@
 /**
- * AgroTalk WhatsApp Bridge (Consolidated — Firebase Session + Socket.io QR)
- * ============================================================================
- * - Connects to WhatsApp and listens for self-messages.
- * - ALL AI processing done via internal Node.js backend (no Python needed).
- * - WhatsApp session stored in Firebase Storage for persistence.
- * - QR code delivered to frontend via Socket.io in real-time.
+ * AgroTalk WhatsApp Self-Message Bridge
+ * ========================================
+ * Connects to your WhatsApp account and listens ONLY for messages you
+ * send to yourself ("Saved Messages" / "Me"). Routes them to the Python
+ * FastAPI backend for AI processing and sends back formatted replies.
+ *
+ * Message routing:
+ *   📷 Image  → NVIDIA Vision analysis → Plant health report
+ *   🎙️ Audio  → Whisper STT → AI reply → TTS voice note
+ *   💬 Text   → AI agricultural assistant → Formatted text reply
+ *
+ * Usage:
+ *   node backend/whatsapp_bridge.js
+ *
+ * First run: Scan the QR code in your terminal with WhatsApp > Linked Devices
  */
 
 'use strict';
@@ -14,335 +23,377 @@ require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
+const https = require('https');
+const http = require('http');
 const fs = require('fs');
 const os = require('os');
-const http = require('http');
-const https = require('https');
-
-// Internal Node.js services (no Python needed)
-const { getAgriAdvice } = require('./services/openRouterService');
-const nvidiaVision = require('./services/nvidiaVisionService');
-const { generateNvidiaSpeech } = require('./services/nvidiaTtsService');
-const { transcribeAudio } = require('./services/nvidiaSttService');
 
 // ─────────────────────────────────────────────────────────────
 // Config
 // ─────────────────────────────────────────────────────────────
-const DEFAULT_LANGUAGE = process.env.WHATSAPP_LANGUAGE || 'en';
-const BOT_TAG = '\u200B'; // Zero-width space to prevent loops
-let lastBotMediaTimestamp = 0;
+const PYTHON_API = process.env.PYTHON_API_URL || 'http://localhost:8000';
+const DEFAULT_LANGUAGE = 'en'; // Hardcoded default as per user request
+const BOT_TAG = '\u200B'; // Zero-width space to tag bot messages and prevent loops
 
 // ─────────────────────────────────────────────────────────────
-// Helper: get Socket.io instance from main server
+// HTTP helper — sends JSON to the Python backend
 // ─────────────────────────────────────────────────────────────
-function getIO() {
-    return global.socketIO || null;
-}
+function postJson(url, body) {
+    return new Promise((resolve, reject) => {
+        const jsonBody = JSON.stringify(body);
+        const urlObj = new URL(url);
+        const isHttps = urlObj.protocol === 'https:';
+        const lib = isHttps ? https : http;
 
-// ─────────────────────────────────────────────────────────────
-// Firebase Session Backup/Restore
-// ─────────────────────────────────────────────────────────────
-const SESSION_DIR = path.join(__dirname, '..', '.whatsapp_session');
+        const options = {
+            hostname: urlObj.hostname,
+            port: urlObj.port || (isHttps ? 443 : 80),
+            path: urlObj.pathname + (urlObj.search || ''),
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(jsonBody),
+            },
+            timeout: 60000, // 60s timeout for AI calls
+        };
 
-async function backupSessionToFirebase() {
-    try {
-        const { getStorage } = require('./services/firebaseService');
-        const storageInstance = getStorage();
-        if (!storageInstance) return;
-
-        // Zip the session directory
-        const archiver = require('archiver');
-        const tmpZip = path.join(os.tmpdir(), 'wa_session.zip');
-        await new Promise((resolve, reject) => {
-            const output = fs.createWriteStream(tmpZip);
-            const archive = archiver('zip', { zlib: { level: 9 } });
-            output.on('close', resolve);
-            archive.on('error', reject);
-            archive.pipe(output);
-            archive.directory(SESSION_DIR, false);
-            archive.finalize();
+        const req = lib.request(options, (res) => {
+            let data = '';
+            res.on('data', (chunk) => { data += chunk; });
+            res.on('end', () => {
+                try {
+                    resolve({ status: res.statusCode, body: JSON.parse(data) });
+                } catch (e) {
+                    resolve({ status: res.statusCode, body: { error: data } });
+                }
+            });
         });
 
-        await storageInstance.bucket().upload(tmpZip, { destination: 'whatsapp_session/session.zip' });
-        fs.unlinkSync(tmpZip);
-        console.log('✅ [WhatsApp] Session backed up to Firebase Storage');
-    } catch (err) {
-        console.warn('⚠️ [WhatsApp] Session backup failed:', err.message);
-    }
-}
+        req.on('error', reject);
+        req.on('timeout', () => {
+            req.destroy();
+            reject(new Error('Request timed out'));
+        });
 
-async function restoreSessionFromFirebase() {
-    try {
-        const { getStorage } = require('./services/firebaseService');
-        const storageInstance = getStorage();
-        if (!storageInstance) return false;
-
-        const tmpZip = path.join(os.tmpdir(), 'wa_session_restore.zip');
-        const file = storageInstance.bucket().file('whatsapp_session/session.zip');
-        const [exists] = await file.exists();
-        if (!exists) return false;
-
-        await file.download({ destination: tmpZip });
-
-        // Unzip into session directory
-        const unzipper = require('unzipper');
-        if (!fs.existsSync(SESSION_DIR)) fs.mkdirSync(SESSION_DIR, { recursive: true });
-        await fs.createReadStream(tmpZip)
-            .pipe(unzipper.Extract({ path: SESSION_DIR }))
-            .promise();
-
-        fs.unlinkSync(tmpZip);
-        console.log('✅ [WhatsApp] Session restored from Firebase Storage');
-        return true;
-    } catch (err) {
-        console.warn('⚠️ [WhatsApp] Session restore failed:', err.message);
-        return false;
-    }
+        req.write(jsonBody);
+        req.end();
+    });
 }
 
 // ─────────────────────────────────────────────────────────────
-// Helper: Is this a self-message?
+// Message handler helpers
 // ─────────────────────────────────────────────────────────────
+
+/**
+ * Determines if a message is from the user to themselves (self-message).
+ * Works across different WhatsApp Web.js versions.
+ */
 function isSelfMessage(msg, client) {
-    if (!client?.info?.wid) return false;
+    if (!client || !client.info || !client.info.wid) return false;
     const myNumber = client.info.wid._serialized;
+
+    // Strict check: YOU sent it AND it was sent TO your own number
     return msg.fromMe === true && msg.from === myNumber && msg.to === myNumber;
 }
 
-// ─────────────────────────────────────────────────────────────
-// Message Handlers
-// ─────────────────────────────────────────────────────────────
+/**
+ * Handle a text message sent to yourself.
+ */
 async function handleText(msg, chat) {
     const text = msg.body.trim();
     if (!text) return;
-    console.log(`\n💬 [WhatsApp Text] "${text.slice(0, 80)}"`);
 
+    console.log(`💬 [Text] "${text.substring(0, 80)}"`);
+
+    // Detect language hint in message (e.g. "[hi]" prefix)
     let language = DEFAULT_LANGUAGE;
-    let cleanText = text;
     const langMatch = text.match(/^\[(en|hi|ta|te|mr)\]\s*/i);
-    if (langMatch) { language = langMatch[1].toLowerCase(); cleanText = text.slice(langMatch[0].length).trim(); }
+    let cleanText = text;
+    if (langMatch) {
+        language = langMatch[1].toLowerCase();
+        cleanText = text.slice(langMatch[0].length).trim();
+    }
 
     try {
+        // Show typing indicator in the background, don't await it to save latency
         chat.sendStateTyping().catch(() => { });
-        const result = await getAgriAdvice(cleanText, null, null, null, language, []);
+
+        const response = await postJson(`${PYTHON_API}/api/whatsapp/chat`, {
+            text: cleanText,
+            language
+        });
+
         await chat.clearState();
-        const reply = result?.text || '⚠️ Could not process your request.';
-        await chat.sendMessage(reply + BOT_TAG);
-        console.log(`✅ [WhatsApp Text] Reply sent (${reply.length} chars)`);
+
+        if (response.status === 200 && response.body.success) {
+            await chat.sendMessage(response.body.reply + BOT_TAG);
+            console.log(`✅ [Text] Reply sent (${response.body.reply.length} chars)`);
+        } else {
+            console.error(`❌ [Text] AI Error:`, response.body);
+            await chat.sendMessage(`⚠️ *Error*: ${response.body.detail || response.body.error || 'Failed to process request.'}` + BOT_TAG);
+        }
     } catch (err) {
         await chat.clearState();
-        console.error('❌ [WhatsApp Text] Error:', err.message);
-        await chat.sendMessage(`⚠️ Error: ${err.message}` + BOT_TAG);
+        console.error(`❌ [Text] Connection Error:`, err.message);
+        await chat.sendMessage(`⚠️ *Connection Error*: ${err.message}` + BOT_TAG);
     }
 }
 
+/**
+ * Handle an image message sent to yourself.
+ */
 async function handleImage(msg, chat) {
-    console.log('📷 [WhatsApp Image] Processing...');
+    console.log('📷 [Image] Downloading media...');
+
     try {
         chat.sendStateTyping().catch(() => { });
         const media = await msg.downloadMedia();
-        if (!media?.data) {
-            await chat.sendMessage('⚠️ Could not download the image.');
+
+        if (!media || !media.data) {
+            await chat.sendMessage('⚠️ Could not download the image. Please try again.');
             return;
         }
 
+        console.log(`📷 [Image] Downloaded ${media.mimetype} (${media.data.length} chars b64)`);
+
+        // Detect language from caption if present
         let language = DEFAULT_LANGUAGE;
-        const langMatch = (msg.body || '').match(/\[(en|hi|ta|te|mr)\]/i);
+        const caption = msg.body || '';
+        const langMatch = caption.match(/\[(en|hi|ta|te|mr)\]/i);
         if (langMatch) language = langMatch[1].toLowerCase();
 
-        const visionResult = await nvidiaVision.analyzeImage(media.data, language);
+        const response = await postJson(`${PYTHON_API}/api/whatsapp/analyze_image`, {
+            image: media.data,
+            language
+        });
+
         await chat.clearState();
 
-        if (!visionResult.success) {
-            await chat.sendMessage(`⚠️ Analysis Failed: ${visionResult.error}`);
-            return;
-        }
+        if (response.status === 200 && response.body.success) {
+            // Send the formatted text report
+            await chat.sendMessage(response.body.reply + BOT_TAG);
 
-        const a = visionResult.analysis;
-        const replyText = [
-            `🌿 *AgroTalk Plant Analysis*`,
-            ``,
-            `*Crop:* ${a.crop_identified || 'Plant'}`,
-            `*Condition:* ${a.disease_name || 'Unknown'}`,
-            `*Severity:* ${a.severity || 'N/A'} | *Confidence:* ${a.confidence || 'N/A'}%`,
-            a.description ? `\n*Details:* ${a.description}` : '',
-            a.symptoms?.length ? `\n*Symptoms:*\n${a.symptoms.slice(0, 3).map(s => `• ${s}`).join('\n')}` : '',
-            a.treatment_steps?.length ? `\n*Treatment:*\n${a.treatment_steps.slice(0, 3).map(s => `• ${s}`).join('\n')}` : '',
-        ].filter(Boolean).join('\n');
-
-        await chat.sendMessage(replyText + BOT_TAG);
-
-        // TTS voice note
-        try {
-            const spokenText = `Analysis complete. Crop: ${a.crop_identified}. Condition: ${a.disease_name}. ${(a.description || '').slice(0, 200)}`;
-            const audioBuffer = await generateNvidiaSpeech(spokenText, language, true);
-            if (audioBuffer) {
-                await new Promise(r => setTimeout(r, 500));
-                const audioMedia = new MessageMedia('audio/mp3', audioBuffer.toString('base64'), 'analysis.mp3');
-                lastBotMediaTimestamp = Date.now();
+            // If server returned a TTS audio, send it as voice note
+            if (response.body.audio_b64) {
+                const audioMedia = new MessageMedia(
+                    'audio/mpeg',
+                    response.body.audio_b64,
+                    'analysis_summary.mp3'
+                );
                 await chat.sendMessage(audioMedia, { sendAudioAsVoice: true });
-                console.log('🔊 [WhatsApp Image] Voice note sent');
+                console.log('🔊 [Image] Voice note sent');
             }
-        } catch (ttsErr) {
-            console.warn('⚠️ [WhatsApp Image] TTS failed:', ttsErr.message);
+
+            console.log('✅ [Image] Analysis reply sent');
+        } else {
+            await chat.sendMessage(`⚠️ *Analysis Failed*\n\n_${response.body.detail || response.body.error || 'Unknown error'}_`);
         }
-        console.log('✅ [WhatsApp Image] Done');
     } catch (err) {
         await chat.clearState();
-        console.error('❌ [WhatsApp Image] Error:', err.message);
-        await chat.sendMessage(`⚠️ Image Error: ${err.message}` + BOT_TAG);
+        console.error('❌ [Image] Error:', err.message);
+        await chat.sendMessage(`⚠️ *Image Analysis Error*\n\n\`${err.message}\``);
     }
 }
 
+/**
+ * Handle a voice note / audio message sent to yourself.
+ */
 async function handleAudio(msg, chat) {
-    console.log('🎙️ [WhatsApp Audio] Processing...');
+    console.log('🎙️ [Audio] Downloading voice note...');
+
     try {
         chat.sendStateRecording().catch(() => { });
         const media = await msg.downloadMedia();
-        if (!media?.data) {
-            await chat.sendMessage('⚠️ Could not download audio.');
+
+        if (!media || !media.data) {
+            await chat.sendMessage('⚠️ Could not download the audio. Please try again.');
             return;
         }
 
-        const audioBytes = Buffer.from(media.data, 'base64');
-        const transcript = await transcribeAudio(audioBytes, media.mimetype || 'audio/ogg', DEFAULT_LANGUAGE);
+        console.log(`🎙️ [Audio] Downloaded ${media.mimetype} (${media.data.length} chars b64)`);
+
+        const response = await postJson(`${PYTHON_API}/api/whatsapp/transcribe_and_reply`, {
+            audio: media.data,
+            mime_type: media.mimetype || 'audio/ogg',
+            language: DEFAULT_LANGUAGE
+        });
+
         await chat.clearState();
 
-        if (!transcript) {
-            await chat.sendMessage(`⚠️ Could not transcribe audio.` + BOT_TAG);
-            return;
-        }
+        if (response.status === 200 && response.body.success) {
+            // Send the formatted text reply
+            await chat.sendMessage(response.body.text_reply + BOT_TAG);
 
-        const result = await getAgriAdvice(transcript, null, null, null, DEFAULT_LANGUAGE, []);
-        const textReply = result?.text || 'Could not process your request.';
-        await chat.sendMessage(textReply + BOT_TAG);
-
-        // TTS voice reply
-        try {
-            const audioBuffer = await generateNvidiaSpeech(textReply, DEFAULT_LANGUAGE, true);
-            if (audioBuffer) {
-                await new Promise(r => setTimeout(r, 500));
-                const audioMedia = new MessageMedia('audio/mp3', audioBuffer.toString('base64'), 'reply.mp3');
-                lastBotMediaTimestamp = Date.now();
+            // Send voice note reply if TTS generated audio
+            if (response.body.audio_reply_b64) {
+                const audioMedia = new MessageMedia(
+                    'audio/mpeg',
+                    response.body.audio_reply_b64,
+                    'ai_reply.mp3'
+                );
                 await chat.sendMessage(audioMedia, { sendAudioAsVoice: true });
+                console.log('🔊 [Audio] Voice reply sent');
             }
-        } catch (ttsErr) {
-            console.warn('⚠️ [WhatsApp Audio] TTS failed:', ttsErr.message);
-        }
 
-        console.log(`✅ [WhatsApp Audio] Transcript: "${transcript.slice(0, 80)}"`);
+            console.log(`✅ [Audio] Transcript: "${response.body.transcript}"`);
+        } else {
+            console.error(`❌ [Audio] Error:`, response.body);
+            await chat.sendMessage(`⚠️ *Audio Error*: ${response.body.detail || response.body.error || 'Transcription failed.'}` + BOT_TAG);
+        }
     } catch (err) {
         await chat.clearState();
-        console.error('❌ [WhatsApp Audio] Error:', err.message);
-        await chat.sendMessage(`⚠️ Audio Error: ${err.message}` + BOT_TAG);
+        console.error('❌ [Audio] Error:', err.message);
+        await chat.sendMessage(`⚠️ *Connection Error*: ${err.message}` + BOT_TAG);
     }
 }
 
 // ─────────────────────────────────────────────────────────────
 // WhatsApp Client Setup
 // ─────────────────────────────────────────────────────────────
-console.log('\n🌿 ══════════════════════════════════════════════════');
-console.log('🌿  AgroTalk WhatsApp Bridge (Consolidated Mode)     ');
-console.log('🌿 ══════════════════════════════════════════════════');
+
+console.log('');
+console.log('🌿 ═══════════════════════════════════════════════');
+console.log('🌿  AgroTalk WhatsApp Bridge — Self-Message Mode  ');
+console.log('🌿 ═══════════════════════════════════════════════');
+console.log(`📡 Python API: ${PYTHON_API}`);
 console.log(`🌐 Default Language: ${DEFAULT_LANGUAGE}`);
 console.log('');
 
-async function startBridge() {
-    // Try to restore Firebase session before initializing client
-    await restoreSessionFromFirebase();
+const client = new Client({
+    authStrategy: new LocalAuth({
+        clientId: 'agrotalk',
+        dataPath: path.join(__dirname, '..', '.whatsapp_session')
+    }),
+    webVersionCache: {
+        type: 'remote',
+        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html'
+    },
+    puppeteer: {
+        headless: true,
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--single-process',
+            '--disable-gpu'
+        ]
+    }
+});
 
-    const client = new Client({
-        authStrategy: new LocalAuth({
-            clientId: 'agrotalk',
-            dataPath: path.join(__dirname, '..', '.whatsapp_session')
-        }),
-        puppeteer: {
-            headless: "new",
-            args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-extensions',
-                '--no-first-run',
-                '--no-zygote',
-                '--disable_gpu'
-            ]
+// QR code for first-time pairing
+client.on('qr', (qr) => {
+    console.log('');
+    console.log('📱 Scan this QR code with WhatsApp:');
+    console.log('   (WhatsApp → Settings → Linked Devices → Link a Device)');
+    console.log('');
+    qrcode.generate(qr, { small: true });
+    console.log('');
+});
+
+client.on('loading_screen', (percent, message) => {
+    process.stdout.write(`\r⏳ Loading WhatsApp... ${percent}% - ${message}       `);
+});
+
+client.on('authenticated', () => {
+    console.log('\n✅ WhatsApp authenticated!');
+});
+
+client.on('auth_failure', (msg) => {
+    console.error('❌ WhatsApp authentication failed:', msg);
+    console.log('💡 Delete the .whatsapp_session folder and try again.');
+    process.exit(1);
+});
+
+client.on('ready', () => {
+    console.log('');
+    console.log('✅ ════════════════════════════════════');
+    console.log('✅  WhatsApp Bridge is READY!          ');
+    console.log('✅ ════════════════════════════════════');
+    console.log('');
+    console.log('📋 How to use:');
+    console.log('   1. Open WhatsApp on your phone');
+    console.log('   2. Send a message to yourself (search "Me" or "Saved Messages")');
+    console.log('   3. Send text, a photo, or a voice note');
+    console.log('   4. AgroTalk AI will reply!');
+    console.log('');
+    console.log('🌐 Language hints (add to start of text):');
+    console.log('   [en] English  [hi] Hindi  [ta] Tamil  [te] Telugu  [mr] Marathi');
+    console.log('');
+    console.log('⌨️  Press Ctrl+C to stop');
+    console.log('');
+});
+
+// Core message handler
+client.on('message_create', async (msg) => {
+    // CRITICAL: Only handle self-messages
+    if (!isSelfMessage(msg, client)) {
+        return;
+    }
+
+    // AVOID SELF-LOOP: Ignore messages tagged with BOT_TAG
+    if (msg.body && msg.body.endsWith(BOT_TAG)) {
+        console.log(`⏭️  Ignoring bot's own message (tagged)`);
+        return;
+    }
+
+    // Ignore status updates
+    if (msg.isStatus) return;
+
+    // Get the chat
+    let chat;
+    try {
+        chat = await msg.getChat();
+    } catch (err) {
+        console.error('Could not get chat:', err.message);
+        return;
+    }
+
+    const msgType = msg.type;
+    console.log(`\n📨 [${new Date().toLocaleTimeString()}] Self-message received — Type: ${msgType}`);
+
+    try {
+        if (msgType === 'chat') {
+            // Plain text
+            await handleText(msg, chat);
+        } else if (msgType === 'image' || msgType === 'sticker') {
+            // Image or sticker photo
+            await handleImage(msg, chat);
+        } else if (msgType === 'audio' || msgType === 'ptt') {
+            // Voice note (ptt = push-to-talk) or audio file
+            await handleAudio(msg, chat);
+        } else {
+            console.log(`⏭️  Skipping unsupported message type: ${msgType}`);
         }
-    });
+    } catch (err) {
+        console.error(`❌ Unhandled error for type ${msgType}:`, err);
+    }
+});
 
-    // QR code → print to terminal AND emit to frontend via Socket.io
-    client.on('qr', (qr) => {
-        console.log('\n📱 Scan this QR code with WhatsApp:');
-        qrcode.generate(qr, { small: true });
+client.on('disconnected', (reason) => {
+    console.log('⚠️  WhatsApp disconnected:', reason);
+    console.log('🔄 Reconnecting...');
+});
 
-        const io = getIO();
-        if (io) {
-            io.emit('whatsapp-qr', { qr });
-            console.log('📡 [Socket.io] QR emitted to frontend');
-        }
-    });
+// Graceful shutdown
+process.on('SIGINT', async () => {
+    console.log('\n\n🛑 Shutting down WhatsApp bridge...');
+    try {
+        await client.destroy();
+    } catch (e) { /* ignore */ }
+    process.exit(0);
+});
 
-    client.on('loading_screen', (percent, message) => {
-        process.stdout.write(`\r⏳ Loading WhatsApp... ${percent}% - ${message}       `);
-    });
+process.on('SIGTERM', async () => {
+    try {
+        await client.destroy();
+    } catch (e) { /* ignore */ }
+    process.exit(0);
+});
 
-    client.on('authenticated', () => {
-        console.log('\n✅ WhatsApp authenticated!');
-        const io = getIO();
-        if (io) io.emit('whatsapp-status', { status: 'authenticated' });
-    });
-
-    client.on('auth_failure', (msg) => {
-        console.error('❌ WhatsApp auth failed:', msg);
-        const io = getIO();
-        if (io) io.emit('whatsapp-status', { status: 'auth_failure', message: msg });
-    });
-
-    client.on('ready', () => {
-        console.log('\n✅ WhatsApp Bridge READY!');
-        const io = getIO();
-        if (io) io.emit('whatsapp-status', { status: 'ready' });
-        // Backup session to Firebase after successful connection
-        setTimeout(() => backupSessionToFirebase(), 5000);
-    });
-
-    client.on('disconnected', (reason) => {
-        console.log('⚠️ WhatsApp disconnected:', reason);
-        const io = getIO();
-        if (io) io.emit('whatsapp-status', { status: 'disconnected', reason });
-    });
-
-    // Core message handler
-    client.on('message_create', async (msg) => {
-        if (!isSelfMessage(msg, client)) return;
-        if (msg.body?.endsWith(BOT_TAG)) return;
-        if ((msg.type === 'audio' || msg.type === 'ptt') && (Date.now() - lastBotMediaTimestamp < 8000)) return;
-        if (msg.isStatus) return;
-
-        let chat;
-        try { chat = await msg.getChat(); } catch (err) { return; }
-
-        console.log(`\n📨 [${new Date().toLocaleTimeString()}] Self-message — Type: ${msg.type}`);
-
-        try {
-            if (msg.type === 'chat') await handleText(msg, chat);
-            else if (msg.type === 'image' || msg.type === 'sticker') await handleImage(msg, chat);
-            else if (msg.type === 'audio' || msg.type === 'ptt') await handleAudio(msg, chat);
-        } catch (err) {
-            console.error(`❌ Unhandled error (${msg.type}):`, err);
-        }
-    });
-
-    // Graceful shutdown
-    process.on('SIGINT', async () => {
-        console.log('\n🛑 Shutting down...');
-        await backupSessionToFirebase();
-        try { await client.destroy(); } catch (_) { }
-        process.exit(0);
-    });
-
-    console.log('🔄 Initializing WhatsApp client...\n');
-    client.initialize();
-}
-
-startBridge().catch(console.error);
+// Initialize
+console.log('🔄 Initializing WhatsApp client...');
+console.log('   (This may take 30-60 seconds on first run)\n');
+client.initialize();

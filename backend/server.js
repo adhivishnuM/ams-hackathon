@@ -23,8 +23,6 @@ const chatRoute = require('./routes/chat');
 const marketRoute = require('./routes/market');
 const ttsRoute = require('./routes/tts');
 
-// Firebase (lazy init — only if FIREBASE_SERVICE_ACCOUNT is set)
-const { initFirebase } = require('./services/firebaseService');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -50,8 +48,7 @@ app.get('/health', (req, res) => {
             nvidia_vision: !!process.env.NVIDIA_VISION_KEY,
             nvidia_tts: !!process.env.NVIDIA_TTS_KEY,
             nvidia_stt: !!process.env.NVIDIA_STT_KEY,
-            mandi: !!process.env.MANDI_API_KEY,
-            firebase: !!process.env.FIREBASE_SERVICE_ACCOUNT
+            mandi: !!process.env.MANDI_API_KEY
         }
     });
 });
@@ -65,7 +62,7 @@ app.use('/chat', chatRoute);
 app.use('/market', marketRoute);
 app.use('/api/tts', ttsRoute);
 
-// Serve uploads (local fallback if Firebase Storage not configured)
+// Serve uploads (local only)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Global error handler
@@ -82,6 +79,16 @@ app.listen(PORT, () => {
     console.log(`   NVIDIA TTS: ${process.env.NVIDIA_TTS_KEY ? '✅' : '❌ missing'}`);
     console.log(`   NVIDIA STT: ${process.env.NVIDIA_STT_KEY ? '✅' : '❌ missing'}`);
     console.log(`   Mandi API: ${process.env.MANDI_API_KEY ? '✅' : '❌ missing'}`);
-    console.log(`   Firebase: ${process.env.FIREBASE_SERVICE_ACCOUNT ? '✅' : '⚠️  optional — using local storage'}\n`);
-    initFirebase(); // Non-blocking, graceful if not configured
+    console.log(`   Firebase: ❌ removed — using local storage\n`);
+
+    // Pre-warm Python backend connection so first TTS/STT request is instant
+    const PYTHON_URL = process.env.PYTHON_API_URL || 'http://localhost:8000';
+    const tryWarm = (attempts = 0) => {
+        fetch(`${PYTHON_URL}/`, { signal: AbortSignal.timeout(2000) })
+            .then(() => console.log('   Python backend: ✅ warm'))
+            .catch(() => {
+                if (attempts < 10) setTimeout(() => tryWarm(attempts + 1), 2000);
+            });
+    };
+    setTimeout(tryWarm, 1000);
 });

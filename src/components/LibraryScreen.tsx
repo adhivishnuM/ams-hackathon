@@ -1,14 +1,15 @@
 import { useState } from "react";
-import { Search, X, CheckCircle, Clock, ChevronRight, LayoutGrid, Leaf, AlertCircle, Trash2, Edit2, Share2, Bot, Wind } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Search, X, CheckCircle, ChevronRight, LayoutGrid, Leaf, AlertCircle, Trash2, Edit2, MessageSquare, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "./ui/button";
 import { useLibrary, LibraryItem } from "@/hooks/useLibrary";
+import { LibraryDetailView } from "@/pages/LibraryDetailPage";
 import { toast } from "sonner";
 import { getTranslation } from "@/lib/translations";
-import { WeatherDashboard } from "./WeatherDashboard";
 import { useOrders } from "@/hooks/useOrders";
-import { PackageOpen, MapPin, IndianRupee, Clock as ClockIcon, TrendingUp, ShoppingCart, Phone } from "lucide-react";
-import { getRecommendations } from "@/data/products";
+import { useChat } from "@/hooks/useChat";
+import { useApp } from "@/contexts/AppContext";
+import { PackageOpen, MapPin, IndianRupee, Clock as ClockIcon, TrendingUp } from "lucide-react";
 
 interface WeatherData {
   current: {
@@ -20,7 +21,6 @@ interface WeatherData {
 }
 
 interface LibraryScreenProps {
-  language: string;
   weatherData?: WeatherData | null;
   isWeatherLoading?: boolean;
   onShareChat?: (analysis: LibraryItem) => void;
@@ -28,19 +28,23 @@ interface LibraryScreenProps {
 
 type FilterType = "all" | "healthy" | "diseased" | "thisWeek";
 
-export function LibraryScreen({ language, weatherData, isWeatherLoading, onShareChat }: LibraryScreenProps) {
+export function LibraryScreen({ weatherData, isWeatherLoading, onShareChat }: LibraryScreenProps) {
   const { items, deleteItem, updateItem } = useLibrary();
+  const navigate = useNavigate();
+  const { language, setIsChatMode, setChatMessages, setConversationHistory, setConversationId } = useApp();
+  const [selectedItem, setSelectedItem] = useState<LibraryItem | null>(null);
+  const { history: chatHistory, isLoading: chatLoading } = useChat();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
-  const [selectedItem, setSelectedItem] = useState<LibraryItem | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDisease, setEditDisease] = useState("");
   const [editCrop, setEditCrop] = useState("");
-  const [activeTab, setActiveTab] = useState<"scans" | "orders">("scans");
+  const [activeTab, setActiveTab] = useState<"scans" | "orders" | "chats">("scans");
 
   const { orders } = useOrders();
 
   const tLib = getTranslation('library', language);
+  const isHindi = language === 'hi';
 
   const getLocalizedField = (item: LibraryItem, field: 'diseaseName' | 'cropType' | 'summary' | 'description') => {
     const langSuffix = { hi: 'Hi', ta: 'Ta', te: 'Te', mr: 'Mr' }[language] || '';
@@ -127,6 +131,39 @@ export function LibraryScreen({ language, weatherData, isWeatherLoading, onShare
     toast.success(tLib.updated);
   };
 
+  const openChatConversation = (item: any) => {
+    setIsChatMode(true);
+    if (item.conversationId) setConversationId(item.conversationId);
+
+    const messages = item.messages && Array.isArray(item.messages)
+      ? item.messages.flatMap((m: any) => [
+          { id: `user_${m.id}`, role: 'user' as const, content: m.query, timestamp: new Date(m.timestamp), condition: undefined },
+          { id: `assistant_${m.id}`, role: 'assistant' as const, content: m.response, timestamp: new Date(new Date(m.timestamp).getTime() + 1000), condition: undefined }
+        ]).filter((msg: any) => msg.content?.trim())
+          .sort((a: any, b: any) => a.timestamp.getTime() - b.timestamp.getTime())
+      : [
+          { id: `user_${item.id}`, role: 'user' as const, content: item.query, timestamp: new Date(item.timestamp), condition: undefined },
+          { id: `assistant_${item.id}`, role: 'assistant' as const, content: item.response, timestamp: new Date(new Date(item.timestamp).getTime() + 1000), condition: undefined }
+        ];
+
+    setChatMessages(messages);
+    setConversationHistory(messages.map((m: any) => ({ role: m.role, content: m.content })).slice(-10));
+    navigate('/');
+  };
+
+  const formatChatTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const mins = Math.floor(diff / 60000);
+    const hours = Math.floor(mins / 60);
+    const days = Math.floor(hours / 24);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    return `${days}d ago`;
+  };
+
   const filters: { id: FilterType; label: string }[] = [
     { id: "all", label: tLib.filterAll },
     { id: "healthy", label: tLib.healthy },
@@ -136,134 +173,195 @@ export function LibraryScreen({ language, weatherData, isWeatherLoading, onShare
 
   return (
     <div className="flex flex-col flex-1 bg-background pb-32 animate-in fade-in duration-700">
-      <header className="sticky top-0 z-40 px-5 py-4 bg-background/60 dark:bg-background/80 backdrop-blur-apple border-b border-border/50 transition-all duration-300">
-        <div className="flex items-center justify-between max-w-lg mx-auto w-full">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
+      <header className="sticky top-0 z-40 bg-background/60 dark:bg-background/80 backdrop-blur-apple border-b border-border/50 transition-all duration-300">
+        <div className="max-w-screen-2xl mx-auto px-6 lg:px-12 py-5 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-[20px] bg-primary/10 flex items-center justify-center border border-primary/20 shadow-apple-sm">
               <LayoutGrid className="w-6 h-6 text-primary" />
             </div>
             <div className="flex flex-col">
-              <h1 className="text-body font-bold text-foreground leading-none tracking-tight">{tLib.title}</h1>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">
+              <h1 className="text-display-sm font-black text-foreground leading-tight tracking-tight">{tLib.title}</h1>
+              <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-[0.2em] mt-0.5">
                 {stats.total} {tLib.recordsFound}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="px-3 py-1 rounded-full bg-muted/30 border border-border/50">
-              <span className="text-[10px] font-black uppercase tracking-tight text-foreground">{language}</span>
+          <div className="hidden md:flex items-center gap-3">
+            <div className="px-4 py-1.5 rounded-full bg-muted/30 border border-border/50 backdrop-blur-md">
+              <span className="text-[11px] font-black uppercase tracking-widest text-primary">{language}</span>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="flex-1 max-w-lg mx-auto w-full px-5 py-6 space-y-8">
-        <div className="animate-in slide-in-from-top-4 duration-500 delay-150">
-          <WeatherDashboard
-            data={weatherData as any}
-            loading={isWeatherLoading || false}
-            error={null}
-            language={language}
-            compact={true}
-          />
-        </div>
-
+      <main className="flex-1 w-full max-w-screen-2xl mx-auto px-6 lg:px-12 py-8 space-y-8">
         {/* Top Tabs */}
-        <div className="flex p-1 bg-muted/40 rounded-[28px] border border-border/50 animate-in fade-in duration-700 delay-200 shadow-apple-sm">
+        <div className="max-w-2xl mx-auto flex p-1.5 bg-muted/40 rounded-[32px] border border-border/40 animate-in fade-in zoom-in-95 duration-700 delay-200 shadow-apple-sm backdrop-blur-sm">
           <button
             onClick={() => setActiveTab("scans")}
             className={cn(
-              "flex-1 flex items-center justify-center gap-2 py-3 rounded-[24px] text-body font-bold transition-all duration-300",
+              "flex-1 flex items-center justify-center gap-2.5 py-3.5 rounded-[28px] text-[15px] font-black uppercase tracking-wide transition-all duration-500",
               activeTab === "scans"
-                ? "bg-card text-foreground shadow-sm border border-border/60"
-                : "text-muted-foreground hover:text-foreground"
+                ? "bg-white text-primary shadow-apple-md border border-border/10 scale-[1.02]"
+                : "text-muted-foreground hover:text-foreground hover:bg-white/5"
             )}
           >
-            <LayoutGrid size={18} />
-            Diagnostic Scans
+            <LayoutGrid size={18} className={activeTab === "scans" ? "animate-pulse" : ""} />
+            {isHindi ? "स्कैन" : "Scans"}
+          </button>
+          <button
+            onClick={() => setActiveTab("chats")}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2.5 py-3.5 rounded-[28px] text-[15px] font-black uppercase tracking-wide transition-all duration-500",
+              activeTab === "chats"
+                ? "bg-white text-primary shadow-apple-md border border-border/10 scale-[1.02]"
+                : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+            )}
+          >
+            <MessageSquare size={18} className={activeTab === "chats" ? "animate-pulse" : ""} />
+            {isHindi ? "चैट" : "Chats"}
           </button>
           <button
             onClick={() => setActiveTab("orders")}
             className={cn(
-              "flex-1 flex items-center justify-center gap-2 py-3 rounded-[24px] text-body font-bold transition-all duration-300",
+              "flex-1 flex items-center justify-center gap-2.5 py-3.5 rounded-[28px] text-[15px] font-black uppercase tracking-wide transition-all duration-500",
               activeTab === "orders"
-                ? "bg-primary text-white shadow-sm border border-primary/20"
-                : "text-muted-foreground hover:text-foreground"
+                ? "bg-white text-primary shadow-apple-md border border-border/10 scale-[1.02]"
+                : "text-muted-foreground hover:text-foreground hover:bg-white/5"
             )}
           >
-            <PackageOpen size={18} />
-            Agent Orders
+            <PackageOpen size={18} className={activeTab === "orders" ? "animate-pulse" : ""} />
+            {isHindi ? "ऑर्डर" : "Orders"}
           </button>
         </div>
 
-        {activeTab === "scans" ? (
-          <>
-            <div className="grid grid-cols-3 gap-3 animate-in fade-in duration-700 delay-300">
-          <div className="p-4 bg-card rounded-[24px] border border-border/50 text-center shadow-apple-sm">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
-              <Leaf className="w-4 h-4 text-primary" />
-            </div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-1">{tLib.total}</p>
-            <p className="text-headline font-black text-foreground">{stats.total}</p>
-          </div>
-          <div className="p-4 bg-card rounded-[24px] border border-border/50 text-center shadow-apple-sm">
-            <div className="w-8 h-8 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-2">
-              <AlertCircle className="w-4 h-4 text-destructive" />
-            </div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-1">{tLib.issues}</p>
-            <p className="text-headline font-black text-destructive">{stats.diseases}</p>
-          </div>
-          <div className="p-4 bg-card rounded-[24px] border border-border/50 text-center shadow-apple-sm">
-            <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-2">
-              <CheckCircle className="w-4 h-4 text-green-500" />
-            </div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-1">{tLib.healthy}</p>
-            <p className="text-headline font-black text-green-500">{stats.healthy}</p>
-          </div>
-        </div>
-
-        <div className="space-y-4 animate-in fade-in duration-700 delay-450">
-          <div className="relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
-            <input
-              type="text"
-              placeholder={tLib.searchPlaceholder}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={cn(
-                "w-full h-14 pl-12 pr-12 rounded-[24px] bg-card border-2 border-border/60",
-                "text-body placeholder:text-muted-foreground/50",
-                "focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10",
-                "transition-all duration-300 shadow-apple-sm"
-              )}
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full bg-muted/40 text-muted-foreground hover:text-foreground transition-all"
-              >
-                <X size={14} />
-              </button>
+        {activeTab === "chats" ? (
+          <div className="animate-in fade-in slide-in-from-right-8 duration-500 space-y-3">
+            {chatLoading ? (
+              <div className="flex flex-col items-center justify-center py-20">
+                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mb-3" />
+                <p className="text-sm text-muted-foreground">Loading chats...</p>
+              </div>
+            ) : chatHistory.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                  <MessageSquare className="w-10 h-10 text-primary/40" />
+                </div>
+                <h3 className="text-headline font-bold text-foreground mb-2">No Chats Yet</h3>
+                <p className="text-body text-muted-foreground max-w-[240px]">Your AI conversations will appear here.</p>
+              </div>
+            ) : (
+              chatHistory.map((item) => {
+                const lastMsg = item.messages?.filter(m => m.response?.trim()).pop();
+                const preview = lastMsg?.response || item.response || '';
+                const query = lastMsg?.query || item.query || '';
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => openChatConversation(item)}
+                    className="group bg-card rounded-[20px] border border-border/60 overflow-hidden cursor-pointer hover:border-primary/30 hover:shadow-sm active:scale-[0.99] transition-all"
+                  >
+                    <div className="p-4 space-y-2">
+                      {/* User bubble */}
+                      <div className="flex justify-end">
+                        <div className="bg-primary text-white text-[12px] font-medium px-3 py-1.5 rounded-2xl rounded-br-sm max-w-[85%] line-clamp-1">
+                          {query}
+                        </div>
+                      </div>
+                      {/* AI bubble */}
+                      <div className="flex items-start gap-2">
+                        <div className="w-6 h-6 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 overflow-hidden">
+                          <img src="/logo.svg" alt="" className="w-full h-full object-cover" />
+                        </div>
+                        <div className="bg-muted/50 text-muted-foreground text-[11px] px-3 py-1.5 rounded-2xl rounded-tl-sm flex-1 line-clamp-2 leading-relaxed">
+                          {preview.replace(/\*\*/g, '').replace(/\*/g, '') || '—'}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between px-4 py-2 border-t border-border/30 bg-muted/20">
+                      <div className="flex items-center gap-1 text-[10px] text-muted-foreground/60">
+                        <Clock size={10} />
+                        <span>{formatChatTime(item.timestamp)}</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-muted-foreground/50 uppercase">
+                        {item.messages?.length ?? 1} msg{(item.messages?.length ?? 1) !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })
             )}
           </div>
+        ) : activeTab === "scans" ? (
+          <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in slide-up-8 duration-700 delay-300">
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="p-6 bg-white/50 dark:bg-card/50 backdrop-blur-md rounded-[32px] border border-border/40 text-center shadow-apple-sm group hover:scale-[1.02] transition-all duration-500">
+                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4 border border-primary/20 group-hover:bg-primary/20 transition-colors">
+                  <Leaf className="w-6 h-6 text-primary" />
+                </div>
+                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">{tLib.total}</p>
+                <p className="text-display-sm font-black text-foreground">{stats.total}</p>
+              </div>
+              <div className="p-6 bg-white/50 dark:bg-card/50 backdrop-blur-md rounded-[32px] border border-border/40 text-center shadow-apple-sm group hover:scale-[1.02] transition-all duration-500">
+                <div className="w-12 h-12 rounded-2xl bg-destructive/10 flex items-center justify-center mx-auto mb-4 border border-destructive/20 group-hover:bg-destructive/20 transition-colors">
+                  <AlertCircle className="w-6 h-6 text-destructive" />
+                </div>
+                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">{tLib.issues}</p>
+                <p className="text-display-sm font-black text-destructive">{stats.diseases}</p>
+              </div>
+              <div className="p-6 bg-white/50 dark:bg-card/50 backdrop-blur-md rounded-[32px] border border-border/40 text-center shadow-apple-sm group hover:scale-[1.02] transition-all duration-500">
+                <div className="w-12 h-12 rounded-2xl bg-green-500/10 flex items-center justify-center mx-auto mb-4 border border-green-500/20 group-hover:bg-green-500/20 transition-colors">
+                  <CheckCircle className="w-6 h-6 text-green-500" />
+                </div>
+                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">{tLib.healthy}</p>
+                <p className="text-display-sm font-black text-green-500">{stats.healthy}</p>
+              </div>
+            </div>
 
-          <div className="flex gap-2 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
-            {filters.map((filter) => (
-              <button
-                key={filter.id}
-                onClick={() => setActiveFilter(filter.id)}
-                className={cn(
-                  "flex items-center gap-2 px-5 py-2.5 rounded-full text-subhead font-bold whitespace-nowrap transition-all active:scale-95",
-                  activeFilter === filter.id
-                    ? "bg-primary text-white border border-primary"
-                    : "bg-card border border-border/60 text-muted-foreground hover:bg-muted/40 hover:text-foreground"
+            {/* Search and Filters */}
+            <div className="space-y-6">
+              <div className="relative group max-w-2xl mx-auto w-full">
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                <input
+                  type="text"
+                  placeholder={tLib.searchPlaceholder}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={cn(
+                    "w-full h-16 pl-14 pr-14 rounded-[28px] bg-white/60 dark:bg-card/60 backdrop-blur-md border border-border/40",
+                    "text-body font-medium placeholder:text-muted-foreground/40",
+                    "focus:outline-none focus:border-primary/50 focus:ring-8 focus:ring-primary/5",
+                    "transition-all duration-500 shadow-apple-sm"
+                  )}
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-muted/40 text-muted-foreground hover:text-foreground transition-all hover:bg-muted/60"
+                  >
+                    <X size={16} />
+                  </button>
                 )}
-              >
-                {filter.label}
-              </button>
-            ))}
-          </div>
-        </div>
+              </div>
+
+              <div className="flex flex-wrap justify-center gap-2.5">
+                {filters.map((filter) => (
+                  <button
+                    key={filter.id}
+                    onClick={() => setActiveFilter(filter.id)}
+                    className={cn(
+                      "flex items-center gap-2.5 px-6 py-3 rounded-full text-[13px] font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-300",
+                      activeFilter === filter.id
+                        ? "bg-primary text-white shadow-apple-md scale-[1.05]"
+                        : "bg-muted/30 text-muted-foreground hover:bg-muted/50 border border-border/40"
+                    )}
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
         {filteredItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in duration-700">
@@ -274,14 +372,14 @@ export function LibraryScreen({ language, weatherData, isWeatherLoading, onShare
             <p className="text-body text-muted-foreground max-w-[240px]">{tLib.emptySubtitle}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 animate-in fade-in duration-700 delay-500">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5 animate-in fade-in duration-700 delay-500">
             {filteredItems.map((analysis) => (
               <div
                 key={analysis.id}
                 onClick={() => setSelectedItem(analysis)}
-                className="group relative bg-card rounded-[32px] border border-border/60 shadow-apple-sm hover:shadow-apple-lg hover:border-primary/30 transition-all duration-500 overflow-hidden cursor-pointer active:scale-[0.98]"
+                className="group relative bg-card rounded-[28px] border border-border/60 shadow-apple-sm hover:shadow-apple-lg hover:border-primary/30 transition-all duration-300 overflow-hidden cursor-pointer active:scale-[0.98]"
               >
-                <div className="flex h-44 sm:h-48">
+                <div className="flex h-44 sm:h-44">
                   <div className="w-1/3 relative h-full overflow-hidden">
                     <img
                       src={analysis.thumbnail}
@@ -342,13 +440,14 @@ export function LibraryScreen({ language, weatherData, isWeatherLoading, onShare
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-        </>
-        ) : (
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
           <div className="animate-in fade-in slide-in-from-right-8 duration-500">
+            {/* orders tab */}
             {orders.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mb-6">
@@ -358,7 +457,7 @@ export function LibraryScreen({ language, weatherData, isWeatherLoading, onShare
                 <p className="text-body text-muted-foreground max-w-[240px]">Orders placed via the Call Agent will appear here automatically.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
                 {orders.map((order) => (
                   <div key={order.id} className="bg-card rounded-[32px] border border-border/60 shadow-apple-lg overflow-hidden relative">
                     {/* Header line */}
@@ -417,189 +516,15 @@ export function LibraryScreen({ language, weatherData, isWeatherLoading, onShare
         )}
       </main>
 
+      {/* Library Detail Modal — overlay on current page, sidebar stays visible */}
       {selectedItem && (
-        <div className="fixed inset-0 z-[110] flex items-end justify-center animate-in fade-in duration-300">
-          <div
-            className="absolute inset-0 bg-background/80 backdrop-blur-md"
-            onClick={() => setSelectedItem(null)}
+        <div className="fixed inset-0 z-[39] bg-background overflow-y-auto animate-in slide-in-from-right duration-300">
+          <LibraryDetailView
+            item={selectedItem}
+            onClose={() => setSelectedItem(null)}
+            language={language}
+            asModal
           />
-          <div className="relative w-full max-w-lg bg-card rounded-t-[40px] border-t border-border/50 shadow-2xl animate-in slide-in-from-bottom-full duration-500 overflow-hidden flex flex-col max-h-[92vh]">
-            <div className="w-12 h-1.5 bg-muted rounded-full mx-auto mt-4 mb-2 opacity-50"></div>
-
-            <div className="px-6 py-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Bot className="w-4 h-4 text-primary" />
-                </div>
-                <div>
-                  <h2 className="text-headline font-black text-foreground tracking-tight">AI Diagnostic</h2>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase opacity-60">
-                    ID: {selectedItem.id.slice(0, 8)}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setSelectedItem(null)}
-                className="w-10 h-10 rounded-full bg-muted/30 flex items-center justify-center text-muted-foreground border border-border/50 transition-all active:scale-90"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-8 pb-32">
-              <div className="relative rounded-[32px] overflow-hidden border-2 border-border/50 aspect-video shadow-apple">
-                <img src={selectedItem.thumbnail} className="w-full h-full object-cover" alt="Diagnostic View" />
-                <div className="absolute top-4 right-4 glass px-4 py-2 rounded-2xl flex items-center gap-2 border border-white/20">
-                  <div className="w-2 h-2 rounded-full bg-primary" />
-                  <span className="text-[12px] font-black text-primary uppercase">{selectedItem.confidence}% {tLib.accuracy}</span>
-                </div>
-                <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/80 to-transparent">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 mb-1">{tLib.detectedIssue}</p>
-                  <h3 className="text-title-md font-black text-white">{getLocalizedField(selectedItem, 'diseaseName')}</h3>
-                </div>
-              </div>
-
-              <div className={cn(
-                "p-4 rounded-[24px] flex items-center gap-4 border",
-                selectedItem.severity === "low"
-                  ? "bg-primary/5 border-primary/20 text-primary"
-                  : "bg-destructive/5 border-destructive/20 text-destructive"
-              )}>
-                <div className={cn(
-                  "w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm",
-                  selectedItem.severity === "low" ? "bg-primary text-white" : "bg-destructive text-white"
-                )}>
-                  {selectedItem.severity === "low" ? <CheckCircle size={24} /> : <AlertCircle size={24} />}
-                </div>
-                <div>
-                  <p className="text-body font-black uppercase tracking-tight">
-                    {selectedItem.severity === "low" ? tLib.stableCondition : tLib.criticalAttention}
-                  </p>
-                  <p className="text-[11px] font-bold opacity-70">
-                    {tLib.severityAssessment} {selectedItem.severity.toUpperCase()}
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <section className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Bot size={16} className="text-primary" />
-                    <h4 className="text-[11px] font-black uppercase tracking-widest text-foreground">{tLib.summary}</h4>
-                  </div>
-                  <div className="p-5 bg-muted/30 rounded-[24px] border border-border/50 text-[14px] leading-relaxed text-muted-foreground font-medium">
-                    {getLocalizedField(selectedItem, 'description') || getLocalizedField(selectedItem, 'summary')}
-                  </div>
-                </section>
-
-                {getLocalizedArray(selectedItem, 'symptoms') && getLocalizedArray(selectedItem, 'symptoms')!.length > 0 && (
-                  <section className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <Search size={16} className="text-primary" />
-                      <h4 className="text-[11px] font-black uppercase tracking-widest text-foreground">{tLib.symptomsDetected}</h4>
-                    </div>
-                    <div className="grid grid-cols-1 gap-2">
-                      {getLocalizedArray(selectedItem, 'symptoms')!.map((s, i) => (
-                        <div key={i} className="flex gap-3 items-start bg-card p-4 rounded-2xl border border-border/40 shadow-apple-sm">
-                          <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-black text-primary shrink-0">
-                            {i + 1}
-                          </div>
-                          <p className="text-[13px] font-bold text-foreground leading-tight mt-1">{s}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </section>
-                )}
-
-                {getLocalizedArray(selectedItem, 'treatment') && getLocalizedArray(selectedItem, 'treatment')!.length > 0 && (
-                  <section className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <Wind size={16} className="text-primary" />
-                      <h4 className="text-[11px] font-black uppercase tracking-widest text-foreground">{tLib.expertTreatment}</h4>
-                    </div>
-                    <div className="bg-slate-900 dark:bg-black rounded-[32px] p-6 space-y-4 shadow-2xl border border-white/5">
-                      {getLocalizedArray(selectedItem, 'treatment')!.map((t, i) => (
-                        <div key={i} className="flex gap-4 group">
-                          <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                            <CheckCircle size={14} />
-                          </div>
-                          <p className="text-slate-300 text-[14px] font-medium leading-relaxed flex-1">{t}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </section>
-                )}
-
-                {/* Recommended Products Affiliate Feature */}
-                {selectedItem && selectedItem.severity !== 'low' && (
-                  <section className="space-y-3 mt-8">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <ShoppingCart size={16} className="text-primary" />
-                        <h4 className="text-[11px] font-black uppercase tracking-widest text-foreground">Recommended Products</h4>
-                      </div>
-                      <span className="text-[9px] font-bold text-muted-foreground uppercase bg-muted px-2 py-0.5 rounded-sm">Sponsored</span>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-3">
-                      {getRecommendations(getLocalizedField(selectedItem, 'diseaseName'), getLocalizedArray(selectedItem, 'symptoms') || []).map(product => (
-                        <div key={product.id} className="flex gap-4 p-4 rounded-[20px] border border-primary/20 bg-primary/5 shadow-sm hover:shadow-apple-md transition-all">
-                          <div className="w-16 h-16 rounded-xl bg-white overflow-hidden shrink-0 border border-border/50 shadow-sm flex items-center justify-center">
-                            <img src={product.image} className="w-full h-full object-contain p-1" alt={product.name} />
-                          </div>
-                          <div className="flex flex-col justify-between flex-1">
-                            <div>
-                              <p className="text-[9px] font-black uppercase text-primary tracking-wider">{product.brand}</p>
-                              <h5 className="text-[14px] font-bold text-foreground leading-tight">{product.name}</h5>
-                              <p className="text-subhead font-black text-foreground mt-0.5">₹{product.price}</p>
-                            </div>
-                            <div className="flex gap-2 mt-3">
-                              <button 
-                                onClick={() => window.open(`https://wa.me/919999999999?text=I want to order ${product.name} for my affected ${selectedItem.cropType}`, '_blank')} 
-                                className="flex-1 bg-green-500 hover:bg-green-600 active:scale-95 text-white text-[11px] font-bold uppercase tracking-wide py-2 rounded-xl flex justify-center items-center transition-all"
-                              >
-                                Buy Now
-                              </button>
-                              <button 
-                                onClick={() => window.open(`tel:${product.phoneOrder}`)} 
-                                className="w-10 flex items-center justify-center bg-card border border-border/60 hover:border-primary text-foreground rounded-xl active:scale-95 transition-all"
-                              >
-                                <Phone size={14} className="text-primary"/>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </section>
-                )}
-              </div>
-            </div>
-
-            <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-card via-card to-transparent pt-10 border-t border-border/20">
-              <div className="flex gap-4">
-                <Button
-                  className="flex-1 h-16 rounded-[24px] bg-primary text-white font-black text-[14px] uppercase tracking-widest shadow-apple-md hover:scale-[1.02] active:scale-95 transition-all"
-                  onClick={() => {
-                    if (onShareChat && selectedItem) {
-                      onShareChat(selectedItem);
-                      setSelectedItem(null);
-                    }
-                  }}
-                >
-                  <Share2 className="mr-3 h-5 w-5" />
-                  {tLib.expertConsultation}
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-16 h-16 rounded-[24px] bg-muted/30 border border-border/50 text-muted-foreground"
-                  onClick={() => setSelectedItem(null)}
-                >
-                  <ChevronRight className="rotate-90 h-6 w-6" />
-                </Button>
-              </div>
-            </div>
-          </div>
         </div>
       )}
     </div>

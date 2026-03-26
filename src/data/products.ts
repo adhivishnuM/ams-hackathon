@@ -14,8 +14,8 @@ export const agroProducts: Product[] = [
         name: "Aliette Systemic Fungicide",
         brand: "Bayer",
         price: 450,
-        image: "https://m.media-amazon.com/images/I/61N+pQ5O5IL.jpg",
-        targetDiseases: ["blight", "rot", "mildew", "wilt"],
+        image: "/branded_fertilizer_illustration_1774425850498.png",
+        targetDiseases: ["blight", "rot", "mildew", "wilt", "blackleg", "fungus", "fungicide"],
         phoneOrder: "+919999999999"
     },
     {
@@ -23,8 +23,8 @@ export const agroProducts: Product[] = [
         name: "Amistar Top Fungicide",
         brand: "Syngenta",
         price: 320,
-        image: "https://m.media-amazon.com/images/I/51wXQcK2LQL.jpg",
-        targetDiseases: ["rust", "spot", "scab", "fungus"],
+        image: "/fertilizer_illustration_1774425647452.png",
+        targetDiseases: ["rust", "spot", "scab", "blackleg", "fungus", "mold"],
         phoneOrder: "+919999999999"
     },
     {
@@ -32,8 +32,8 @@ export const agroProducts: Product[] = [
         name: "Coragen Insecticide",
         brand: "FMC",
         price: 850,
-        image: "https://m.media-amazon.com/images/I/51ZpY6W7ZBL.jpg",
-        targetDiseases: ["borer", "worm", "caterpillar", "pest", "insect"],
+        image: "/pesticide_illustration_1774425681752.png",
+        targetDiseases: ["borer", "worm", "caterpillar", "pest", "insect", "infestation", "bugs"],
         phoneOrder: "+919999999999"
     },
     {
@@ -41,8 +41,8 @@ export const agroProducts: Product[] = [
         name: "Neem Oil Extract (Organic)",
         brand: "AgroStar",
         price: 250,
-        image: "https://m.media-amazon.com/images/I/61B1S3oD7UL.jpg",
-        targetDiseases: ["aphid", "mite", "whitefly", "bug", "spider"],
+        image: "/seeds_illustration_1774425776436.png",
+        targetDiseases: ["aphid", "mite", "whitefly", "bug", "spider", "organic", "neem"],
         phoneOrder: "+919999999999"
     },
     {
@@ -50,8 +50,8 @@ export const agroProducts: Product[] = [
         name: "NPK 19:19:19 Fertilizer",
         brand: "IFFCO",
         price: 150,
-        image: "https://m.media-amazon.com/images/I/71I9p1+7qSL.jpg",
-        targetDiseases: ["deficiency", "weak", "yellow", "stunted"],
+        image: "/fertilizer_illustration_1774425647452.png",
+        targetDiseases: ["deficiency", "weak", "yellow", "stunted", "growth", "nutrition", "fertilizer"],
         phoneOrder: "+919999999999"
     }
 ];

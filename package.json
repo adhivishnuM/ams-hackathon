@@ -13,8 +13,7 @@
     "dev:full:wa": "concurrently \"npm run dev:backend\" \"npm run dev\" \"npm run dev:whatsapp\" \"npm run dev:python\"",
     "build": "vite build",
     "build:dev": "vite build --mode development",
-    "deploy": "npm run build && npx firebase-tools deploy --only hosting",
-    "firebase": "npx firebase-tools",
+    "deploy": "npm run build",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
@@ -59,7 +58,7 @@
     "date-fns": "^3.6.0",
     "dotenv": "^17.2.3",
     "embla-carousel-react": "^8.6.0",
-    "firebase": "^12.10.0",
+
     "framer-motion": "^12.33.0",
     "idb": "^8.0.3",
     "idb-keyval": "^6.2.2",

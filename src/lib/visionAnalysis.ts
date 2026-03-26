@@ -45,6 +45,15 @@ export interface DiseaseAnalysis {
   is_healthy?: boolean;
 }
 
+export interface BirdDetectionResult {
+  success: boolean;
+  detected: boolean;
+  confidence: number;
+  thumbnail?: string;
+  message: string;
+  error?: string;
+}
+
 export interface VisionAnalysisResult {
   success: boolean;
   analysis?: DiseaseAnalysis;
@@ -65,10 +74,10 @@ export async function analyzeImage(imageFile: File, language: string = "en"): Pr
       reader.readAsDataURL(imageFile);
     });
 
-    const BACKEND_URL = import.meta.env.VITE_API_URL || "https://ams-hackathon.onrender.com";
-    const ENDPOINT = `${BACKEND_URL}/analyze-image/base64`;
+    const PYTHON_URL = "http://localhost:8000";
+    const ENDPOINT = `${PYTHON_URL}/api/analyze`;
 
-    console.log(`🚀 Sending image to NVIDIA Specialty backend:`, ENDPOINT);
+    console.log(`🚀 Sending image to Python vision backend:`, ENDPOINT);
 
     const response = await fetch(ENDPOINT, {
       method: "POST",
@@ -110,5 +119,35 @@ export async function analyzeImage(imageFile: File, language: string = "en"): Pr
       success: false,
       error: "Failed to connect to analysis server. Is the Python backend running?"
     };
+  }
+}
+
+/**
+ * Detect birds in an image using YOLO via Python backend.
+ */
+export async function detectBirds(imageFile: File): Promise<BirdDetectionResult> {
+  try {
+    const base64Image = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(imageFile);
+    });
+
+    const response = await fetch("http://localhost:8000/api/analyze-bird", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image: base64Image })
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      return { success: false, detected: false, confidence: 0, message: `Error: ${text}` };
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Bird detection error:", error);
+    return { success: false, detected: false, confidence: 0, message: "Failed to connect to bird detection service." };
   }
 }

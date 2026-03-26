@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   Volume2, Globe, Moon, Sun, Trash2, Bell, ChevronRight,
-  MapPin, Zap, HardDrive, RefreshCw, WifiOff, DownloadCloud
+  MapPin, Zap, HardDrive, RefreshCw, WifiOff, DownloadCloud, Smartphone
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useChat } from "@/hooks/useChat";
@@ -159,6 +159,10 @@ export function SettingsScreen({
   const t = (translations[language as keyof typeof translations] || translations.en) as any;
   const { clearHistory } = useChat();
 
+  const [mobileView, setMobileView] = useState(() => {
+    return localStorage.getItem("agro_mobile_view") === "true";
+  });
+
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return localStorage.getItem("theme") === "dark" ||
       document.documentElement.classList.contains("dark");
@@ -297,6 +301,26 @@ export function SettingsScreen({
             {t.appearance}
           </h2>
           <div className="glass-card rounded-[24px] overflow-hidden border border-white/10 shadow-2xl shadow-black/5">
+
+            <SettingRow
+              icon={Smartphone}
+              title="Mobile View"
+              subtitle="Simulate phone layout on desktop"
+              action={
+                <ToggleSwitch
+                  enabled={mobileView}
+                  onToggle={() => {
+                    const newVal = !mobileView;
+                    setMobileView(newVal);
+                    localStorage.setItem("agro_mobile_view", String(newVal));
+                    window.dispatchEvent(new Event("mobile-view-change"));
+                    toast.success(newVal ? "Mobile view enabled" : "Desktop view restored");
+                  }}
+                />
+              }
+            />
+
+            <div className="w-full h-px bg-white/5 mx-4" />
 
             <SettingRow
               icon={isDarkMode ? Moon : Sun}

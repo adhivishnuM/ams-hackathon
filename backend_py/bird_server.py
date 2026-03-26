@@ -1,0 +1,365 @@
+"""
+Bird Detection API Server - FastAPI routes for bird detection service
+Provides MJPEG streaming, status reporting, and video upload endpoints
+"""
+
+import os
+import shutil
+import asyncio
+from typing import Optional
+from datetime import datetime
+from pathlib import Path
+import httpx
+
+from fastapi import APIRouter, UploadFile, File, HTTPException, Response
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
+
+from detector import BirdDetector
+
+
+# ============================================================================
+# Configuration
+# ============================================================================
+
+UPLOAD_DIR = Path(__file__).parent / "uploads"
+UPLOAD_DIR.mkdir(exist_ok=True)
+
+ALLOWED_VIDEO_EXTENSIONS = {".mp4", ".avi", ".mov", ".mkv", ".webm", ".m4v"}
+MAX_FILE_SIZE_MB = 500  # Maximum upload size in MB
+
+
+# ============================================================================
+# Response Models
+# ============================================================================
+
+class StatusResponse(BaseModel):
+    """Detection status response"""
+    detected: bool
+    last_detected: Optional[str]
+    confidence: float
+    alert_active: bool
+    thumbnail: Optional[str] = None  # Base64 encoded JPEG thumbnail
+
+
+class UploadResponse(BaseModel):
+    """Video upload response"""
+    success: bool
+    message: str
+    filename: Optional[str] = None
+
+
+class ResetResponse(BaseModel):
+    """Reset response"""
+    success: bool
+    message: str
+
+
+# ============================================================================
+# Global Detector Instance
+# ============================================================================
+
+# Single detector instance shared across requests
+_detector: Optional[BirdDetector] = None
+
+
+def get_detector() -> BirdDetector:
+    """Get or create the global detector instance"""
+    global _detector
+    if _detector is None:
+        _detector = BirdDetector(
+            model_path="yolov8n.pt",
+            confidence_threshold=0.35,  # Lowered for better detection
+            cooldown_seconds=3.0  # Faster alerts
+        )
+        
+    return _detector
+
+
+# Store latest detection frame for thumbnails
+_latest_detection_frame: Optional[bytes] = None
+_last_whatsapp_alert: float = 0
+_background_task: Optional[asyncio.Task] = None
+
+
+# Background monitoring task is now disabled by default to prevent frame-stealing from MJPEG feed.
+# The MJPEG feed (process_frame) handles detection and status updates when active.
+_background_task = None
+_last_whatsapp_alert: float = 0
+
+async def notify_whatsapp(message: str):
+    """Send a notification via the WhatsApp bridge Express service"""
+    try:
+        async with httpx.AsyncClient() as client:
+            await client.post(
+                "http://localhost:3002/notify",
+                json={"message": message},
+                timeout=5.0
+            )
+    except Exception as e:
+        print(f"⚠️ WhatsApp Notification failed: {e}")
+
+
+# ============================================================================
+# Router
+# ============================================================================
+
+router = APIRouter(prefix="/api/bird", tags=["Bird Detection"])
+
+
+class WebcamResponse(BaseModel):
+    success: bool
+    message: str
+
+
+@router.post("/webcam", response_model=WebcamResponse)
+async def start_webcam(camera_index: int = 0):
+    """Start bird detection using the system webcam."""
+    detector = get_detector()
+    success = detector.set_video_source(str(camera_index))
+    if success:
+        return WebcamResponse(success=True, message=f"Webcam {camera_index} started")
+    return WebcamResponse(success=False, message="Failed to open webcam")
+
+
+@router.get("/status", response_model=StatusResponse)
+async def get_status():
+    """
+    Get current bird detection status.
+    
+    Returns detection state including:
+    - detected: Whether a bird is currently detected
+    - last_detected: ISO timestamp of last detection
+    - confidence: Detection confidence score (0.0-1.0)
+    - alert_active: Whether deterrent alert should be triggered
+    - thumbnail: Base64 JPEG of latest detection frame
+    """
+    global _latest_detection_frame
+    detector = get_detector()
+    status = detector.get_status()
+    
+    # Include thumbnail if we have a detection frame
+    thumbnail_b64 = None
+    if _latest_detection_frame and status["detected"]:
+        import base64
+        thumbnail_b64 = base64.b64encode(_latest_detection_frame).decode('utf-8')
+    
+    return StatusResponse(
+        **status,
+        thumbnail=thumbnail_b64
+    )
+
+
+@router.get("/feed")
+async def get_feed():
+    """
+    Stream processed video frames as MJPEG.
+    
+    Returns a multipart stream of JPEG frames with bird detection
+    bounding boxes overlaid. The stream continues until the client
+    disconnects or the video source ends.
+    """
+    detector = get_detector()
+    
+    if not detector.has_source:
+        # Return a placeholder frame if no source
+        return Response(
+            content=_generate_placeholder_frame(),
+            media_type="image/jpeg"
+        )
+    
+    return StreamingResponse(
+        _generate_frames(detector),
+        media_type="multipart/x-mixed-replace; boundary=frame"
+    )
+
+
+async def _generate_frames(detector: BirdDetector):
+    """
+    Async generator for MJPEG frames at ~45 FPS.
+    YOLO inference runs every 2nd frame for throughput; last annotations reused in between.
+    """
+    global _latest_detection_frame
+    frame_delay = 1 / 45  # Target 45 FPS
+    frame_count = 0
+
+    while True:
+        try:
+            if not detector.has_source:
+                yield _create_mjpeg_frame(_generate_placeholder_frame())
+                await asyncio.sleep(0.5)
+                continue
+
+            # Run YOLO every other frame; pass skip=True to reuse last result
+            run_yolo = (frame_count % 2 == 0)
+            frame_bytes = detector.process_frame(run_detection=run_yolo)
+            frame_count += 1
+
+            if frame_bytes is None:
+                yield _create_mjpeg_frame(_generate_placeholder_frame())
+                await asyncio.sleep(0.05)
+                continue
+
+            if detector.state.detected:
+                _latest_detection_frame = frame_bytes
+                if detector.state.alert_active:
+                    current_time = datetime.now().timestamp()
+                    global _last_whatsapp_alert
+                    if current_time - _last_whatsapp_alert > 30:
+                        _last_whatsapp_alert = current_time
+                        bird_info = f"Bird detected with {detector.state.confidence*100:.1f}% confidence."
+                        asyncio.create_task(notify_whatsapp(bird_info))
+
+            yield _create_mjpeg_frame(frame_bytes)
+            await asyncio.sleep(frame_delay)
+
+        except Exception as e:
+            print(f"Frame generation error: {e}")
+            await asyncio.sleep(0.5)
+
+
+def _create_mjpeg_frame(jpeg_bytes: bytes) -> bytes:
+    """Create an MJPEG frame with proper boundary markers"""
+    return (
+        b"--frame\r\n"
+        b"Content-Type: image/jpeg\r\n\r\n" +
+        jpeg_bytes +
+        b"\r\n"
+    )
+
+
+def _generate_placeholder_frame() -> bytes:
+    """Generate a placeholder frame when no video source is active"""
+    import cv2
+    import numpy as np
+    
+    # Create a dark frame with message
+    frame = np.zeros((480, 640, 3), dtype=np.uint8)
+    frame[:] = (30, 30, 35)  # Dark gray
+    
+    # Add text
+    text = "Upload a video to start"
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    font_scale = 0.8
+    thickness = 2
+    
+    # Center the text
+    (text_w, text_h), _ = cv2.getTextSize(text, font, font_scale, thickness)
+    x = (640 - text_w) // 2
+    y = (480 + text_h) // 2
+    
+    cv2.putText(frame, text, (x, y), font, font_scale, (128, 128, 128), thickness)
+    
+    # Add a bird icon (simple representation)
+    cv2.circle(frame, (320, 200), 40, (60, 60, 70), -1)
+    cv2.circle(frame, (320, 200), 40, (80, 80, 90), 2)
+    
+    # Encode to JPEG
+    _, jpeg = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
+    return jpeg.tobytes()
+
+
+@router.post("/upload", response_model=UploadResponse)
+async def upload_video(file: UploadFile = File(...)):
+    """
+    Upload a video file for bird detection analysis.
+    
+    The uploaded video becomes the active source for the /feed endpoint.
+    Supports MP4, AVI, MOV, MKV, WEBM, and M4V formats.
+    Maximum file size: 500MB
+    """
+    # Validate file extension
+    if not file.filename:
+        raise HTTPException(400, "No filename provided")
+        
+    ext = Path(file.filename).suffix.lower()
+    if ext not in ALLOWED_VIDEO_EXTENSIONS:
+        raise HTTPException(
+            400,
+            f"Invalid file type. Allowed: {', '.join(ALLOWED_VIDEO_EXTENSIONS)}"
+        )
+    
+    # Generate unique filename
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    safe_filename = f"bird_video_{timestamp}{ext}"
+    file_path = UPLOAD_DIR / safe_filename
+    
+    try:
+        # Save uploaded file
+        with open(file_path, "wb") as buffer:
+            # Read in chunks to handle large files
+            chunk_size = 1024 * 1024  # 1MB chunks
+            total_size = 0
+            max_size = MAX_FILE_SIZE_MB * 1024 * 1024
+            
+            while True:
+                chunk = await file.read(chunk_size)
+                if not chunk:
+                    break
+                    
+                total_size += len(chunk)
+                if total_size > max_size:
+                    # Clean up and reject
+                    buffer.close()
+                    file_path.unlink(missing_ok=True)
+                    raise HTTPException(413, f"File too large. Maximum size: {MAX_FILE_SIZE_MB}MB")
+                    
+                buffer.write(chunk)
+        
+        # Set as active video source
+        detector = get_detector()
+        success = detector.set_video_source(str(file_path))
+        
+        return UploadResponse(
+            success=True,
+            message="Video uploaded and processing started",
+            filename=safe_filename
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        # Clean up on error
+        if file_path.exists():
+            file_path.unlink(missing_ok=True)
+        raise HTTPException(500, f"Upload failed: {str(e)}")
+
+
+@router.post("/reset", response_model=ResetResponse)
+async def reset_detector():
+    """
+    Reset the bird detector to idle state.
+    
+    Clears the current video source, stops streaming, and
+    cleans up temporary files.
+    """
+    detector = get_detector()
+    detector.release_video_source()
+    
+    # Clean up old uploaded files (keep last 5)
+    try:
+        files = sorted(UPLOAD_DIR.glob("bird_video_*"), key=os.path.getmtime, reverse=True)
+        for old_file in files[5:]:  # Keep only the 5 most recent
+            old_file.unlink(missing_ok=True)
+    except Exception as e:
+        print(f"Cleanup warning: {e}")
+    
+    return ResetResponse(
+        success=True,
+        message="Detector reset to idle state"
+    )
+
+
+# ============================================================================
+# Health Check
+# ============================================================================
+
+@router.get("/health")
+async def health_check():
+    """Health check endpoint for the bird detection service"""
+    detector = get_detector()
+    return {
+        "status": "healthy",
+        "has_source": detector.has_source,
+        "model_loaded": detector.model is not None
+    }

@@ -6,9 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const { getAgriAdvice } = require('../services/openRouterService');
-const nvidiaVisionService = require('../services/nvidiaVisionService');
-const { generateNvidiaSpeech } = require('../services/nvidiaTtsService');
-const { transcribeAudio } = require('../services/nvidiaSttService');
+const { analyzeImage, generateSpeech, transcribeAudio } = require('../services/pythonService');
 
 // POST /api/whatsapp/chat
 router.post('/chat', async (req, res) => {
@@ -30,7 +28,7 @@ router.post('/image', async (req, res) => {
     if (!image) return res.status(400).json({ success: false, error: 'image is required' });
 
     try {
-        const visionResult = await nvidiaVisionService.analyzeImage(image, language);
+        const visionResult = await analyzeImage(image, language);
         if (!visionResult.success) {
             return res.json({ success: false, reply: '⚠️ Image analysis failed.' });
         }
@@ -53,7 +51,7 @@ router.post('/image', async (req, res) => {
         let audio_b64 = null;
         try {
             const spokenText = `Plant analysis complete. Crop: ${analysis.crop_identified}. Condition: ${analysis.disease_name}. ${(analysis.description || '').slice(0, 200)}`;
-            const audioBuffer = await generateNvidiaSpeech(spokenText, language, true); // force edge for WhatsApp MP3
+            const audioBuffer = await generateSpeech(spokenText, language, true); // force edge for WhatsApp MP3
             if (audioBuffer) audio_b64 = audioBuffer.toString('base64');
         } catch (ttsErr) {
             console.warn('⚠️ [WhatsApp Image] TTS failed:', ttsErr.message);
@@ -85,7 +83,7 @@ router.post('/audio', async (req, res) => {
         // Generate TTS reply
         let audio_reply_b64 = null;
         try {
-            const audioBuffer = await generateNvidiaSpeech(text_reply, language, true);
+            const audioBuffer = await generateSpeech(text_reply, language, true);
             if (audioBuffer) audio_reply_b64 = audioBuffer.toString('base64');
         } catch (ttsErr) {
             console.warn('⚠️ [WhatsApp Audio] TTS failed:', ttsErr.message);

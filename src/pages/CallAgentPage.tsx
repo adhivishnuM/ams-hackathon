@@ -284,29 +284,34 @@ export default function CallAgentPage() {
         }
 
         const handleAudioPlayback = (audioUrl: string) => {
-            const audio = new Audio(audioUrl);
+            const audio = new Audio();
+            audio.preload = 'auto';
             audio.onended = () => {
                 URL.revokeObjectURL(audioUrl);
                 console.log("✅ Playback finished normally");
                 onPlaybackEnd(isExit);
             };
             audio.onerror = (e) => {
-                console.error("❌ Audio playback error:", e);
+                console.warn("⚠️ Audio playback error, using browser TTS fallback");
                 URL.revokeObjectURL(audioUrl);
-                speakText(text, isExit); // Fallback to browser TTS
+                speakText(text, isExit);
+            };
+            audio.oncanplaythrough = () => {
+                console.log("▶️ Starting playback...");
+                audio.playbackRate = 1.1;
+                audio.play().catch(() => speakText(text, isExit));
             };
             setTtsAudio(audio);
-            console.log("▶️ Starting playback...");
-            audio.playbackRate = 1.15;
-            audio.play().catch(err => {
-                console.error("❌ Playback play() failed:", err);
-                speakText(text, isExit); // Match function signature
-            });
+            audio.src = audioUrl;
+            audio.load();
         };
 
         if (audioBlob) {
-            console.log(`🔊 [NVIDIA] Playing from received Blob (${audioBlob.size} bytes)`);
-            const url = URL.createObjectURL(audioBlob);
+            console.log(`🔊 [TTS] Playing from received Blob (${audioBlob.size} bytes, type: ${audioBlob.type})`);
+            // Ensure correct MIME type for reliable playback across browsers
+            const mimeType = audioBlob.type || 'audio/mpeg';
+            const typedBlob = new Blob([audioBlob], { type: mimeType });
+            const url = URL.createObjectURL(typedBlob);
             handleAudioPlayback(url);
             return;
         }

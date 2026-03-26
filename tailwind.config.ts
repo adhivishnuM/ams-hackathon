@@ -157,6 +157,14 @@ export default {
           from: { opacity: "0", transform: "translateY(20px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        "scanline": {
+          "0%": { transform: "translateY(-100%)" },
+          "100%": { transform: "translateY(1000%)" }
+        },
+        "pulse-fast": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.5" }
+        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -164,6 +172,8 @@ export default {
         "fade-in": "fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         "scale-in": "scale-in 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
         "slide-up": "slide-up 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+        "scanline": "scanline 8s linear infinite",
+        "pulse-fast": "pulse-fast 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite"
       },
     },
   },

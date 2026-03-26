@@ -1,4 +1,4 @@
-import { Play, Pause, Clock, ChevronRight } from "lucide-react";
+import { Play, Pause, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface RecentQueryCardProps {
@@ -39,6 +39,7 @@ export function RecentQueryCard({
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
 
+    if (minutes < 1) return 'just now';
     if (minutes < 60) return `${minutes}m ago`;
     if (hours < 24) return `${hours}h ago`;
     return `${days}d ago`;
@@ -48,47 +49,51 @@ export function RecentQueryCard({
     <div
       onClick={onClick}
       className={cn(
-        "group glass-card rounded-[24px] p-5",
-        "shadow-2xl hover:scale-[1.02] transition-all duration-300 cursor-pointer overflow-hidden relative",
-        isPlaying && "ring-2 ring-primary/40 bg-primary/5"
+        "rounded-2xl border bg-card overflow-hidden cursor-pointer transition-all duration-200",
+        "hover:border-primary/30 hover:shadow-sm active:scale-[0.99]",
+        isPlaying && "ring-1 ring-primary/30 border-primary/20"
       )}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-      <div className="flex items-start gap-3">
-        {/* Crop Icon */}
-        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-green-wash flex items-center justify-center text-2xl">
-          {cropEmojis[cropType]}
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <p className="font-semibold text-foreground line-clamp-1 text-body">{query}</p>
-          <p className="text-muted-foreground text-subhead line-clamp-2 mt-1">
-            {response}
-          </p>
-          <div className="flex items-center gap-1 mt-2 text-caption text-muted-foreground">
-            <Clock size={12} />
-            <span>{formatTime(timestamp)}</span>
+      {/* Mini chat panel */}
+      <div className="p-3 space-y-2">
+        {/* User message */}
+        <div className="flex items-start gap-2 justify-end">
+          <div className="bg-primary text-white text-[12px] font-medium px-3 py-1.5 rounded-2xl rounded-br-sm max-w-[85%] line-clamp-1">
+            {query}
           </div>
         </div>
 
-        {/* Play Button */}
+        {/* AI response */}
+        <div className="flex items-start gap-2">
+          <div className="w-6 h-6 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-[11px] shrink-0">
+            {cropEmojis[cropType]}
+          </div>
+          <div className="bg-muted/50 text-muted-foreground text-[11px] px-3 py-1.5 rounded-2xl rounded-tl-sm flex-1 line-clamp-2 leading-relaxed">
+            {response?.replace(/\*\*/g, '').replace(/\*/g, '') || '—'}
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between px-3 py-2 border-t border-border/30 bg-muted/20">
+        <div className="flex items-center gap-1 text-[10px] text-muted-foreground/60">
+          <Clock size={10} />
+          <span>{formatTime(timestamp)}</span>
+        </div>
         <button
           onClick={(e) => {
             e.stopPropagation();
             onPlay(id);
           }}
           className={cn(
-            "flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200",
-            "focus:outline-none focus:ring-2 focus:ring-primary/30",
-            "active:scale-95",
+            "w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 active:scale-90",
             isPlaying
-              ? "bg-primary text-primary-foreground shadow-green"
-              : "bg-green-subtle text-primary hover:bg-primary hover:text-primary-foreground"
+              ? "bg-primary text-white shadow-sm"
+              : "bg-primary/10 text-primary hover:bg-primary hover:text-white"
           )}
           aria-label={isPlaying ? "Pause" : "Play response"}
         >
-          {isPlaying ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
+          {isPlaying ? <Pause size={12} /> : <Play size={12} className="ml-0.5" />}
         </button>
       </div>
     </div>

@@ -3,7 +3,7 @@
  */
 const express = require('express');
 const multer = require('multer');
-const nvidiaVisionService = require('../services/nvidiaVisionService');
+const { analyzeImage } = require('../services/pythonService');
 const inferenceService = require('../services/inferenceService');
 const storageService = require('../services/storageService');
 
@@ -39,7 +39,7 @@ router.post('/', upload.single('image'), async (req, res) => {
         console.log(`📷 Analyzing image (lang: ${language})...`);
 
         // Use NVIDIA Vision (fully native Node.js)
-        const result = await nvidiaVisionService.analyzeImage(base64Image, language);
+        const result = await analyzeImage(base64Image, language);
 
         if (!result.success) {
             return res.status(503).json({ success: false, error: result.error || 'Vision analysis failed' });
@@ -64,7 +64,7 @@ router.post('/base64', async (req, res) => {
     if (!image) return res.status(400).json({ success: false, error: 'No image data provided' });
 
     try {
-        const result = await nvidiaVisionService.analyzeImage(image, language);
+        const result = await analyzeImage(image, language);
         return res.json({
             success: result.success,
             analysis: result.analysis,

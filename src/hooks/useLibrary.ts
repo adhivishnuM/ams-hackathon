@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { dbService } from '@/services/db';
-import { syncService } from '@/services/syncService';
 
 export interface LibraryItem {
     id: string;
@@ -17,7 +16,7 @@ export interface LibraryItem {
     cropTypeMr?: string;
     confidence: number;
     severity: "low" | "medium" | "high";
-    timestamp: string; // ISO string for storage
+    timestamp: string;
     thumbnail: string;
     summary: string;
     summaryHi: string;
@@ -39,9 +38,10 @@ export interface LibraryItem {
     treatmentTa?: string[];
     treatmentTe?: string[];
     treatmentMr?: string[];
+    synced?: boolean;
 }
 
-const BACKEND_URL = import.meta.env.VITE_API_URL || "https://ams-hackathon.onrender.com";
+const BACKEND_URL = "http://localhost:3001";
 
 export function useLibrary() {
     const [items, setItems] = useState<LibraryItem[]>([]);
@@ -51,33 +51,48 @@ export function useLibrary() {
         fetchItems();
     }, []);
 
-
     const fetchItems = async () => {
         setIsLoading(true);
         try {
-            // 1. Load from DB
-            const localItems = await dbService.getAll('library_items');
+            // 1. Always load from IndexedDB first (instant, works offline)
+            const localItems = await dbService.getAll('library_items') as LibraryItem[];
             if (localItems.length > 0) {
                 setItems(localItems.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
             }
 
+            // 2. If online, fetch from backend and MERGE (not replace)
             if (navigator.onLine) {
-                const response = await fetch(`${BACKEND_URL}/library`);
-                const data = await response.json();
-                if (data.success) {
-                    const itemsWithFullUrls = data.data.map((item: LibraryItem) => ({
-                        ...item,
-                        thumbnail: item.thumbnail.startsWith('/') ? `${BACKEND_URL}${item.thumbnail}` : item.thumbnail
-                    }));
-                    setItems(itemsWithFullUrls);
+                try {
+                    const response = await fetch(`${BACKEND_URL}/library`);
+                    const data = await response.json();
+                    if (data.success) {
+                        const serverItems: LibraryItem[] = data.data.map((item: LibraryItem) => ({
+                            ...item,
+                            thumbnail: item.thumbnail?.startsWith('/') ? `${BACKEND_URL}${item.thumbnail}` : item.thumbnail,
+                            synced: true
+                        }));
 
-                    // Update Cache
-                    const tx = (await dbService.getDB()).transaction('library_items', 'readwrite');
-                    const store = tx.objectStore('library_items');
-                    for (const item of itemsWithFullUrls) {
-                        await store.put(item);
+                        // Keep local-only items (not yet synced to server)
+                        const serverIds = new Set(serverItems.map(i => i.id));
+                        const localOnlyItems = localItems.filter(i => !serverIds.has(i.id));
+
+                        const merged = [...serverItems, ...localOnlyItems]
+                            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+                        setItems(merged);
+
+                        // Update IndexedDB with server items (keep local-only items as-is)
+                        const db = await dbService.getDB();
+                        const tx = db.transaction('library_items', 'readwrite');
+                        const store = tx.objectStore('library_items');
+                        for (const item of serverItems) {
+                            await store.put(item);
+                        }
+                        await tx.done;
                     }
-                    await tx.done;
+                } catch (e) {
+                    // Backend unreachable — local items already loaded above, nothing to do
+                    console.warn("Backend sync skipped (offline or unreachable):", e);
                 }
             }
         } catch (e) {
@@ -89,62 +104,101 @@ export function useLibrary() {
     };
 
     const addItem = async (item: Omit<LibraryItem, "id" | "timestamp">) => {
+        const id = `lib_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+        const timestamp = new Date().toISOString();
+        const newItem: LibraryItem = { ...item, id, timestamp, synced: false } as LibraryItem;
+
+        // 1. Save to IndexedDB first — instant, works offline
         try {
-            const response = await fetch(`${BACKEND_URL}/library`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(item)
-            });
-            const data = await response.json();
-            if (data.success) {
-                const newItem = {
-                    ...data.data,
-                    thumbnail: data.data.thumbnail.startsWith('/') ? `${BACKEND_URL}${data.data.thumbnail}` : data.data.thumbnail
-                };
-                setItems(prev => [newItem, ...prev]);
-                return { item: newItem, isDuplicate: false };
-            }
+            await dbService.put('library_items', newItem as any);
+            setItems(prev => [newItem, ...prev]);
         } catch (e) {
-            console.error("Failed to add library item", e);
-            toast.error("Failed to save to server");
+            console.error("IndexedDB save failed", e);
+            toast.error("Failed to save locally");
+            return { item: newItem, isDuplicate: false };
         }
-        return { item: null, isDuplicate: false };
+
+        // 2. Try to sync to backend (best-effort, non-blocking)
+        if (navigator.onLine) {
+            try {
+                const response = await fetch(`${BACKEND_URL}/library`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(item)
+                });
+                const data = await response.json();
+                if (data.success) {
+                    const synced: LibraryItem = {
+                        ...newItem,
+                        ...data.data,
+                        thumbnail: data.data.thumbnail?.startsWith('/') ? `${BACKEND_URL}${data.data.thumbnail}` : (data.data.thumbnail || newItem.thumbnail),
+                        synced: true
+                    };
+                    await dbService.put('library_items', synced as any).catch(() => {});
+                    setItems(prev => prev.map(i => i.id === id ? synced : i));
+                    return { item: synced, isDuplicate: false };
+                }
+            } catch (e) {
+                console.warn("Backend sync failed, saved locally only:", e);
+            }
+        }
+
+        return { item: newItem, isDuplicate: false };
     };
 
     const deleteItem = async (id: string) => {
+        // Remove from local IndexedDB immediately
         try {
-            const response = await fetch(`${BACKEND_URL}/library/${id}`, {
-                method: 'DELETE'
-            });
-            const data = await response.json();
-            if (data.success) {
-                setItems(prev => prev.filter((i) => i.id !== id));
-                return true;
-            }
+            await dbService.delete('library_items', id);
+            setItems(prev => prev.filter((i) => i.id !== id));
         } catch (e) {
-            console.error("Failed to delete library item", e);
-            toast.error("Failed to delete from server");
+            console.error("Local delete failed", e);
         }
-        return false;
+
+        // Try to remove from backend too
+        if (navigator.onLine) {
+            try {
+                const response = await fetch(`${BACKEND_URL}/library/${id}`, { method: 'DELETE' });
+                const data = await response.json();
+                if (!data.success) {
+                    console.warn("Backend delete failed for", id);
+                }
+            } catch (e) {
+                console.warn("Backend delete skipped (offline):", e);
+            }
+        }
+
+        return true;
     };
 
     const updateItem = async (id: string, updates: Partial<LibraryItem>) => {
+        // Update locally first
         try {
-            const response = await fetch(`${BACKEND_URL}/library/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updates)
-            });
-            const data = await response.json();
-            if (data.success) {
+            const existing = await dbService.get('library_items', id) as LibraryItem | undefined;
+            if (existing) {
+                await dbService.put('library_items', { ...existing, ...updates } as any);
                 setItems(prev => prev.map((i) => (i.id === id ? { ...i, ...updates } : i)));
-                return true;
             }
         } catch (e) {
-            console.error("Failed to update library item", e);
-            toast.error("Failed to update server");
+            console.error("Local update failed", e);
         }
-        return false;
+
+        // Sync to backend
+        if (navigator.onLine) {
+            try {
+                const response = await fetch(`${BACKEND_URL}/library/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updates)
+                });
+                const data = await response.json();
+                return data.success;
+            } catch (e) {
+                console.warn("Backend update skipped (offline):", e);
+            }
+        }
+
+        return true;
     };
 
     return {

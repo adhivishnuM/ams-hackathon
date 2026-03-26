@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const storageService = require('../services/storageService');
-const { generateNvidiaSpeech } = require('../services/nvidiaTtsService');
+const { generateSpeech } = require('../services/pythonService');
 
 /**
  * POST /chat/tts — Generate TTS for text
@@ -11,7 +11,7 @@ router.post('/tts', async (req, res) => {
         const { text, language = 'en' } = req.body;
         if (!text) return res.status(400).json({ success: false, error: 'Text is required' });
 
-        const audioBuffer = await generateNvidiaSpeech(text, language);
+        const audioBuffer = await generateSpeech(text, language);
         if (audioBuffer) {
             return res.json({ success: true, audio: audioBuffer.toString('base64') });
         }

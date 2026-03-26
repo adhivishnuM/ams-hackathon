@@ -54,7 +54,6 @@ export default function LibraryPage() {
     return (
         <div className="flex flex-col flex-1 pb-24">
             <LibraryScreen
-                language={language}
                 weatherData={weatherData}
                 isWeatherLoading={isWeatherLoading}
                 onShareChat={handleShareToChat}

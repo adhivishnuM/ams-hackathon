@@ -5,7 +5,7 @@
  * Now supports conversation history for context-aware AI responses.
  */
 
-const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://ams-hackathon.onrender.com';
+const BACKEND_URL = 'http://localhost:3001';
 
 import localWisdomData from '@/data/offline_knowledge.json';
 import { localWisdom, WisdomItem } from '@/data/localWisdom';
@@ -173,7 +173,6 @@ export async function transcribeAndGetAdvice(
             const orderMatch = result.advisory.recommendation.match(/\[B2B_ORDER_CONFIRMED:\s*([^\]]+)\]/i);
             if (orderMatch) {
                 const cropName = orderMatch[1].trim();
-                
                 const newOrder = {
                     id: `ord_${Date.now()}`,
                     crop: cropName || "Farm Produce",
@@ -184,9 +183,25 @@ export async function transcribeAndGetAdvice(
                     buyer_name: "AgroTalk Network Buyer",
                     timestamp: Date.now()
                 };
-                
                 dbService.put('agent_orders', newOrder).catch(console.error);
                 result.advisory.recommendation = result.advisory.recommendation.replace(/\[B2B_ORDER_CONFIRMED:\s*[^\]]+\]/i, '').trim();
+            }
+
+            const productMatch = result.advisory.recommendation.match(/\[PRODUCT_ORDER_CONFIRMED:\s*([^\]]+)\]/i);
+            if (productMatch) {
+                const productName = productMatch[1].trim();
+                const newOrder = {
+                    id: `prod_${Date.now()}`,
+                    crop: productName || "Agricultural Input",
+                    quantity: "As requested",
+                    location: "Delivery to farm",
+                    price_estimate: "Agro Store Rate",
+                    status: "Order Placed — Processing",
+                    buyer_name: "AgroTalk Store",
+                    timestamp: Date.now()
+                };
+                dbService.put('agent_orders', newOrder).catch(console.error);
+                result.advisory.recommendation = result.advisory.recommendation.replace(/\[PRODUCT_ORDER_CONFIRMED:\s*[^\]]+\]/i, '').trim();
             }
         }
 
@@ -387,11 +402,10 @@ export async function getTextAdvice(
                 ttsCacheService.cacheAudio(result.advisory.recommendation, result.audio, language);
             }
 
-            // Check for B2B Order Confirmation
+            // Check for B2B Crop Selling Order Confirmation
             const orderMatch = result.advisory.recommendation.match(/\[B2B_ORDER_CONFIRMED:\s*([^\]]+)\]/i);
             if (orderMatch) {
                 const cropName = orderMatch[1].trim();
-                
                 const newOrder = {
                     id: `ord_${Date.now()}`,
                     crop: cropName || "Farm Produce",
@@ -402,9 +416,26 @@ export async function getTextAdvice(
                     buyer_name: "AgroTalk Network Buyer",
                     timestamp: Date.now()
                 };
-                
                 dbService.put('agent_orders', newOrder).catch(console.error);
                 result.advisory.recommendation = result.advisory.recommendation.replace(/\[B2B_ORDER_CONFIRMED:\s*[^\]]+\]/i, '').trim();
+            }
+
+            // Check for Product/Fertilizer Buying Order Confirmation
+            const productMatch = result.advisory.recommendation.match(/\[PRODUCT_ORDER_CONFIRMED:\s*([^\]]+)\]/i);
+            if (productMatch) {
+                const productName = productMatch[1].trim();
+                const newOrder = {
+                    id: `prod_${Date.now()}`,
+                    crop: productName || "Agricultural Input",
+                    quantity: "As requested",
+                    location: "Delivery to farm",
+                    price_estimate: "Agro Store Rate",
+                    status: "Order Placed — Processing",
+                    buyer_name: "AgroTalk Store",
+                    timestamp: Date.now()
+                };
+                dbService.put('agent_orders', newOrder).catch(console.error);
+                result.advisory.recommendation = result.advisory.recommendation.replace(/\[PRODUCT_ORDER_CONFIRMED:\s*[^\]]+\]/i, '').trim();
             }
         }
 
@@ -431,9 +462,11 @@ export async function getTextAdvice(
     }
 }
 
+const PYTHON_BACKEND_URL = 'http://localhost:8000';
+
 /**
- * Get natural TTS audio from NVIDIA cloud
- * Returns a Blob containing the MP3 audio
+ * Get natural TTS audio — calls Python backend directly (NVIDIA/Edge TTS)
+ * Returns a Blob containing the audio
  */
 export async function getNvidiaTts(
     text: string,
@@ -442,18 +475,16 @@ export async function getNvidiaTts(
     forceEdge: boolean = false
 ): Promise<Blob | null> {
     try {
-        const response = await fetch(`${BACKEND_URL}/api/tts`, {
+        const response = await fetch(`${PYTHON_BACKEND_URL}/api/tts`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ text, language, voice: voice || 'mia', forceEdge })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text, language, voice: voice || 'mia', force_edge: forceEdge }),
+            signal: AbortSignal.timeout(12000)
         });
-
         if (!response.ok) return null;
         return await response.blob();
     } catch (error) {
-        console.error('❌ NVIDIA TTS Fetch failed:', error);
+        console.warn('⚠️ Python TTS unavailable, will use browser TTS:', error);
         return null;
     }
 }

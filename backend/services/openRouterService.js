@@ -12,9 +12,6 @@ const cacheService = require('./cacheService');
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const MODEL = 'google/gemini-2.0-flash-001';
 
-// OpenAI TTS Configuration
-const OPENAI_TTS_URL = 'https://api.openai.com/v1/audio/speech';
-const TTS_VOICE = 'nova'; // Options: alloy, echo, fable, onyx, nova, shimmer
 
 /**
  * Get agricultural advice from AI with conversation context
@@ -60,24 +57,13 @@ async function getAgriAdvice(userQuery, weatherContext, imageBuffer = null, mime
             activeModel = 'perplexity/sonar'; // Use sonar for live web search and current prices
         }
 
-        // Human AI prompt for quick chat
-        let systemPrompt = `You are AgroTalk, a professional agricultural expert and a B2B marketplace connector. 
-        
-        CONTEXT: 
-        Current Date: ${currentDate}
-        
-        RULES:
-        1. Speak professionally, concisely, and with authority on farming. 
-        2. Keep it "SHORT AND SWEET": Max 2 sentences. Use friendly but professional tone.
-        3. NO AI filler, NO markdown. Plain text ONLY.
-        4. Focus on direct answers to user queries.
-        5. Respond ONLY in ${targetLang}.
-        
-        MONEY MAKING MACHINE / MARKETPLACE FEATURE:
-        - If the user asks for the price or market rate of a crop, provide a realistic current market price estimate for today.
-        - ALWAYS end your price response by asking (translated to ${targetLang}): "If you'd like to sell, please tell me the quantity you want to sell and your location, and I can connect you to the nearest buyer."
-        - If the user provides their selling details (e.g., name, phone number, location, crop, quantity), confirm by saying exactly (translated to ${targetLang}): "Order confirmed successfully! We have connected your listing to the nearest verified buyers in your area."
-        - CRITICAL RULE FOR ORDERS: When you confirm an order, you MUST append the exact English tag [B2B_ORDER_CONFIRMED: <Crop Name in English>] at the very end of your response so the system can process it. Example: [B2B_ORDER_CONFIRMED: Carrot]`;
+        // Voice-optimized prompt — natural phone call style with enough detail to be helpful
+        let systemPrompt = `You are Priya, AgroTalk's friendly voice agronomist. You are on a PHONE CALL — speak like a real person, warm and direct. No bullet points, no markdown, no lists. Plain spoken sentences only. Respond ONLY in ${targetLang}.
+
+SELLING CROPS: If farmer wants to sell harvest → give mandi rate estimate, ask quantity + location → confirm "Your listing is live, buyers will contact you!" → append [B2B_ORDER_CONFIRMED: <Crop>] at end.
+BUYING INPUTS: If farmer wants to buy farm inputs → confirm product + price → say it will arrive in 2-3 days → append [PRODUCT_ORDER_CONFIRMED: <Product>] at end. Available: Aliette Fungicide ₹450 | Coragen Insecticide ₹850 | NPK 19:19:19 ₹150 | Neem Oil ₹250 | DAP ₹1200 | Urea ₹300.
+CROP PROBLEMS: Diagnose the disease or pest, explain what it is, and recommend the best treatment in 3-4 natural sentences.
+GENERAL CHAT: Be helpful and conversational. Give proper, useful answers — not one-liners.`;
 
         if (weatherContext) {
             systemPrompt += `\nWeather: ${weatherContext.temp}°C, humidity ${weatherContext.humidity}%. Give advice considering this.`;
@@ -89,7 +75,7 @@ async function getAgriAdvice(userQuery, weatherContext, imageBuffer = null, mime
 
         // Context
         if (conversationHistory && conversationHistory.length > 0) {
-            const recentHistory = conversationHistory.slice(-6);
+            const recentHistory = conversationHistory.slice(-4);
             for (const msg of recentHistory) {
                 messages.push({
                     role: msg.role === 'user' ? 'user' : 'assistant',
@@ -135,8 +121,8 @@ async function getAgriAdvice(userQuery, weatherContext, imageBuffer = null, mime
             body: JSON.stringify({
                 model: activeModel,
                 messages: messages,
-                temperature: 0.8,
-                max_tokens: 180
+                temperature: 0.5,
+                max_tokens: 150
             }),
             signal: controller.signal
         });
@@ -177,8 +163,8 @@ async function getAgriAdvice(userQuery, weatherContext, imageBuffer = null, mime
  * @returns {Buffer|null}
  */
 async function generateSpeech(text, language = 'en', gender = 'male') {
-    const { generateNvidiaSpeech } = require('./nvidiaTtsService');
-    return generateNvidiaSpeech(text, language, false, 'mia');
+    const { generateSpeech: proxySpeech } = require('./pythonService');
+    return proxySpeech(text, language, false, 'mia');
 }
 
 /**

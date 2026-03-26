@@ -1,18 +1,11 @@
 /**
- * Storage Service — Firestore-first, local JSON fallback
+ * Storage Service — Local JSON only (Firebase removed)
  *
- * When FIREBASE_SERVICE_ACCOUNT is configured:
- *   - Library items and chat history live in Firestore
- *   - All users see the same shared data
- *   - Anyone can add or delete
- *
- * Without Firebase:
- *   - Falls back to local JSON files in backend/data/
+ * Library items and chat history live in backend/data/ as JSON files.
  */
 
 const fs = require('fs');
 const path = require('path');
-const { getDb } = require('./firebaseService');
 
 const DATA_DIR = path.join(__dirname, '../data');
 const LIBRARY_FILE = path.join(DATA_DIR, 'library.json');
@@ -26,60 +19,14 @@ const UPLOADS_DIR = path.join(__dirname, '../uploads');
 if (!fs.existsSync(LIBRARY_FILE)) fs.writeFileSync(LIBRARY_FILE, '[]');
 if (!fs.existsSync(CHAT_FILE)) fs.writeFileSync(CHAT_FILE, '[]');
 
-// ─── Firestore helpers ────────────────────────────────────────────────────────
-
-async function firestoreGetAll(collection) {
-    const db = getDb();
-    if (!db) return null;
-    try {
-        const snap = await db.collection(collection).orderBy('timestamp', 'desc').limit(50).get();
-        return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    } catch (e) {
-        console.error(`[Firestore] getAll ${collection} failed:`, e.message);
-        return null;
-    }
-}
-
-async function firestoreSet(collection, id, data) {
-    const db = getDb();
-    if (!db) return false;
-    try {
-        await db.collection(collection).doc(id).set(data, { merge: true });
-        return true;
-    } catch (e) {
-        console.error(`[Firestore] set ${collection}/${id} failed:`, e.message);
-        return false;
-    }
-}
-
-async function firestoreDelete(collection, id) {
-    const db = getDb();
-    if (!db) return false;
-    try {
-        await db.collection(collection).doc(id).delete();
-        return true;
-    } catch (e) {
-        console.error(`[Firestore] delete ${collection}/${id} failed:`, e.message);
-        return false;
-    }
-}
-
 // ─── Library Items ────────────────────────────────────────────────────────────
 
 async function getLibraryItems() {
-    const firestoreItems = await firestoreGetAll('library');
-    if (firestoreItems !== null) return firestoreItems;
-
-    // Local fallback
     try { return JSON.parse(fs.readFileSync(LIBRARY_FILE, 'utf8')); }
     catch { return []; }
 }
 
 async function saveLibraryItem(item) {
-    const saved = await firestoreSet('library', item.id, item);
-    if (saved) return true;
-
-    // Local fallback
     try {
         const items = JSON.parse(fs.readFileSync(LIBRARY_FILE, 'utf8'));
         const idx = items.findIndex(i => i.id === item.id);
@@ -91,10 +38,6 @@ async function saveLibraryItem(item) {
 }
 
 async function deleteLibraryItem(id) {
-    const deleted = await firestoreDelete('library', id);
-    if (deleted) return true;
-
-    // Local fallback
     try {
         const items = JSON.parse(fs.readFileSync(LIBRARY_FILE, 'utf8'));
         const filtered = items.filter(i => i.id !== id);
@@ -106,52 +49,12 @@ async function deleteLibraryItem(id) {
 // ─── Chat History ─────────────────────────────────────────────────────────────
 
 async function getChatHistory() {
-    const items = await firestoreGetAll('chat_history');
-    if (items !== null) return items;
-
     try { return JSON.parse(fs.readFileSync(CHAT_FILE, 'utf8')); }
     catch { return []; }
 }
 
 async function saveChatItem(item) {
-    const db = getDb();
     const id = item.conversationId || item.id;
-
-    if (db) {
-        try {
-            const docRef = db.collection('chat_history').doc(id);
-            const doc = await docRef.get();
-
-            if (doc.exists) {
-                const existing = doc.data();
-                const messages = existing.messages || [];
-                messages.push({
-                    query: item.query,
-                    response: item.response,
-                    timestamp: item.timestamp,
-                    id: item.id
-                });
-                await docRef.update({
-                    query: item.query,
-                    response: item.response,
-                    timestamp: item.timestamp,
-                    messages,
-                    lastUpdated: new Date().toISOString()
-                });
-            } else {
-                await docRef.set({
-                    ...item,
-                    messages: [{ query: item.query, response: item.response, timestamp: item.timestamp, id: item.id }],
-                    lastUpdated: item.timestamp
-                });
-            }
-            return true;
-        } catch (e) {
-            console.error('[Firestore] saveChatItem failed:', e.message);
-        }
-    }
-
-    // Local fallback
     try {
         const history = JSON.parse(fs.readFileSync(CHAT_FILE, 'utf8'));
         const idx = history.findIndex(h => h.conversationId === id);
@@ -174,19 +77,6 @@ async function saveChatItem(item) {
 }
 
 async function clearChatHistory() {
-    const db = getDb();
-    if (db) {
-        try {
-            const snap = await db.collection('chat_history').get();
-            const batch = db.batch();
-            snap.docs.forEach(d => batch.delete(d.ref));
-            await batch.commit();
-            return true;
-        } catch (e) {
-            console.error('[Firestore] clearChatHistory failed:', e.message);
-        }
-    }
-
     try {
         fs.writeFileSync(CHAT_FILE, '[]');
         return true;

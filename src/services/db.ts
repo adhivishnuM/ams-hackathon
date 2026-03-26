@@ -93,7 +93,7 @@ interface AgroTalkDB extends DBSchema {
 }
 
 const DB_NAME = 'agrotalk-db';
-const DB_VERSION = 1;
+const DB_VERSION = 3; // bumped: ensures agent_orders store is created for all users
 
 export const dbService = {
     dbPromise: null as Promise<IDBPDatabase<AgroTalkDB>> | null,
@@ -103,31 +103,45 @@ export const dbService = {
             this.dbPromise = openDB<AgroTalkDB>(DB_NAME, DB_VERSION, {
                 upgrade(db) {
                     // Market Data Store
-                    const marketStore = db.createObjectStore('market_data', { keyPath: 'id' });
-                    marketStore.createIndex('by-commodity', 'commodity');
+                    if (!db.objectStoreNames.contains('market_data')) {
+                        const marketStore = db.createObjectStore('market_data', { keyPath: 'id' });
+                        marketStore.createIndex('by-commodity', 'commodity');
+                    }
 
                     // Chat History Store
-                    const chatStore = db.createObjectStore('chat_history', { keyPath: 'id' });
-                    chatStore.createIndex('by-conversation', 'conversationId');
-                    chatStore.createIndex('by-timestamp', 'timestamp');
+                    if (!db.objectStoreNames.contains('chat_history')) {
+                        const chatStore = db.createObjectStore('chat_history', { keyPath: 'id' });
+                        chatStore.createIndex('by-conversation', 'conversationId');
+                        chatStore.createIndex('by-timestamp', 'timestamp');
+                    }
 
                     // Library Store
-                    const libraryStore = db.createObjectStore('library_items', { keyPath: 'id' });
-                    libraryStore.createIndex('by-timestamp', 'timestamp');
+                    if (!db.objectStoreNames.contains('library_items')) {
+                        const libraryStore = db.createObjectStore('library_items', { keyPath: 'id' });
+                        libraryStore.createIndex('by-timestamp', 'timestamp');
+                    }
 
                     // Recent Queries Store
-                    const queryStore = db.createObjectStore('recent_queries', { keyPath: 'id' });
-                    queryStore.createIndex('by-timestamp', 'timestamp');
+                    if (!db.objectStoreNames.contains('recent_queries')) {
+                        const queryStore = db.createObjectStore('recent_queries', { keyPath: 'id' });
+                        queryStore.createIndex('by-timestamp', 'timestamp');
+                    }
 
                     // Weather Cache Store
-                    db.createObjectStore('weather_cache', { keyPath: 'id' });
+                    if (!db.objectStoreNames.contains('weather_cache')) {
+                        db.createObjectStore('weather_cache', { keyPath: 'id' });
+                    }
 
                     // AI Cache Store
-                    db.createObjectStore('ai_cache', { keyPath: 'key' });
+                    if (!db.objectStoreNames.contains('ai_cache')) {
+                        db.createObjectStore('ai_cache', { keyPath: 'key' });
+                    }
 
                     // Agent Orders Store
-                    const ordersStore = db.createObjectStore('agent_orders', { keyPath: 'id' });
-                    ordersStore.createIndex('by-timestamp', 'timestamp');
+                    if (!db.objectStoreNames.contains('agent_orders')) {
+                        const ordersStore = db.createObjectStore('agent_orders', { keyPath: 'id' });
+                        ordersStore.createIndex('by-timestamp', 'timestamp');
+                    }
                 },
             });
         }

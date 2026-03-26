@@ -66,5 +66,16 @@ backend_py/uploads/
 test_*.wav
 verify_*.wav
 
-# Python backend (not needed for production)
-backend_py/
+# Python backend — exclude only generated/cache/test artifacts
+backend_py/__pycache__/
+backend_py/**/__pycache__/
+backend_py/venv/
+backend_py/uploads/
+backend_py/test_*.py
+backend_py/debug_*.py
+backend_py/diagnose_*.py
+backend_py/discover_*.py
+backend_py/list_*.py
+backend_py/verify_*.py
+backend_py/discovery_results.txt
+backend_py/nvidia_models.json

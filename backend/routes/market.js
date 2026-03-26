@@ -8,8 +8,6 @@ const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
 
 // Load API key from env (supports both root .env and backend .env)
 const API_KEY = process.env.VITE_MANDI_API_KEY || process.env.MANDI_API_KEY;
-const BASE_URL = process.env.VITE_MANDI_API_BASE_URL || process.env.MANDI_API_BASE_URL || 'https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070';
-
 /**
  * GET /market/prices
  * Proxy for Agmarknet API to avoid CORS issues
@@ -24,18 +22,44 @@ router.get('/prices', async (req, res) => {
             return res.status(500).json({ success: false, error: 'Market API key not configured' });
         }
 
-        // Add deterministic sorting by arrival_date to prevent pagination duplication
-        let url = `${BASE_URL}?api-key=${API_KEY}&format=json&limit=${limit}&offset=${offset}&sort[arrival_date]=desc`;
+        // Use verified working resource ID
+        const activeUrl = process.env.VITE_MANDI_API_BASE_URL || process.env.MANDI_API_BASE_URL || 'https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070';
+        let url = `${activeUrl}?api-key=${API_KEY}&format=json&limit=${limit}&offset=${offset}`;
 
-        // Transform commodity to Title Case for API compatibility
-        const formattedCommodity = commodity ? commodity.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ') : null;
+        // Normalize to Title Case for API compatibility
+        const toTitleCase = (s) => s ? s.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ') : null;
+
+        // State name normalization map
+        const STATE_ALIASES = {
+            'tamilnadu': 'Tamil Nadu', 'tn': 'Tamil Nadu', 'tamilnad': 'Tamil Nadu',
+            'maharashtra': 'Maharashtra', 'maha': 'Maharashtra',
+            'andhra': 'Andhra Pradesh', 'andhrapradesh': 'Andhra Pradesh', 'ap': 'Andhra Pradesh',
+            'telangana': 'Telangana', 'karnataka': 'Karnataka',
+            'kerala': 'Kerala', 'gujarat': 'Gujarat', 'rajasthan': 'Rajasthan',
+            'uttarpradesh': 'Uttar Pradesh', 'up': 'Uttar Pradesh',
+            'madhyapradesh': 'Madhya Pradesh', 'mp': 'Madhya Pradesh',
+            'westbengal': 'West Bengal', 'wb': 'West Bengal',
+            'punjab': 'Punjab', 'haryana': 'Haryana',
+            'himachalpradesh': 'Himachal Pradesh', 'hp': 'Himachal Pradesh',
+            'odisha': 'Odisha', 'orissa': 'Odisha',
+            'bihar': 'Bihar', 'jharkhand': 'Jharkhand',
+            'chhattisgarh': 'Chhattisgarh', 'assam': 'Assam',
+        };
+        const normalizeState = (s) => {
+            if (!s) return null;
+            const key = s.toLowerCase().replace(/\s+/g, '');
+            return STATE_ALIASES[key] || toTitleCase(s);
+        };
+
+        const formattedCommodity = toTitleCase(commodity);
+        const formattedState = normalizeState(state);
 
         // Use exact filters if provided
         if (formattedCommodity) {
             url += `&filters[commodity]=${encodeURIComponent(formattedCommodity)}`;
         }
-        if (state) {
-            url += `&filters[state]=${encodeURIComponent(state)}`;
+        if (formattedState) {
+            url += `&filters[state]=${encodeURIComponent(formattedState)}`;
         }
         if (district) {
             url += `&filters[district]=${encodeURIComponent(district)}`;
@@ -48,7 +72,7 @@ router.get('/prices', async (req, res) => {
             url += `&q=${encodeURIComponent(q)}`;
         }
 
-        console.log(`🌐 Proxying Mandi request (commodity=${commodity || q || 'all'}, limit=${limit}, offset=${offset})`);
+        console.log(`🌐 Proxying Mandi request (commodity=${formattedCommodity || q || 'all'}, state=${formattedState || 'any'}, limit=${limit}, offset=${offset})`);
 
         const response = await fetch(url, {
             headers: {

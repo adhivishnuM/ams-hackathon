@@ -1,5 +1,5 @@
 const express = require('express');
-const { generateNvidiaSpeech } = require('../services/nvidiaTtsService');
+const { generateSpeech } = require('../services/pythonService');
 const router = express.Router();
 
 /**
@@ -8,14 +8,14 @@ const router = express.Router();
  * Returns audio/mpeg stream
  */
 router.post('/', async (req, res) => {
-    const { text, language, forceEdge } = req.body;
+    const { text, language, forceEdge, voice } = req.body;
 
     if (!text) {
         return res.status(400).json({ success: false, error: 'Text is required' });
     }
 
     try {
-        const audioBuffer = await generateNvidiaSpeech(text, language || 'en', forceEdge || false);
+        const audioBuffer = await generateSpeech(text, language || 'en', forceEdge || false, voice || 'mia');
 
         if (!audioBuffer) {
             return res.status(500).json({ success: false, error: 'TTS generation failed' });
