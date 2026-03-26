@@ -2,10 +2,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Bot, Search, CheckCircle, AlertCircle, Share2, ShoppingCart, Phone, Wind, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLibrary, LibraryItem } from '@/hooks/useLibrary';
+import { useOrders } from '@/hooks/useOrders';
 import { useApp } from '@/contexts/AppContext';
 import { getTranslation } from '@/lib/translations';
 import { getRecommendations } from '@/data/products';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 interface LibraryDetailViewProps {
     item: LibraryItem;
@@ -16,6 +18,7 @@ interface LibraryDetailViewProps {
 
 export function LibraryDetailView({ item, onClose, language, asModal = false }: LibraryDetailViewProps) {
     const { setIsChatMode, setChatMessages, setConversationHistory } = useApp();
+    const { addOrder } = useOrders();
     const tLib = getTranslation('library', language);
 
     const getLocalizedField = (field: 'diseaseName' | 'cropType' | 'summary' | 'description') => {
@@ -183,8 +186,20 @@ export function LibraryDetailView({ item, onClose, language, asModal = false }: 
                                         </div>
                                         <div className="flex gap-2 mt-2">
                                             <button
-                                                onClick={() => window.open(`https://wa.me/919999999999?text=I want to order ${product.name}`, '_blank')}
-                                                className="flex-1 bg-green-500 hover:bg-green-600 active:scale-95 text-white text-[11px] font-bold uppercase py-2 rounded-xl transition-all"
+                                                onClick={() => {
+                                                    addOrder({
+                                                        id: `ord_${Date.now()}`,
+                                                        crop: product.name,
+                                                        quantity: "1 Unit",
+                                                        location: "Home Delivery",
+                                                        price_estimate: `₹${product.price}`,
+                                                        status: "Processing Order",
+                                                        buyer_name: "AgroTalk Supply",
+                                                        timestamp: Date.now()
+                                                    });
+                                                    toast.success("Order Placed!", { description: "View in Library → Agent Orders" });
+                                                }}
+                                                className="flex-1 bg-primary hover:bg-primary/90 active:scale-95 text-white text-[11px] font-bold uppercase py-2 rounded-xl transition-all"
                                             >
                                                 Buy Now
                                             </button>

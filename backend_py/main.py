@@ -30,9 +30,8 @@ except Exception as e:
 nvidia_service: Optional[NvidiaVisionService] = None
 tts_service: Optional[NvidiaTTSService] = None
 
-# Simple in-memory cache for vision and TTS
+# Simple in-memory cache for vision
 vision_cache = {}
-tts_cache = {}
 
 class AnalyzeRequest(BaseModel):
     image: str
@@ -49,6 +48,7 @@ class TTSRequest(BaseModel):
 class WhatsAppChatRequest(BaseModel):
     text: str
     language: Optional[str] = "en"
+    session_id: Optional[str] = "default"
 
 class WhatsAppImageRequest(BaseModel):
     image: str
@@ -58,6 +58,7 @@ class WhatsAppAudioRequest(BaseModel):
     audio: str
     mime_type: Optional[str] = "audio/ogg"
     language: Optional[str] = "en"
+    session_id: Optional[str] = "default"
 
 class AnalyzeResponse(BaseModel):
     success: bool
@@ -196,19 +197,6 @@ async def text_to_speech(request: TTSRequest):
     global tts_service
     if not tts_service:
         raise HTTPException(status_code=503, detail="TTS service not initialized")
-    
-    # Cache key for TTS
-    import hashlib
-    text_hash = hashlib.md5(request.text.encode()).hexdigest()
-    cache_key = f"{text_hash}_{request.language}_{request.voice}_{request.force_edge}"
-    
-    if cache_key in tts_cache:
-        print("📦 [TTS] Returning cached audio")
-        audio_content = tts_cache[cache_key]
-        media_type = "audio/mpeg"
-        if audio_content.startswith(b'RIFF'):
-            media_type = "audio/wav"
-        return Response(content=audio_content, media_type=media_type)
 
     try:
         audio_content = await tts_service.generate_audio(
@@ -220,17 +208,8 @@ async def text_to_speech(request: TTSRequest):
         if not audio_content:
             print(f"❌ [TTS] generate_audio returned None (lang={request.language}, voice={request.voice})", flush=True)
             raise HTTPException(status_code=500, detail="TTS generation failed")
-            
-        # Store in cache
-        tts_cache[cache_key] = audio_content
-        if len(tts_cache) > 200: # Primitive LRU
-            tts_cache.pop(next(iter(tts_cache)))
-            
-        # Determine media type by checking first 4 bytes for RIFF (WAV)
-        media_type = "audio/mpeg"
-        if audio_content.startswith(b'RIFF'):
-            media_type = "audio/wav"
-            
+
+        media_type = "audio/wav" if audio_content.startswith(b'RIFF') else "audio/mpeg"
         return Response(content=audio_content, media_type=media_type)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -307,8 +286,28 @@ async def speech_to_text(request: STTRequest):
 @app.post("/api/whatsapp/chat")
 async def whatsapp_chat(request: WhatsAppChatRequest):
     service = get_whatsapp_service()
-    reply = await service.chat(request.text, request.language)
-    return {"success": True, "reply": reply}
+    result = await service.chat(request.text, request.language, request.session_id or "default")
+    return {
+        "success": True,
+        "reply": result["reply"],
+        "order": result.get("order"),
+    }
+
+@app.get("/api/whatsapp/orders")
+async def get_whatsapp_orders():
+    from services.whatsapp_ai import get_all_orders
+    return {"success": True, "orders": get_all_orders()}
+
+@app.get("/api/whatsapp/orders/{session_id}")
+async def get_session_orders(session_id: str):
+    from services.whatsapp_ai import get_orders_for_session
+    return {"success": True, "orders": get_orders_for_session(session_id)}
+
+@app.delete("/api/whatsapp/session/{session_id}")
+async def clear_whatsapp_session(session_id: str):
+    service = get_whatsapp_service()
+    service.clear_session(session_id)
+    return {"success": True, "message": f"Session '{session_id}' cleared"}
 
 @app.post("/api/whatsapp/image")
 async def whatsapp_image(request: WhatsAppImageRequest):
@@ -354,22 +353,7 @@ async def whatsapp_image(request: WhatsAppImageRequest):
             # Clean any markdown symbols before speaking
             clean_text = re.sub(r'[*_~`#]', '', spoken_text)
 
-            # Force Edge TTS to guarantee MP3 output (WhatsApp voice notes require MP3 or OGG)
-            # Use cache to avoid redundant generations
-            import hashlib
-            text_hash = hashlib.md5(clean_text.encode()).hexdigest()
-            # Force edge_tts=True in the cache key for WhatsApp
-            whatsapp_cache_key = f"{text_hash}_{request.language}_mia_True"
-            
-            if whatsapp_cache_key in tts_cache:
-                print("📦 [WhatsApp Image] Returning cached MP3 audio", flush=True)
-                audio_bytes = tts_cache[whatsapp_cache_key]
-            else:
-                audio_bytes = await tts_service.generate_audio(clean_text, request.language, force_edge=True)
-                if audio_bytes:
-                    tts_cache[whatsapp_cache_key] = audio_bytes
-                    if len(tts_cache) > 200:
-                        tts_cache.pop(next(iter(tts_cache)))
+            audio_bytes = await tts_service.generate_audio(clean_text, request.language, force_edge=True)
 
             if audio_bytes:
                 audio_b64 = base64.b64encode(audio_bytes).decode('utf-8')
@@ -391,9 +375,10 @@ async def whatsapp_audio(request: WhatsAppAudioRequest):
     audio_bytes = base64.b64decode(request.audio)
     service = get_whatsapp_service()
     result = await service.transcribe_and_reply(
-        audio_bytes, 
-        request.mime_type, 
-        request.language
+        audio_bytes,
+        request.mime_type,
+        request.language,
+        request.session_id or "default"
     )
     return result
 

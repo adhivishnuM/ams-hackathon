@@ -46,36 +46,40 @@ export default function CallAgentPage() {
     const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
     const isActiveRef = useRef(false);
     const accumulatedTextRef = useRef('');
+    const greetingPlayedRef = useRef(false);
 
     // --- Cleanup & Lifecycle ---
     useEffect(() => {
+        // greetingPlayedRef prevents React StrictMode double-invoke from firing twice
+        if (greetingPlayedRef.current) return;
         isActiveRef.current = true;
         setCallState('connecting');
 
-        // Initial Greeting Delay
+        // Start fresh session every time call agent opens
+        setConversationHistory([]);
+        const freshId = `call_${Math.random().toString(36).substring(7)}`;
+        setConversationId(freshId);
+
         const greetingTimer = setTimeout(async () => {
-            if (!isActiveRef.current) return;
-            const greetings = {
+            if (!isActiveRef.current || greetingPlayedRef.current) return;
+            greetingPlayedRef.current = true;
+
+            const greetings: Record<string, string> = {
                 en: "Hello, I am the AgroTalk Agronomist. How can I help you today?",
                 hi: "नमस्ते, मैं एग्रोटॉक कृषिविज्ञानी हूँ। मैं आज आपकी कैसे मदद कर सकता हूँ?",
                 ta: "வணக்கம், நான் அக்ரோடாக் வேளாண் நிபுணர். இன்று நான் உங்களுக்கு எப்படி உதவ முடியும்?",
-                te: "నமస్కారం, నేను ఆగ్రోటాక్ వ్యవసాయ శాస్త్రవేత్తను. ఈ రోజు నేను మీకు ఎలా సహాయపడగలను?",
+                te: "నమస్కారం, నేను ఆగ్రోటాక్ వ్యవసాయ శాస్త్రవేత్తను. ఈ రోజు నేను మీకు ఎలా సహాయపడగలను?",
                 mr: "नमस्कार, मी ॲग्रोटॉक कृषितज्ज्ञ आहे. आज मी तुम्हाला कशी मदत करू शकेन?"
             };
-            const text = greetings[language as keyof typeof greetings] || greetings.en;
+            const text = greetings[language] ?? greetings.en;
 
-            console.log(`🔊 [NVIDIA] Fetching initial greeting (voice: ${selectedVoice})...`);
-            try {
-                const audioBlob = await getNvidiaTts(text, language, selectedVoice);
-                if (audioBlob) {
-                    playResponse(text, undefined, audioBlob);
-                } else {
-                    console.warn("⚠️ Greeting TTS failed, calling playResponse with fallback");
-                    playResponse(text);
-                }
-            } catch (err) {
-                console.error("❌ Greeting TTS error:", err);
-                playResponse(text);
+            const audioBlob = await getNvidiaTts(text, language, selectedVoice);
+            if (!isActiveRef.current) return;
+            if (audioBlob) {
+                playResponse(text, undefined, audioBlob);
+            } else {
+                setCallState('idle');
+                startListening();
             }
         }, 1500);
 
@@ -98,7 +102,6 @@ export default function CallAgentPage() {
             ttsAudio.pause();
             ttsAudio.src = "";
         }
-        window.speechSynthesis?.cancel();
     };
 
     const endCall = () => {
@@ -199,29 +202,28 @@ export default function CallAgentPage() {
         setTranscript('');
         accumulatedTextRef.current = '';
 
-        // Goodbye Detection
-        const goodbyeWords = ["bye", "goodbye", "alvida", "khuda hafiz", "bas", "end", "tata", "hang up", "poitu", "vellostha", "avlo"];
-        const lower = text.toLowerCase().trim();
-        if (goodbyeWords.some(word => lower.includes(word))) {
+        // Goodbye Detection — only trigger on short messages (≤8 words) with whole-word goodbye match
+        const wordCount = text.trim().split(/\s+/).length;
+        const goodbyePatterns = [/\bbye\b/i, /\bgoodbye\b/i, /\balvida\b/i, /\bkhuda hafiz\b/i, /\bhang up\b/i, /\btata\b/i, /\bpoitu\b/i, /\bvellostha\b/i, /\bavlo\b/i];
+        const isGoodbye = wordCount <= 8 && goodbyePatterns.some(p => p.test(text));
+        if (isGoodbye) {
             const farewells: Record<string, string> = {
                 en: "Goodbye! Have a nice day.",
                 hi: "नमस्ते! फिर मिलेंगे।",
                 ta: "நன்றி, போய் வருகிறேன்!",
                 te: "వెళ్లొస్తాను, శుభ దినం!",
-                mr: "निरोप घेतो, आपला दिवस शुभ जावो!"
+                mr: "निरोप घेतो, आपला दिवस शुభ जावो!"
             };
             const farewell = farewells[language] || farewells.en;
-            console.log(`🔊 [NVIDIA] Fetching farewell message (voice: ${selectedVoice})...`);
             try {
                 const audioBlob = await getNvidiaTts(farewell, language, selectedVoice);
                 if (audioBlob) {
                     playResponse(farewell, undefined, audioBlob, true);
                 } else {
-                    speakText(farewell, true);
+                    onPlaybackEnd(true);
                 }
-            } catch (err) {
-                console.error("❌ Farewell TTS error:", err);
-                speakText(farewell, true);
+            } catch {
+                onPlaybackEnd(true);
             }
             return;
         }
@@ -241,22 +243,23 @@ export default function CallAgentPage() {
                 humidity: weatherData.current.relative_humidity_2m
             } : undefined;
 
-            const instruction = " (Reply in 1 short sentence)";
-            const result = await getTextAdvice(text + instruction, language, weatherContext, conversationHistory, true, currentConvId, selectedVoice);
+            const result = await getTextAdvice(text, language, weatherContext, conversationHistory, false, currentConvId, selectedVoice);
 
             if (result.success && result.advisory) {
-                // Handle automatic language detection/switching
                 if (result.newLanguage && result.newLanguage !== language) {
                     setLanguage(result.newLanguage as any);
                 }
 
+                const responseText = result.advisory.recommendation;
                 setConversationHistory(prev => [
                     ...prev,
                     { role: 'user' as const, content: text },
-                    { role: 'assistant' as const, content: result.advisory!.recommendation }
+                    { role: 'assistant' as const, content: responseText }
                 ].slice(-10));
 
-                playResponse(result.advisory!.recommendation, result.audio);
+                // Fetch NVIDIA TTS directly — no backend relay
+                const audioBlob = await getNvidiaTts(responseText, language, selectedVoice);
+                playResponse(responseText, undefined, audioBlob ?? undefined);
             } else {
                 setCallState('idle');
                 toast.error("AI Error");
@@ -288,18 +291,15 @@ export default function CallAgentPage() {
             audio.preload = 'auto';
             audio.onended = () => {
                 URL.revokeObjectURL(audioUrl);
-                console.log("✅ Playback finished normally");
                 onPlaybackEnd(isExit);
             };
-            audio.onerror = (e) => {
-                console.warn("⚠️ Audio playback error, using browser TTS fallback");
+            audio.onerror = () => {
                 URL.revokeObjectURL(audioUrl);
-                speakText(text, isExit);
+                onPlaybackEnd(isExit);
             };
             audio.oncanplaythrough = () => {
-                console.log("▶️ Starting playback...");
                 audio.playbackRate = 1.1;
-                audio.play().catch(() => speakText(text, isExit));
+                audio.play().catch(() => onPlaybackEnd(isExit));
             };
             setTtsAudio(audio);
             audio.src = audioUrl;
@@ -307,57 +307,29 @@ export default function CallAgentPage() {
         };
 
         if (audioBlob) {
-            console.log(`🔊 [TTS] Playing from received Blob (${audioBlob.size} bytes, type: ${audioBlob.type})`);
-            // Ensure correct MIME type for reliable playback across browsers
-            const mimeType = audioBlob.type || 'audio/mpeg';
-            const typedBlob = new Blob([audioBlob], { type: mimeType });
-            const url = URL.createObjectURL(typedBlob);
+            const mimeType = audioBlob.type || 'audio/wav';
+            const url = URL.createObjectURL(new Blob([audioBlob], { type: mimeType }));
             handleAudioPlayback(url);
             return;
         }
 
         if (audioBase64) {
-            console.log(`🔊 [NVIDIA] Playing from received Base64 (${audioBase64.length} chars)`);
             try {
                 const isWav = audioBase64.startsWith('UklG');
                 const mimeType = isWav ? 'audio/wav' : 'audio/mp3';
-                console.log(`📄 Detected MIME type: ${mimeType}`);
-
                 const byteCharacters = atob(audioBase64);
-                const byteNumbers = new Array(byteCharacters.length);
-                for (let i = 0; i < byteCharacters.length; i++) {
-                    byteNumbers[i] = byteCharacters.charCodeAt(i);
-                }
-                const blob = new Blob([new Uint8Array(byteNumbers)], { type: mimeType });
-                const url = URL.createObjectURL(blob);
+                const bytes = new Uint8Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) bytes[i] = byteCharacters.charCodeAt(i);
+                const url = URL.createObjectURL(new Blob([bytes], { type: mimeType }));
                 handleAudioPlayback(url);
-            } catch (e) {
-                console.error("❌ Base64 decode error:", e);
-                speakText(text);
+            } catch {
+                onPlaybackEnd(isExit);
             }
         } else {
-            console.warn("⚠️ No NVIDIA audio data received, using browser fallback");
-            speakText(text);
-        }
-    };
-
-    const speakText = (text: string, isExit: boolean = false) => {
-        if (!('speechSynthesis' in window) || isMuted) {
             onPlaybackEnd(isExit);
-            return;
         }
-
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        const langMap: Record<string, string> = {
-            'en': 'en-IN', 'hi': 'hi-IN', 'ta': 'ta-IN', 'te': 'te-IN', 'mr': 'mr-IN'
-        };
-        utterance.lang = langMap[language] || 'en-IN';
-        utterance.onend = () => onPlaybackEnd(isExit);
-        utterance.onerror = () => onPlaybackEnd(isExit);
-
-        window.speechSynthesis.speak(utterance);
     };
+
 
     const onPlaybackEnd = (isExit: boolean = false) => {
         if (!isActiveRef.current) return;

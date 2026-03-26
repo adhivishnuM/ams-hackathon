@@ -1,11 +1,14 @@
 import { Wifi, WifiOff } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getTranslation } from "@/lib/translations";
 
 interface ConnectionStatusProps {
   isOnline: boolean;
+  language?: string;
 }
 
-export function ConnectionStatus({ isOnline }: ConnectionStatusProps) {
+export function ConnectionStatus({ isOnline, language = 'en' }: ConnectionStatusProps) {
+  const tc = getTranslation('common', language) as any;
   return (
     <div
       className={cn(
@@ -23,12 +26,12 @@ export function ConnectionStatus({ isOnline }: ConnectionStatusProps) {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
           </span>
-          <span>Online</span>
+          <span>{tc.online}</span>
         </>
       ) : (
         <>
           <WifiOff size={14} />
-          <span>Offline</span>
+          <span>{tc.offline}</span>
         </>
       )}
     </div>

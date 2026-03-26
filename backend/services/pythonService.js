@@ -3,8 +3,6 @@
  * Forwards TTS, STT, and Vision requests to the Python FastAPI backend.
  */
 
-const cacheService = require('./cacheService');
-
 const PYTHON_BACKEND = process.env.PYTHON_API_URL || 'http://localhost:8000';
 
 function cleanText(text) {
@@ -22,13 +20,6 @@ function cleanText(text) {
 async function generateSpeech(text, language = 'en', forceEdge = false, voice = 'mia') {
     const clean = cleanText(text);
     if (!clean) return null;
-
-    const cacheKey = cacheService.generateKey('tts', clean, language, voice);
-    const cached = cacheService.get(cacheKey);
-    if (cached) {
-        console.log('📦 [TTS] Cache hit');
-        return Buffer.from(cached);
-    }
 
     try {
         console.log(`🔊 [TTS] Python backend — "${clean.slice(0, 40)}..." (${language})`);
@@ -48,7 +39,6 @@ async function generateSpeech(text, language = 'en', forceEdge = false, voice = 
         const buf = Buffer.from(await response.arrayBuffer());
         if (buf.length > 500) {
             console.log(`✅ [TTS] Audio: ${buf.length} bytes`);
-            cacheService.set(cacheKey, buf, 86400);
             return buf;
         }
         return null;

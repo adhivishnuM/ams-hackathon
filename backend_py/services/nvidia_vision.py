@@ -48,10 +48,9 @@ class NvidiaVisionService:
             }
             target_lang_name = lang_names.get(language, "English")
             
-            # Simplified prompt for faster processing and better compliance
+            # Always request English for best accuracy; we translate separately afterwards
             system_prompt = (
-                f"You are a world-class plant pathologist. Analyze the image and provide a diagnosis.\n"
-                f"Language: {target_lang_name}.\n"
+                f"You are a world-class plant pathologist. Analyze the image and provide a diagnosis in ENGLISH.\n"
                 f"Your output MUST be a valid JSON object with NO additional text.\n\n"
                 f"JSON Structure:\n"
                 f"{{\n"
@@ -60,10 +59,10 @@ class NvidiaVisionService:
                 f'  "confidence": 0-100,\n'
                 f'  "severity": "low", "medium", or "high",\n'
                 f'  "is_healthy": true/false,\n'
-                f'  "description": "Brief explanation of the condition",\n'
-                f'  "symptoms": ["list", "of", "symptoms"],\n'
-                f'  "treatment_steps": ["step 1", "step 2"],\n'
-                f'  "prevention_tips": ["tip 1", "tip 2"],\n'
+                f'  "description": "2-3 sentence explanation of the condition",\n'
+                f'  "symptoms": ["symptom 1", "symptom 2", "symptom 3"],\n'
+                f'  "treatment_steps": ["step 1", "step 2", "step 3"],\n'
+                f'  "prevention_tips": ["tip 1", "tip 2", "tip 3"],\n'
                 f'  "organic_options": ["option 1", "option 2"]\n'
                 f"}}\n\n"
                 f"Rules:\n"
@@ -82,7 +81,7 @@ class NvidiaVisionService:
                     {
                         "role": "user",
                         "content": [
-                            {"type": "text", "text": f"Strictly diagnose this plant in {target_lang_name}. Output JSON ONLY."},
+                            {"type": "text", "text": "Diagnose this plant. Output JSON ONLY in English."},
                             {
                                 "type": "image_url",
                                 "image_url": {"url": f"data:image/jpeg;base64,{base64_image_data}"},
@@ -117,17 +116,9 @@ class NvidiaVisionService:
                         result_json["disease_name"] = "Healthy"
                         result_json["severity"] = "low"
                     
-                    # Ensure localized keys exist for frontend compatibility (fallback to English/Current)
-                    # The frontend might expect disease_name_hindi etc.
-                    current_lang_suffix = f"_{language}" if language != "en" else ""
-                    if current_lang_suffix:
-                        result_json[f"disease_name{current_lang_suffix}"] = result_json.get("disease_name")
-                        result_json[f"description{current_lang_suffix}"] = result_json.get("description")
-                        result_json[f"symptoms{current_lang_suffix}"] = result_json.get("symptoms", [])
-                        result_json[f"treatment_steps{current_lang_suffix}"] = result_json.get("treatment_steps", [])
-                        result_json[f"prevention_tips{current_lang_suffix}"] = result_json.get("prevention_tips", [])
-                        result_json[f"organic_options{current_lang_suffix}"] = result_json.get("organic_options", [])
-                        result_json[f"crop_identified{current_lang_suffix}"] = result_json.get("crop_identified")
+                    # If non-English, translate text fields to the target language
+                    if language != "en":
+                        result_json = await self._translate_fields(result_json, language, target_lang_name)
 
                     print(f"✅ [NVIDIA] Successful Analysis: {result_json.get('disease_name')}")
                     return {"success": True, "analysis": result_json}
@@ -147,6 +138,63 @@ class NvidiaVisionService:
                 "success": False,
                 "error": f"NVIDIA API Error: {str(e)}"
             }
+
+    async def _translate_fields(self, result_json: dict, language: str, target_lang_name: str) -> dict:
+        """Translate analysis text fields to the target language using a fast LLM call."""
+        import json as json_lib
+        lang_suffix = f"_{language}"
+        fields = {
+            "disease_name": result_json.get("disease_name", ""),
+            "description": result_json.get("description", ""),
+            "symptoms": result_json.get("symptoms", []),
+            "treatment_steps": result_json.get("treatment_steps", []),
+            "prevention_tips": result_json.get("prevention_tips", []),
+            "organic_options": result_json.get("organic_options", []),
+            "crop_identified": result_json.get("crop_identified", "")
+        }
+        try:
+            response = await self.client.chat.completions.create(
+                model="meta/llama-3.3-70b-instruct",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": (
+                            f"You are a translator. Translate ALL string values in the given JSON to {target_lang_name}. "
+                            f"Keep disease names as scientific terms (transliterate if needed). "
+                            f"Return ONLY valid JSON, same structure, no extra text."
+                        )
+                    },
+                    {
+                        "role": "user",
+                        "content": json_lib.dumps(fields, ensure_ascii=False)
+                    }
+                ],
+                max_tokens=900,
+                temperature=0.1,
+                timeout=15.0
+            )
+            raw = response.choices[0].message.content.strip()
+            # Extract JSON block
+            import re
+            m = re.search(r'\{.*\}', raw, re.DOTALL)
+            if m:
+                translated = json_lib.loads(m.group(0))
+                result_json[f"disease_name{lang_suffix}"] = translated.get("disease_name", fields["disease_name"])
+                result_json[f"description{lang_suffix}"] = translated.get("description", fields["description"])
+                result_json[f"symptoms{lang_suffix}"] = translated.get("symptoms", fields["symptoms"])
+                result_json[f"treatment_steps{lang_suffix}"] = translated.get("treatment_steps", fields["treatment_steps"])
+                result_json[f"prevention_tips{lang_suffix}"] = translated.get("prevention_tips", fields["prevention_tips"])
+                result_json[f"organic_options{lang_suffix}"] = translated.get("organic_options", fields["organic_options"])
+                result_json[f"crop_identified{lang_suffix}"] = translated.get("crop_identified", fields["crop_identified"])
+                print(f"✅ [Translation] Fields translated to {target_lang_name}", flush=True)
+            else:
+                raise ValueError("No JSON found in translation response")
+        except Exception as e:
+            print(f"⚠️ [Translation] Failed ({e}), using English fallback", flush=True)
+            # Fallback: copy English fields to lang-suffixed keys
+            for key in ["disease_name", "description", "symptoms", "treatment_steps", "prevention_tips", "organic_options", "crop_identified"]:
+                result_json[f"{key}{lang_suffix}"] = fields[key]
+        return result_json
 
     def _smart_parse_text(self, text: str, language: str = "en") -> Dict[str, Any]:
         """

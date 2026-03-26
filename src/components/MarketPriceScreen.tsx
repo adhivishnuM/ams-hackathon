@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Search, MapPin, TrendingUp, Calendar, ArrowRight, RefreshCw, ShoppingBag, Brain, Loader2, ChevronDown, ChevronUp, X, Filter, Volume2 } from 'lucide-react';
+import { Search, MapPin, TrendingUp, Calendar, ArrowRight, RefreshCw, ShoppingBag, Brain, Loader2, ChevronDown, ChevronUp, X, Filter, Volume2, Users, Phone, Star, BadgeCheck } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { cn } from '@/lib/utils';
-import { getTranslation } from '@/lib/translations';
+import { getTranslation, translateCommodity, translateProductDescription, translateStoreCategory } from '@/lib/translations';
 import { useApp } from '@/contexts/AppContext';
 import { getNvidiaTts } from '@/lib/apiClient';
 import { mandiService, type MandiPriceRecord } from '@/services/mandiService';
 import { useOrders } from '@/hooks/useOrders';
 import { storeProducts, type StoreProduct } from '@/data/storeProducts';
+import { wholesaleBuyers, findBuyersForCrop, type WholesaleBuyer } from '@/data/wholesaleBuyers';
 import { toast } from 'sonner';
 import { Store, ShoppingCart, Sprout, FlaskConical, Zap, Wrench, Truck } from 'lucide-react';
 
@@ -82,6 +83,10 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
     const [maxPrice, setMaxPrice] = useState<number>(0);
     const [showFilters, setShowFilters] = useState(false);
 
+    // Wholesale Buyers State
+    const [showBuyers, setShowBuyers] = useState(false);
+    const [buyerSearchTerm, setBuyerSearchTerm] = useState('');
+
     // Agro Store State
     const [activeTab, setActiveTab] = useState<'mandi' | 'store'>('mandi');
     const [storeSearch, setStoreSearch] = useState('');
@@ -90,6 +95,7 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
     const { setIsChatMode, setTextInput, setChatMessages } = useApp();
 
     const t = getTranslation('market', language);
+    const tCommon = getTranslation('common', language);
 
     // Robust Data Normalization
     const normalizeRecord = (record: MandiPriceRecord): MandiPriceRecord => {
@@ -374,6 +380,21 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
     // Find max price for range
     const absoluteMaxPrice = Math.max(...originalPrices.map(p => parseInt(p.modal_price) || 0), 0);
 
+    // Wholesale Buyers Derived State
+    const filteredBuyers = wholesaleBuyers.filter(b => {
+        if (!buyerSearchTerm.trim()) return true;
+        const q = buyerSearchTerm.toLowerCase();
+        return b.crops.some(c => c.toLowerCase().includes(q)) ||
+            b.district.toLowerCase().includes(q) ||
+            b.location.toLowerCase().includes(q) ||
+            b.name.toLowerCase().includes(q);
+    });
+
+    // If search matches crop names from mandi results, auto-filter buyers
+    const activeCropBuyers = searchQuery.trim()
+        ? findBuyersForCrop(searchQuery.split(' ')[0], searchQuery.split(' ').slice(1).join(' '))
+        : filteredBuyers;
+
     // Store Derived State
     const storeCategories = ['All', ...Array.from(new Set(storeProducts.map(p => p.category)))];
     const filteredStoreProducts = storeProducts.filter(p => {
@@ -409,10 +430,10 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                 <div className="flex items-center justify-between mb-8">
                     <div>
                         <h1 className="text-display font-black text-foreground tracking-tight mb-0.5">
-                            {activeTab === 'store' ? 'Agro Store' : t.title}
+                            {activeTab === 'store' ? (t as any).agroStore : t.title}
                         </h1>
                         <p className="text-caption font-bold text-muted-foreground uppercase tracking-widest opacity-70">
-                            {activeTab === 'store' ? `${filteredStoreProducts.length} products available` : t.subtitle}
+                            {activeTab === 'store' ? `${filteredStoreProducts.length} ${(t as any).productsAvailable}` : t.subtitle}
                         </p>
                     </div>
                     {activeTab === 'mandi' && (
@@ -439,7 +460,7 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                     )}
                   >
                     <TrendingUp size={18} />
-                    Live Mandi
+                    {(t as any).liveMandi}
                   </button>
                   <button
                     onClick={() => setActiveTab("store")}
@@ -449,7 +470,7 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                     )}
                   >
                     <Store size={18} />
-                    Agro Store
+                    {(t as any).agroStore}
                   </button>
                 </div>
 
@@ -654,7 +675,7 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                                                     </span>
                                                 </div>
                                                 <h3 className="text-title-lg font-black text-foreground leading-tight tracking-tight line-clamp-1 overflow-hidden">
-                                                    {record.commodity}
+                                                    {translateCommodity(record.commodity, language)}
                                                 </h3>
                                             </div>
                                             <div className="flex flex-col items-end gap-1">
@@ -719,7 +740,7 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                                                 ) : (
                                                     <img src="/logo.svg" alt="AI Analysis" className={cn("w-[18px] h-[18px]", expandedAnalyses[id] ? "brightness-0 invert" : "")} />
                                                 )}
-                                                <span>{getTranslation('common', language).analysis}</span>
+                                                <span>{tCommon.analysis}</span>
                                             </button>
 
                                             <button
@@ -732,61 +753,111 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                                         </div>
                                     </div>
 
-                                    {/* AI Insight Drawer (Inside Card) */}
+                                    {/* AI Expert Analysis Drawer — Enhanced Visual */}
                                     {expandedAnalyses[id] && (
-                                        <div className="px-6 pb-6 bg-muted/20 animate-in slide-in-from-top-4 duration-300">
-                                            <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20">
-                                                <div className="flex items-center gap-2 mb-3">
-                                                    <Brain size={16} className="text-primary" />
-                                                    <span className="text-[10px] font-black uppercase text-primary tracking-widest">{t.aiAdvice}</span>
+                                        <div className="px-4 pb-5 animate-in slide-in-from-top-4 duration-300">
+                                            <div className="analysis-card rounded-[20px] overflow-hidden shadow-sm">
+                                                {/* Header bar */}
+                                                <div className="flex items-center gap-2.5 px-4 py-3 bg-gradient-to-r from-primary/10 to-transparent border-b border-primary/10">
+                                                    <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                                                        <Brain size={14} className="text-white" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-[11px] font-black uppercase text-primary tracking-widest leading-none">{t.aiAdvice}</p>
+                                                        <p className="text-[9px] text-muted-foreground mt-0.5">Live market intelligence</p>
+                                                    </div>
+                                                    <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-green-50 border border-green-200">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                                                        <span className="text-[9px] font-black text-green-600 uppercase">Live</span>
+                                                    </div>
                                                 </div>
+
+                                                {/* Content */}
+                                                <div className="p-4">
                                                 {analysis ? (
                                                     <>
-                                                        <div className="prose prose-sm prose-primary max-w-none text-caption leading-relaxed text-foreground font-medium mb-4 
-                                                            prose-a:text-primary prose-a:font-black prose-a:underline prose-a:underline-offset-4 prose-a:decoration-primary/30 hover:prose-a:decoration-primary
-                                                            prose-strong:text-foreground prose-strong:font-black
-                                                            prose-p:mb-3 last:prose-p:mb-0">
+                                                        {/* Detect action tag for color coding */}
+                                                        {(() => {
+                                                            const isSellNow = /SELL NOW/i.test(analysis);
+                                                            const isHold = /\bHOLD\b/i.test(analysis) && !/SELL/.test(analysis);
+                                                            const isWait = /WAIT/i.test(analysis);
+                                                            const actionColor = isSellNow ? 'bg-green-50 border-green-200 text-green-700' :
+                                                                isHold ? 'bg-amber-50 border-amber-200 text-amber-700' :
+                                                                isWait ? 'bg-blue-50 border-blue-200 text-blue-700' : '';
+                                                            const actionIcon = isSellNow ? '✅' : isHold ? '⏸️' : isWait ? '⏳' : '';
+                                                            const actionText = isSellNow ? 'SELL NOW' : isHold ? 'HOLD' : isWait ? 'WAIT' : '';
+
+                                                            return actionText ? (
+                                                                <div className={`mb-3 px-3 py-2 rounded-xl border flex items-center gap-2 ${actionColor}`}>
+                                                                    <span className="text-base">{actionIcon}</span>
+                                                                    <span className="text-[11px] font-black uppercase tracking-wider">{actionText} — Expert Recommendation</span>
+                                                                </div>
+                                                            ) : null;
+                                                        })()}
+
+                                                        <div className="
+                                                            prose prose-sm max-w-none text-[12px] leading-relaxed text-foreground/90
+                                                            prose-headings:text-primary prose-headings:font-black prose-headings:text-[13px] prose-headings:mb-1
+                                                            prose-strong:text-primary prose-strong:font-black
+                                                            prose-p:mb-2.5 prose-p:text-[12px] prose-p:leading-relaxed
+                                                            prose-a:text-primary prose-a:font-semibold prose-a:underline
+                                                            prose-ul:my-1.5 prose-li:my-0.5 prose-li:text-[12px]
+                                                            [&_p:has(strong)]:font-medium
+                                                        ">
                                                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                                                 {analysis}
                                                             </ReactMarkdown>
                                                         </div>
-                                                        <button
-                                                            onClick={async (e) => {
-                                                                e.stopPropagation();
-                                                                try {
-                                                                    if (navigator.onLine) {
-                                                                        const audioBlob = await getNvidiaTts(analysis, language, undefined, true);
-                                                                        if (audioBlob) {
-                                                                            const audioUrl = URL.createObjectURL(audioBlob);
-                                                                            const audio = new Audio(audioUrl);
-                                                                            audio.onended = () => URL.revokeObjectURL(audioUrl);
-                                                                            await audio.play();
-                                                                            return;
+
+                                                        {/* Listen button */}
+                                                        <div className="mt-3 pt-3 border-t border-primary/10 flex items-center gap-2">
+                                                            <button
+                                                                onClick={async (e) => {
+                                                                    e.stopPropagation();
+                                                                    try {
+                                                                        if (navigator.onLine) {
+                                                                            const audioBlob = await getNvidiaTts(analysis, language, undefined, true);
+                                                                            if (audioBlob) {
+                                                                                const audioUrl = URL.createObjectURL(audioBlob);
+                                                                                const audio = new Audio(audioUrl);
+                                                                                audio.onended = () => URL.revokeObjectURL(audioUrl);
+                                                                                await audio.play();
+                                                                                return;
+                                                                            }
                                                                         }
+                                                                    } catch (err) {
+                                                                        console.warn("TTS failed", err);
                                                                     }
-                                                                } catch (err) {
-                                                                    console.warn("TTS failed", err);
-                                                                }
-                                                                const utterance = new SpeechSynthesisUtterance(analysis);
-                                                                const langMap: Record<string, string> = { 'en': 'en-IN', 'hi': 'hi-IN', 'ta': 'ta-IN', 'te': 'te-IN', 'mr': 'mr-IN' };
-                                                                utterance.lang = langMap[language] || 'en-IN';
-                                                                window.speechSynthesis.cancel();
-                                                                window.speechSynthesis.speak(utterance);
-                                                            }}
-                                                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-border text-[10px] font-black text-primary uppercase tracking-widest shadow-apple-sm hover:shadow-apple active:scale-95 transition-all"
-                                                        >
-                                                            <Volume2 size={14} />
-                                                            {t.listenNow}
-                                                        </button>
+                                                                    const utterance = new SpeechSynthesisUtterance(analysis);
+                                                                    const langMap: Record<string, string> = { 'en': 'en-IN', 'hi': 'hi-IN', 'ta': 'ta-IN', 'te': 'te-IN', 'mr': 'mr-IN' };
+                                                                    utterance.lang = langMap[language] || 'en-IN';
+                                                                    window.speechSynthesis.cancel();
+                                                                    window.speechSynthesis.speak(utterance);
+                                                                }}
+                                                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20 text-[10px] font-black text-primary uppercase tracking-widest hover:bg-primary/20 active:scale-95 transition-all"
+                                                            >
+                                                                <Volume2 size={12} />
+                                                                {t.listenNow}
+                                                            </button>
+                                                            <span className="text-[9px] text-muted-foreground ml-auto opacity-60">Powered by Perplexity Sonar</span>
+                                                        </div>
                                                     </>
                                                 ) : (
-                                                    <div className="flex items-center gap-3 py-2">
-                                                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                                                        <span className="text-[10px] font-bold text-muted-foreground animate-pulse">
+                                                    <div className="flex flex-col items-center gap-3 py-4">
+                                                        <div className="relative">
+                                                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                                                <Brain size={18} className="text-primary" />
+                                                            </div>
+                                                            <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                                                                <Loader2 className="w-2.5 h-2.5 text-white animate-spin" />
+                                                            </div>
+                                                        </div>
+                                                        <p className="text-[11px] font-bold text-muted-foreground animate-pulse text-center">
                                                             {analysisStatus[id] || t.analyzing}
-                                                        </span>
+                                                        </p>
                                                     </div>
                                                 )}
+                                                </div>
                                             </div>
                                         </div>
                                     )}
@@ -813,6 +884,119 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                                 <p className="text-xs text-muted-foreground">{t.seenAllPrices}</p>
                             </div>
                         )}
+
+                        {/* ── Wholesale Buyers Section ── */}
+                        <div className="mt-8 mb-4">
+                            <div className="flex items-center justify-between mb-4">
+                                <div>
+                                    <h2 className="text-[18px] font-black text-foreground tracking-tight">{(t as any).wholesaleBuyersTitle}</h2>
+                                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-70">
+                                        {activeCropBuyers.length} verified buyers in Tamil Nadu
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => setShowBuyers(v => !v)}
+                                    className={cn(
+                                        "flex items-center gap-2 px-4 py-2 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all border",
+                                        showBuyers
+                                            ? "bg-primary text-white border-primary"
+                                            : "bg-card text-muted-foreground border-border hover:border-primary/30"
+                                    )}
+                                >
+                                    <Users size={14} />
+                                    {showBuyers ? (t as any).hide : (t as any).showAll}
+                                </button>
+                            </div>
+
+                            {showBuyers && (
+                                <div className="animate-in slide-in-from-top-4 fade-in duration-300">
+                                    {/* Buyer search */}
+                                    <div className="relative mb-4">
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
+                                        <input
+                                            type="text"
+                                            placeholder={(t as any).searchBuyers}
+                                            value={buyerSearchTerm}
+                                            onChange={e => setBuyerSearchTerm(e.target.value)}
+                                            className="w-full h-11 pl-10 pr-4 rounded-2xl bg-card border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-[13px] font-medium"
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                        {(buyerSearchTerm ? filteredBuyers : activeCropBuyers).slice(0, 20).map(buyer => (
+                                            <div key={buyer.id} className="buyer-card p-4 group">
+                                                {/* Top row */}
+                                                <div className="flex items-start justify-between mb-3">
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center gap-1.5 mb-0.5">
+                                                            {buyer.verified && (
+                                                                <BadgeCheck size={14} className="text-primary flex-shrink-0" />
+                                                            )}
+                                                            <p className="text-[13px] font-black text-foreground leading-tight truncate">{buyer.name}</p>
+                                                        </div>
+                                                        <p className="text-[11px] text-muted-foreground font-medium">{(t as any).agentLabel}: {buyer.agentName}</p>
+                                                    </div>
+                                                    <div className="flex flex-col items-end gap-1 ml-2 flex-shrink-0">
+                                                        <div className="flex items-center gap-1">
+                                                            <Star size={10} className="text-amber-400 fill-amber-400" />
+                                                            <span className="text-[11px] font-black text-foreground">{buyer.rating}</span>
+                                                        </div>
+                                                        {buyer.verified && (
+                                                            <span className="text-[8px] font-black uppercase bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">{(t as any).verifiedBuyer}</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {/* Location */}
+                                                <div className="flex items-center gap-1.5 mb-2">
+                                                    <MapPin size={11} className="text-primary flex-shrink-0" />
+                                                    <p className="text-[11px] text-muted-foreground font-medium">{buyer.location}, {buyer.district}</p>
+                                                </div>
+
+                                                {/* Crops */}
+                                                <div className="flex flex-wrap gap-1 mb-3">
+                                                    {buyer.crops.slice(0, 4).map(crop => (
+                                                        <span key={crop} className="text-[9px] font-black uppercase bg-primary/10 text-primary/80 px-2 py-0.5 rounded-full border border-primary/20">
+                                                            {crop}
+                                                        </span>
+                                                    ))}
+                                                    {buyer.crops.length > 4 && (
+                                                        <span className="text-[9px] font-bold text-muted-foreground/60">+{buyer.crops.length - 4}</span>
+                                                    )}
+                                                </div>
+
+                                                {/* Bottom row */}
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-[9px] uppercase font-black text-muted-foreground opacity-60 mb-0.5">{t.priceRange}</p>
+                                                        <p className="text-[12px] font-black text-primary">{buyer.priceRange}</p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="text-[9px] uppercase font-black text-muted-foreground opacity-60 mb-0.5">{(t as any).capacityWeek}</p>
+                                                        <p className="text-[11px] font-bold text-foreground">{buyer.capacityPerWeek}</p>
+                                                    </div>
+                                                </div>
+
+                                                {/* Contact bar */}
+                                                <div className="mt-3 pt-2 border-t border-primary/10 flex items-center justify-between">
+                                                    <div className="flex items-center gap-1">
+                                                        <Phone size={10} className="text-muted-foreground/60" />
+                                                        <span className="text-[10px] font-bold text-muted-foreground/70">{buyer.phone}</span>
+                                                    </div>
+                                                    <span className="text-[9px] font-bold text-muted-foreground/50 italic">{buyer.paymentTerms.substring(0, 30)}</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {(buyerSearchTerm ? filteredBuyers : activeCropBuyers).length > 20 && (
+                                        <p className="text-center text-xs text-muted-foreground mt-4 py-2">
+                                            {((t as any).showingBuyers || 'Showing 20 of {count} buyers').replace('{count}', String((buyerSearchTerm ? filteredBuyers : activeCropBuyers).length))}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </>
                 )}
                   </>
@@ -823,7 +1007,7 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
                           <input
                               type="text"
-                              placeholder="Search products, brands..."
+                              placeholder={(t as any).searchProductsPlaceholder || "Search products, brands..."}
                               value={storeSearch}
                               onChange={(e) => setStoreSearch(e.target.value)}
                               className="w-full h-14 pl-12 pr-4 rounded-2xl bg-card border border-border shadow-apple-sm focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-body font-bold"
@@ -850,7 +1034,7 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                                       )}
                                   >
                                       {catIcons[cat] || <ShoppingBag size={13} />}
-                                      {cat}
+                                      {translateStoreCategory(cat, language)}
                                   </button>
                               );
                           })}
@@ -885,21 +1069,21 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                                                       product.category === 'Machinery' ? 'bg-indigo-50 text-indigo-600' :
                                                       'bg-muted text-muted-foreground'
                                                   )}>
-                                                      {product.category}
+                                                      {translateStoreCategory(product.category, language)}
                                                   </span>
                                               </div>
                                               <h3 className="text-[15px] font-bold text-foreground leading-snug mb-1.5">
                                                   {product.name}
                                               </h3>
                                               <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
-                                                  {product.description}
+                                                  {translateProductDescription(product.description, language)}
                                               </p>
                                           </div>
 
                                           {/* Bottom row — price + buy */}
                                           <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/40">
                                               <div>
-                                                  <p className="text-[9px] font-black uppercase text-muted-foreground leading-none mb-0.5">Price</p>
+                                                  <p className="text-[9px] font-black uppercase text-muted-foreground leading-none mb-0.5">{(t as any).price || 'Price'}</p>
                                                   <p className="text-[22px] font-black text-foreground leading-none tracking-tight">₹{product.price}</p>
                                               </div>
                                               <button
@@ -907,7 +1091,7 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                                                   className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-primary text-white font-black text-[11px] uppercase tracking-widest hover:bg-primary/90 active:scale-95 transition-all shadow-apple-sm"
                                               >
                                                   <ShoppingCart size={14} />
-                                                  Buy Now
+                                                  {(tCommon as any).buyNow || 'Buy Now'}
                                               </button>
                                           </div>
                                       </div>
@@ -921,8 +1105,8 @@ export const MarketPriceScreen: React.FC<MarketPriceScreenProps> = ({ language, 
                               <div className="w-16 h-16 rounded-3xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
                                   <ShoppingCart className="w-8 h-8 text-muted-foreground/40" />
                               </div>
-                              <p className="text-subhead font-bold text-foreground mb-1">No products found</p>
-                              <p className="text-caption text-muted-foreground">Try a different search or category.</p>
+                              <p className="text-subhead font-bold text-foreground mb-1">{(t as any).noProductsFound || 'No products found'}</p>
+                              <p className="text-caption text-muted-foreground">{(t as any).tryDifferentSearch || 'Try a different search or category.'}</p>
                           </div>
                       )}
                   </div>

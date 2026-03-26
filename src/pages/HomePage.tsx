@@ -67,11 +67,15 @@ export default function HomePage() {
     const tCall = getTranslation('call', language);
 
 
-    // Available NVIDIA voices
+    // Available NVIDIA Magpie voices
+    const femaleLabel: Record<string, string> = { en: 'Female', hi: 'महिला', ta: 'பெண்', te: 'మహిళ', mr: 'महिला' };
+    const fl = femaleLabel[language] || 'Female';
     const voiceOptions = [
-        { id: 'mia', name: 'Mia', label: language === 'hi' ? 'मिया (महिला)' : 'Mia (Female)' },
-        { id: 'aria', name: 'Aria', label: language === 'hi' ? 'आरिया (महिला)' : 'Aria (Female)' },
-        { id: 'sofia', name: 'Sofia', label: language === 'hi' ? 'सोफिया (महिला)' : 'Sofia (Female)' },
+        { id: 'mia', name: 'Mia', label: `Mia (${fl})`, gender: 'female' },
+        { id: 'aria', name: 'Aria', label: `Aria (${fl})`, gender: 'female' },
+        { id: 'sofia', name: 'Sofia', label: `Sofia (${fl})`, gender: 'female' },
+        { id: 'louise', name: 'Louise', label: `Louise (${fl})`, gender: 'female' },
+        { id: 'isabela', name: 'Isabela', label: `Isabela (${fl})`, gender: 'female' },
     ];
 
     useEffect(() => {
@@ -638,7 +642,7 @@ export default function HomePage() {
                     >
                         <PhoneCall size={18} className="text-primary" />
                     </button>
-                    <ConnectionStatus isOnline={isOnline} />
+                    <ConnectionStatus isOnline={isOnline} language={language} />
                 </div>
                 <LanguageSelector selectedLanguage={language} onLanguageChange={setLanguage} />
             </header>

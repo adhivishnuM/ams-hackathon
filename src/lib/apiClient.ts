@@ -11,7 +11,6 @@ import localWisdomData from '@/data/offline_knowledge.json';
 import { localWisdom, WisdomItem } from '@/data/localWisdom';
 import { dbService } from '@/services/db';
 import { syncService } from '@/services/syncService';
-import { ttsCacheService } from '@/services/ttsCacheService';
 import { getTranslation } from '@/lib/translations';
 
 // Combine legacy wisdom with new JSON data for broader search
@@ -172,14 +171,17 @@ export async function transcribeAndGetAdvice(
         if (result.advisory?.recommendation) {
             const orderMatch = result.advisory.recommendation.match(/\[B2B_ORDER_CONFIRMED:\s*([^\]]+)\]/i);
             if (orderMatch) {
-                const cropName = orderMatch[1].trim();
+                const parts = orderMatch[1].split('|').map((s: string) => s.trim());
+                const cropName = parts[0] || "Farm Produce";
+                const quantity = parts[1] || "As requested in call";
+                const location = parts[2] || "Verified Location";
                 const newOrder = {
                     id: `ord_${Date.now()}`,
-                    crop: cropName || "Farm Produce",
-                    quantity: "As requested in call",
-                    location: "Verified Location",
+                    crop: cropName,
+                    quantity: quantity,
+                    location: location,
                     price_estimate: "Live Market Rate",
-                    status: "Pending Buyer Pickup",
+                    status: "🟢 Connecting with Buyers",
                     buyer_name: "AgroTalk Network Buyer",
                     timestamp: Date.now()
                 };
@@ -289,8 +291,6 @@ export async function getTextAdvice(
             const cachedResponse = await syncService.getCachedAIResponse(queryHash);
             if (cachedResponse) {
                 console.log('📦 Found cached AI response for offline use');
-                // Try to get cached TTS audio too
-                const cachedAudio = ttsCacheService.getCachedAudio(cachedResponse);
                 return {
                     success: true,
                     transcript: text,
@@ -298,8 +298,7 @@ export async function getTextAdvice(
                         recommendation: cachedResponse,
                         condition: 'Cached Response',
                         confidence: 'High'
-                    },
-                    audio: cachedAudio || undefined
+                    }
                 };
             }
         }
@@ -337,10 +336,6 @@ export async function getTextAdvice(
             offlineResponse = tWeather.offlineAiDesc;
         }
 
-        // Try to find cached TTS audio for the response text
-        const cachedTtsAudio = ttsCacheService.getCachedAudio(offlineResponse);
-
-        // Return the offline response
         return {
             success: true,
             transcript: text,
@@ -348,8 +343,7 @@ export async function getTextAdvice(
                 recommendation: offlineResponse,
                 condition: 'Offline Mode',
                 confidence: 'High'
-            },
-            audio: cachedTtsAudio || undefined
+            }
         };
     }
 
@@ -396,11 +390,6 @@ export async function getTextAdvice(
         if (result.advisory?.recommendation) {
             const queryHash = syncService.hashQuery(text);
             syncService.cacheAIResponse(queryHash, text, result.advisory.recommendation);
-
-            // Cache TTS audio if present
-            if (result.audio) {
-                ttsCacheService.cacheAudio(result.advisory.recommendation, result.audio, language);
-            }
 
             // Check for B2B Crop Selling Order Confirmation
             const orderMatch = result.advisory.recommendation.match(/\[B2B_ORDER_CONFIRMED:\s*([^\]]+)\]/i);

@@ -83,11 +83,15 @@ export default function Index() {
 
 
 
-  // Available NVIDIA voices
+  // Available NVIDIA Magpie voices
+  const femaleLabel: Record<string, string> = { en: 'Female', hi: 'महिला', ta: 'பெண்', te: 'మహిళ', mr: 'महिला' };
+  const fl = femaleLabel[language] || 'Female';
   const voiceOptions = [
-    { id: "mia", name: "Mia", label: language === 'hi' ? 'मिया (महिला)' : 'Mia (Female)' },
-    { id: "aria", name: "Aria", label: language === 'hi' ? 'आरिया (महिला)' : 'Aria (Female)' },
-    { id: "sofia", name: "Sofia", label: language === 'hi' ? 'सोफिया (महिला)' : 'Sofia (Female)' },
+    { id: "mia", name: "Mia", label: `Mia (${fl})`, gender: 'female' },
+    { id: "aria", name: "Aria", label: `Aria (${fl})`, gender: 'female' },
+    { id: "sofia", name: "Sofia", label: `Sofia (${fl})`, gender: 'female' },
+    { id: "louise", name: "Louise", label: `Louise (${fl})`, gender: 'female' },
+    { id: "isabela", name: "Isabela", label: `Isabela (${fl})`, gender: 'female' },
   ];
 
   const t = getTranslation('home', language);
@@ -894,7 +898,7 @@ export default function Index() {
               </div>
               <div className="flex flex-col">
                 <h1 className="text-body font-bold text-foreground leading-none tracking-tight">Agrotalk</h1>
-                <ConnectionStatus isOnline={isOnline} />
+                <ConnectionStatus isOnline={isOnline} language={language} />
               </div>
             </div>
 

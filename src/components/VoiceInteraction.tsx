@@ -63,13 +63,15 @@ export function VoiceInteraction({ isOpen, onClose, language, isIntegrated, weat
   const [shouldForceEdge, setShouldForceEdge] = useState(false);
   const voiceMenuRef = useRef<HTMLDivElement>(null);
 
-  // Available NVIDIA voices
+  // Available NVIDIA Magpie voices
   const femaleLabel: Record<string, string> = { en: 'Female', hi: 'महिला', ta: 'பெண்', te: 'మహిళ', mr: 'महिला' };
   const fl = femaleLabel[language] || 'Female';
   const voiceOptions = [
-    { id: "mia", name: "Mia", label: `Mia (${fl})` },
-    { id: "aria", name: "Aria", label: `Aria (${fl})` },
-    { id: "sofia", name: "Sofia", label: `Sofia (${fl})` },
+    { id: "mia", name: "Mia", label: `Mia (${fl})`, gender: 'female' },
+    { id: "aria", name: "Aria", label: `Aria (${fl})`, gender: 'female' },
+    { id: "sofia", name: "Sofia", label: `Sofia (${fl})`, gender: 'female' },
+    { id: "louise", name: "Louise", label: `Louise (${fl})`, gender: 'female' },
+    { id: "isabela", name: "Isabela", label: `Isabela (${fl})`, gender: 'female' },
   ];
 
 

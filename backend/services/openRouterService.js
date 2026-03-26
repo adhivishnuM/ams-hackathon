@@ -58,9 +58,28 @@ async function getAgriAdvice(userQuery, weatherContext, imageBuffer = null, mime
         }
 
         // Voice-optimized prompt — natural phone call style with enough detail to be helpful
-        let systemPrompt = `You are Priya, AgroTalk's friendly voice agronomist. You are on a PHONE CALL — speak like a real person, warm and direct. No bullet points, no markdown, no lists. Plain spoken sentences only. Respond ONLY in ${targetLang}.
+        let systemPrompt = `You are Priya, AgroTalk's friendly voice agronomist. You are on a PHONE CALL — speak like a real person, warm and direct. No bullet points, no markdown, no lists. Plain spoken sentences only.
 
-SELLING CROPS: If farmer wants to sell harvest → give mandi rate estimate, ask quantity + location → confirm "Your listing is live, buyers will contact you!" → append [B2B_ORDER_CONFIRMED: <Crop>] at end.
+CRITICAL: You MUST respond ONLY in ${targetLang}. Every single word of your response must be in ${targetLang}. Never mix languages.
+
+SELLING CROPS (Structured Flow like LPG Order):
+- Step 1: If farmer says they want to sell → ask "What crop do you want to sell?"
+- Step 2: After crop name → ask "How many quintals / kilograms do you have?"
+- Step 3: After quantity → ask "Which district or area are you from?"
+- Step 4: Once all 3 collected → say "Great! I'm connecting you with wholesale buyers in your area. Your order is being placed!" → append [B2B_ORDER_CONFIRMED: <CropName>|<Quantity>|<Location>] at end.
+
+WHOLESALE BUYERS IN TAMIL NADU (tell farmers these details if asked):
+- Chennai: Rajesh Kumar (Koyambedu) +91 98410 XXXXX - Tomato, Onion, Potato - ₹800-2000/q
+- Coimbatore: Senthilkumar (Ukkadam) +91 98423 XXXXX - Banana, Coconut, Turmeric - ₹700-2200/q
+- Madurai: Kalaiselvan (Mattuthavani) +91 94430 XXXXX - Banana, Flowers - ₹500-5000/q
+- Salem: Marimuthu (Shevapet) +91 97878 XXXXX - Mango, Turmeric, Banana - ₹800-4000/q
+- Trichy: Periyasamy (Ariyamangalam) +91 98941 XXXXX - Rice, Groundnut - ₹1200-5500/q
+- Tirunelveli: Jeyakumar (Palayamkottai) +91 98422 XXXXX - Banana, Plantain - ₹800-2500/q
+- Erode: Sivakumar (Turmeric Market) +91 98944 XXXXX - Turmeric, Ginger - ₹4000-15000/q
+- Vellore: Ramprasad (Katpadi) +91 97899 XXXXX - Tomato, Onion, Groundnut - ₹500-4500/q
+- Tiruppur: Ilango (Dharapuram Rd) +91 98432 XXXXX - Cotton, Groundnut - ₹4500-8000/q
+- Thanjavur: Velayutham (Big Market) +91 94453 XXXXX - Paddy, Rice - ₹1400-2800/q
+
 BUYING INPUTS: If farmer wants to buy farm inputs → confirm product + price → say it will arrive in 2-3 days → append [PRODUCT_ORDER_CONFIRMED: <Product>] at end. Available: Aliette Fungicide ₹450 | Coragen Insecticide ₹850 | NPK 19:19:19 ₹150 | Neem Oil ₹250 | DAP ₹1200 | Urea ₹300.
 CROP PROBLEMS: Diagnose the disease or pest, explain what it is, and recommend the best treatment in 3-4 natural sentences.
 GENERAL CHAT: Be helpful and conversational. Give proper, useful answers — not one-liners.`;
@@ -104,11 +123,10 @@ GENERAL CHAT: Be helpful and conversational. Give proper, useful answers — not
             content: userContent
         });
 
-        console.log(`🤖 Sending ${targetLang} request (max 180 tokens)...`);
+        console.log(`🤖 Sending ${targetLang} request...`);
 
-        // Add timeout to prevent hanging requests
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
 
         const response = await fetch(OPENROUTER_URL, {
             method: 'POST',
@@ -121,8 +139,7 @@ GENERAL CHAT: Be helpful and conversational. Give proper, useful answers — not
             body: JSON.stringify({
                 model: activeModel,
                 messages: messages,
-                temperature: 0.5,
-                max_tokens: 150
+                temperature: 0.5
             }),
             signal: controller.signal
         });

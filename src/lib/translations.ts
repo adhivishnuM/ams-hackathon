@@ -27,9 +27,14 @@ export const translations = {
       activeAgent: "Active Agent",
       voicePersona: "Voice Persona",
       collapseView: "Collapse View",
+      expandView: "Expand Sidebar",
       buyNow: "Buy Now",
       recommendedProducts: "Recommended Products",
       sponsored: "Sponsored",
+      professionalAi: "Professional AI",
+      menuSystem: "Menu System",
+      online: "Online",
+      offline: "Offline",
     },
     hi: {
       appName: "एग्रोवॉइस",
@@ -54,9 +59,14 @@ export const translations = {
       activeAgent: "सक्रिय एजेंट",
       voicePersona: "आवाज़ चुनें",
       collapseView: "व्यू छुपाएं",
+      expandView: "साइडबार खोलें",
       buyNow: "अभी खरीदें",
       recommendedProducts: "अनुशंसित उत्पाद",
       sponsored: "प्रायोजित",
+      professionalAi: "प्रोफेशनल AI",
+      menuSystem: "मेनू सिस्टम",
+      online: "ऑनलाइन",
+      offline: "ऑफलाइन",
     },
     ta: {
       appName: "அக்ரோவாய்ஸ்",
@@ -81,9 +91,14 @@ export const translations = {
       activeAgent: "செயலில் உள்ள முகவர்",
       voicePersona: "குரல் தேர்வு",
       collapseView: "காட்சியை சுருக்கு",
+      expandView: "பக்கப்பட்டியை விரி",
       buyNow: "இப்போது வாங்கு",
       recommendedProducts: "பரிந்துரைக்கப்பட்ட தயாரிப்புகள்",
       sponsored: "விளம்பரம்",
+      professionalAi: "தொழில்முறை AI",
+      menuSystem: "மெனு அமைப்பு",
+      online: "இணையத்தில்",
+      offline: "இணையமின்றி",
     },
     te: {
       appName: "అగ్రోవాయిస్",
@@ -108,9 +123,14 @@ export const translations = {
       activeAgent: "చురుకైన ఏజెంట్",
       voicePersona: "వాయిస్ ఎంపిక",
       collapseView: "వ్యూ తగ్గించు",
+      expandView: "సైడ్‌బార్ విస్తరించు",
       buyNow: "ఇప్పుడు కొనండి",
       recommendedProducts: "సిఫార్సు చేసిన ఉత్పత్తులు",
       sponsored: "ప్రాయోజితం",
+      professionalAi: "ప్రొఫెషనల్ AI",
+      menuSystem: "మెనూ వ్యవస్థ",
+      online: "ఆన్‌లైన్",
+      offline: "ఆఫ్‌లైన్",
     },
     mr: {
       appName: "ॲग्रोव्हॉइस",
@@ -135,9 +155,14 @@ export const translations = {
       activeAgent: "सक्रिय एजंट",
       voicePersona: "आवाज निवडा",
       collapseView: "व्ह्यू संकुचित करा",
+      expandView: "साइडबार उघडा",
       buyNow: "आता खरेदी करा",
       recommendedProducts: "शिफारस केलेली उत्पादने",
       sponsored: "प्रायोजित",
+      professionalAi: "व्यावसायिक AI",
+      menuSystem: "मेनू प्रणाली",
+      online: "ऑनलाइन",
+      offline: "ऑफलाइन",
     },
   },
 
@@ -491,6 +516,11 @@ export const translations = {
       scanningPlant: "Scanning Plant...",
       optimizingImage: "Optimizing image for AI...",
       identifyingIssues: "Identifying potential issues...",
+      plantScan: "Plant Scan",
+      birdDetect: "Bird Detect",
+      aiAnalyzedImage: "AI Analyzed Image",
+      agroStoreAffiliate: "AgroStore Affiliate",
+      howItFormed: "How it was formed",
     },
     hi: {
       title: "पौधा स्कैनर",
@@ -522,6 +552,11 @@ export const translations = {
       scanningPlant: "पौधा स्कैन हो रहा है...",
       optimizingImage: "एआई के लिए छवि अनुकूलन...",
       identifyingIssues: "संभावित समस्याएं पहचान रहे हैं...",
+      plantScan: "पौधा स्कैन",
+      birdDetect: "पक्षी खोज",
+      aiAnalyzedImage: "AI विश्लेषित छवि",
+      agroStoreAffiliate: "कृषि स्टोर",
+      howItFormed: "यह कैसे बना",
     },
     ta: {
       title: "தாவர ஸ்கேனர்",
@@ -553,6 +588,11 @@ export const translations = {
       scanningPlant: "தாவரத்தை ஸ்கேன் செய்கிறது...",
       optimizingImage: "AI க்கு படத்தை மேம்படுத்துகிறது...",
       identifyingIssues: "சாத்தியமான பிரச்சினைகளை அடையாளம் காணுதல்...",
+      plantScan: "பயிர் ஸ்கேன்",
+      birdDetect: "பறவை கண்டறிதல்",
+      aiAnalyzedImage: "AI பகுப்பாய்வு செய்யப்பட்ட படம்",
+      agroStoreAffiliate: "விவசாய கடை",
+      howItFormed: "இது எப்படி உருவானது",
     },
     te: {
       title: "మొక్క స్కానర్",
@@ -584,6 +624,11 @@ export const translations = {
       scanningPlant: "మొక్కను స్కాన్ చేస్తోంది...",
       optimizingImage: "AI కోసం చిత్రాన్ని ఆప్టిమైజ్ చేస్తోంది...",
       identifyingIssues: "సంభావ్య సమస్యలను గుర్తిస్తోంది...",
+      plantScan: "మొక్క స్కాన్",
+      birdDetect: "పక్షి గుర్తింపు",
+      aiAnalyzedImage: "AI విశ్లేషించిన చిత్రం",
+      agroStoreAffiliate: "వ్యవసాయ స్టోర్",
+      howItFormed: "ఇది ఎలా ఏర్పడింది",
     },
     mr: {
       title: "वनस्पती स्कॅनर",
@@ -615,6 +660,11 @@ export const translations = {
       scanningPlant: "वनस्पती स्कॅन होत आहे...",
       optimizingImage: "AI साठी प्रतिमा ऑप्टिमाइझ करत आहे...",
       identifyingIssues: "संभाव्य समस्या ओळखत आहे...",
+      plantScan: "वनस्पती स्कॅन",
+      birdDetect: "पक्षी ओळख",
+      aiAnalyzedImage: "AI विश्लेषित प्रतिमा",
+      agroStoreAffiliate: "कृषी स्टोर",
+      howItFormed: "ते कसे तयार झाले",
     },
   },
 
@@ -1110,6 +1160,28 @@ export const translations = {
       faq: "FAQ",
       askMarket: "Ask me about pricing trends, selling tips, or market advice!",
       sentToChat: "✅ Market data sent to chat!",
+      liveMandi: "Live Mandi",
+      agroStore: "Agro Store",
+      wholesaleBuyersTab: "Wholesale Buyers",
+      showAll: "Show All",
+      hide: "Hide",
+      searchBuyers: "Search by crop or district...",
+      wholesaleBuyersTitle: "Wholesale Buyers",
+      showingBuyers: "Showing 20 of {count} buyers. Search by crop to filter.",
+      agentLabel: "Agent",
+      verifiedBuyer: "Verified",
+      capacityWeek: "Capacity/week",
+      searchProductsPlaceholder: "Search products, brands...",
+      productsAvailable: "products available",
+      price: "Price",
+      noProductsFound: "No products found",
+      tryDifferentSearch: "Try a different search or category.",
+      catAll: "All",
+      catFertilizers: "Fertilizers",
+      catPesticides: "Pesticides",
+      catSeeds: "Seeds",
+      catFarmingTools: "Farming Tools",
+      catMachinery: "Machinery",
     },
     hi: {
       title: "बाजार भाव",
@@ -1163,6 +1235,28 @@ export const translations = {
       faq: "एफएक्यू",
       askMarket: "मुझसे मूल्य प्रवृत्तियों, बिक्री युक्तियों या बाजार सलाह के बारे में पूछें!",
       sentToChat: "✅ बाजार डेटा चैट में भेजा गया!",
+      liveMandi: "लाइव मंडी",
+      agroStore: "कृषि स्टोर",
+      wholesaleBuyersTab: "थोक खरीदार",
+      showAll: "सब दिखाएं",
+      hide: "छुपाएं",
+      searchBuyers: "फसल या जिले से खोजें...",
+      wholesaleBuyersTitle: "थोक खरीदार",
+      showingBuyers: "20 में से {count} खरीदार दिखाए जा रहे हैं।",
+      agentLabel: "एजेंट",
+      verifiedBuyer: "सत्यापित",
+      capacityWeek: "क्षमता/सप्ताह",
+      searchProductsPlaceholder: "उत्पाद, ब्रांड खोजें...",
+      productsAvailable: "उत्पाद उपलब्ध हैं",
+      price: "मूल्य",
+      noProductsFound: "कोई उत्पाद नहीं मिला",
+      tryDifferentSearch: "अलग खोज या श्रेणी आज़माएं।",
+      catAll: "सभी",
+      catFertilizers: "खाद",
+      catPesticides: "कीटनाशक",
+      catSeeds: "बीज",
+      catFarmingTools: "कृषि उपकरण",
+      catMachinery: "मशीनरी",
     },
     ta: {
       title: "சந்தை விலைகள்",
@@ -1216,6 +1310,28 @@ export const translations = {
       faq: "அடிக்கடி கேட்கப்படும் கேள்விகள்",
       askMarket: "விலை போக்குகள், விற்பனை குறிப்புகள் அல்லது சந்தை ஆலோசனை பற்றி என்னிடம் கேளுங்கள்!",
       sentToChat: "✅ சந்தை தரவு சாட்டில் அனுப்பப்பட்டது!",
+      liveMandi: "நேரடி மண்டி",
+      agroStore: "விவசாய கடை",
+      wholesaleBuyersTab: "மொத்த வாங்குபவர்கள்",
+      showAll: "எல்லாம் காட்டு",
+      hide: "மறை",
+      searchBuyers: "பயிர் அல்லது மாவட்டம் தேடுங்கள்...",
+      wholesaleBuyersTitle: "மொத்த வாங்குபவர்கள்",
+      showingBuyers: "{count} வாங்குபவர்களில் 20 காட்டப்படுகிறது.",
+      agentLabel: "முகவர்",
+      verifiedBuyer: "சரிபார்க்கப்பட்டது",
+      capacityWeek: "திறன்/வாரம்",
+      searchProductsPlaceholder: "தயாரிப்புகள், பிராண்டுகள் தேடுங்கள்...",
+      productsAvailable: "தயாரிப்புகள் உள்ளன",
+      price: "விலை",
+      noProductsFound: "தயாரிப்புகள் கிடைக்கவில்லை",
+      tryDifferentSearch: "வேறு தேடல் அல்லது வகையை முயற்சிக்கவும்.",
+      catAll: "எல்லாம்",
+      catFertilizers: "உரங்கள்",
+      catPesticides: "பூச்சிக்கொல்லிகள்",
+      catSeeds: "விதைகள்",
+      catFarmingTools: "விவசாய கருவிகள்",
+      catMachinery: "இயந்திரங்கள்",
     },
     te: {
       title: "మార్కెట్ ధరలు",
@@ -1269,6 +1385,28 @@ export const translations = {
       faq: "తరచుగా అడిగే ప్రశ్నలు",
       askMarket: "ధర పోకడలు, అమ్మకపు చిట్కాలు లేదా మార్కెట్ సలహాల గురించి నన్ను అడగండి!",
       sentToChat: "✅ మార్కెట్ డేటా చాట్‌కు పంపబడింది!",
+      liveMandi: "లైవ్ మండీ",
+      agroStore: "వ్యవసాయ స్టోర్",
+      wholesaleBuyersTab: "టోకు కొనుగోలుదారులు",
+      showAll: "అన్నీ చూపించు",
+      hide: "దాచు",
+      searchBuyers: "పంట లేదా జిల్లా వారీగా వెతకండి...",
+      wholesaleBuyersTitle: "టోకు కొనుగోలుదారులు",
+      showingBuyers: "{count} మందిలో 20 మంది చూపబడుతున్నారు.",
+      agentLabel: "ఏజెంట్",
+      verifiedBuyer: "ధృవీకరించబడింది",
+      capacityWeek: "సామర్థ్యం/వారం",
+      searchProductsPlaceholder: "ఉత్పత్తులు, బ్రాండ్లు వెతకండి...",
+      productsAvailable: "ఉత్పత్తులు అందుబాటులో ఉన్నాయి",
+      price: "ధర",
+      noProductsFound: "ఉత్పత్తులు కనుగొనబడలేదు",
+      tryDifferentSearch: "వేరే శోధన లేదా వర్గాన్ని ప్రయత్నించండి.",
+      catAll: "అన్నీ",
+      catFertilizers: "ఎరువులు",
+      catPesticides: "పురుగుమందులు",
+      catSeeds: "విత్తనాలు",
+      catFarmingTools: "వ్యవసాయ పనిముట్లు",
+      catMachinery: "యంత్రాలు",
     },
     mr: {
       title: "बाजार भाव",
@@ -1322,6 +1460,28 @@ export const translations = {
       faq: "वारंवार विचारले जाणारे प्रश्न",
       askMarket: "मला किमतीचे कल, विक्रीच्या टिप्स किंवा बाजार सल्ल्याबद्दल विचारा!",
       sentToChat: "✅ बाजार डेटा चॅटमध्ये पाठवला!",
+      liveMandi: "लाईव्ह मंडी",
+      agroStore: "कृषी स्टोर",
+      wholesaleBuyersTab: "घाऊक खरेदीदार",
+      showAll: "सर्व दाखवा",
+      hide: "लपवा",
+      searchBuyers: "पीक किंवा जिल्ह्याने शोधा...",
+      wholesaleBuyersTitle: "घाऊक खरेदीदार",
+      showingBuyers: "{count} पैकी 20 खरेदीदार दाखवत आहे.",
+      agentLabel: "एजंट",
+      verifiedBuyer: "सत्यापित",
+      capacityWeek: "क्षमता/आठवडा",
+      searchProductsPlaceholder: "उत्पादने, ब्रँड शोधा...",
+      productsAvailable: "उत्पादने उपलब्ध आहेत",
+      price: "किंमत",
+      noProductsFound: "कोणतेही उत्पादन आढळले नाही",
+      tryDifferentSearch: "वेगळी शोधा किंवा श्रेणी वापरा.",
+      catAll: "सर्व",
+      catFertilizers: "खते",
+      catPesticides: "कीटकनाशके",
+      catSeeds: "बियाणे",
+      catFarmingTools: "शेती साधने",
+      catMachinery: "यंत्रसामग्री",
     },
   },
 
@@ -1623,11 +1783,144 @@ export const commodityTranslations: Record<string, Record<string, string>> = {
   "Peas": { en: "Peas", hi: "मटर", ta: "பட்டாணி", te: "బఠాణి", mr: "वाटाणे" },
   "Lemon": { en: "Lemon", hi: "नींबू", ta: "எலுமிச்சை", te: "నిమ్మకాయ", mr: "लिंबू" },
   "Coconut": { en: "Coconut", hi: "नारियल", ta: "தேங்காய்", te: "కొబ్బరికాయ", mr: "नारळ" },
+  "Orange": { en: "Orange", hi: "संतरा", ta: "ஆரஞ்சு", te: "నారంజి", mr: "संत्री" },
+  "Pumpkin": { en: "Pumpkin", hi: "कद्दू", ta: "பரங்கிக்காய்", te: "గుమ్మడికాయ", mr: "भोपळा" },
+  "Cucumber": { en: "Cucumber", hi: "खीरा", ta: "வெள்ளரி", te: "దోసకాయ", mr: "काकडी" },
+  "Radish": { en: "Radish", hi: "मूली", ta: "முள்ளங்கி", te: "మూలంగి", mr: "मुळा" },
+  "Apple": { en: "Apple", hi: "सेब", ta: "ஆப்பிள்", te: "యాపిల్", mr: "सफरचंद" },
+  "Mustard": { en: "Mustard", hi: "सरसों", ta: "கடுகு", te: "ఆవాలు", mr: "मोहरी" },
+  "Chilli": { en: "Chilli", hi: "मिर्च", ta: "மிளகாய்", te: "మిర్చి", mr: "मिरची" },
+  "Bitter Gourd": { en: "Bitter Gourd", hi: "करेला", ta: "பாவக்காய்", te: "కాకర", mr: "कारले" },
+  "Bottle Gourd": { en: "Bottle Gourd", hi: "लौकी", ta: "சுரைக்காய்", te: "సొర", mr: "दुधी" },
+  "Drum Stick": { en: "Drum Stick", hi: "सहजन", ta: "முருங்கைக்காய்", te: "మునగ", mr: "शेवगा" },
+  "Beans": { en: "Beans", hi: "सेम", ta: "அவரை", te: "చిక్కుళ్ళు", mr: "शेंगा" },
+  "Sweet Potato": { en: "Sweet Potato", hi: "शकरकंद", ta: "சர்க்கரைவள்ளி", te: "చిలగడదుంప", mr: "रताळे" },
+  "Papaya": { en: "Papaya", hi: "पपीता", ta: "பப்பாளி", te: "బొప్పాయి", mr: "पपई" },
+  "Pineapple": { en: "Pineapple", hi: "अनानास", ta: "அன்னாசி", te: "అనాస", mr: "अननस" },
+  "Sapota": { en: "Sapota", hi: "चीकू", ta: "சப்போட்டா", te: "సపోట", mr: "चिकू" },
+  "Arecanut": { en: "Arecanut", hi: "सुपारी", ta: "பாக்கு", te: "పోక", mr: "सुपारी" },
+  "Raddish": { en: "Radish", hi: "मूली", ta: "முள்ளங்கி", te: "మూలంగి", mr: "मुळा" },
 };
+
+// Store product description translations (keyed by first ~30 chars of English description)
+export const productDescriptionTranslations: Record<string, Record<string, string>> = {
+  "Balanced nitrogen, phosphorus, and potassium": {
+    en: "Balanced nitrogen, phosphorus, and potassium supplement for universal crop health and rapid growth stages.",
+    hi: "सभी फसलों के स्वास्थ्य और तेज़ वृद्धि के लिए संतुलित नाइट्रोजन, फास्फोरस और पोटैशियम पूरक।",
+    ta: "அனைத்து பயிர்களின் ஆரோக்கியம் மற்றும் வளர்ச்சிக்கு சமச்சீர் நைட்ரஜன், பாஸ்பரஸ் மற்றும் பொட்டாசியம் சத்து.",
+    te: "అన్ని పంటల ఆరోగ్యం మరియు త్వరిత వృద్ధికి సమతుల్య నత్రజని, భాస్వరం మరియు పొటాషియం సప్లిమెంట్.",
+    mr: "सर्व पिकांच्या आरोग्य आणि जलद वाढीसाठी संतुलित नायट्रोजन, फॉस्फरस आणि पोटॅशियम पूरक.",
+  },
+  "High-nitrogen fertilizer for accelerated vegetative": {
+    en: "High-nitrogen fertilizer for accelerated vegetative growth and deep green foliage in cereals and leafy crops.",
+    hi: "अनाज और पत्तेदार फसलों में तेज़ वानस्पतिक वृद्धि और गहरी हरी पत्तियों के लिए उच्च-नाइट्रोजन खाद।",
+    ta: "தானியங்கள் மற்றும் இலைக் காய்கறிகளில் வேகமான வளர்ச்சி மற்றும் அடர் பச்சை இலைகளுக்கு அதிக நைட்ரஜன் உரம்.",
+    te: "తృణధాన్యాలు మరియు ఆకు పంటలలో వేగవంతమైన వృద్ధికి అధిక నత్రజని ఎరువు.",
+    mr: "धान्य आणि पालेदार पिकांमध्ये जलद वाढ आणि गडद हिरव्या पानांसाठी उच्च-नायट्रोजन खत.",
+  },
+  "Broad-spectrum systemic protection against fungal": {
+    en: "Broad-spectrum systemic protection against fungal pathogens, blight, and mildew for fruit and vegetable crops.",
+    hi: "फल और सब्जी की फसलों को फफूंदी, ब्लाइट और माइल्ड्यू से व्यापक सुरक्षा।",
+    ta: "பழம் மற்றும் காய்கறி பயிர்களில் பூஞ்சை, ப்லைட் மற்றும் மில்டியூவிலிருந்து பரவலான பாதுகாப்பு.",
+    te: "పండ్లు మరియు కూరగాయ పంటలలో శిలీంధ్రాలు, తెగులు నుండి విస్తృత వ్యవస్థాగత రక్షణ.",
+    mr: "फळे आणि भाज्यांच्या पिकांना बुरशी, ब्लाईट आणि मिल्ड्यूपासून व्यापक संरक्षण.",
+  },
+  "Organic pest repellent and antifungal treatment": {
+    en: "Organic pest repellent and antifungal treatment derived from pure neem kernels for eco-sensitive farming.",
+    hi: "पर्यावरण-संवेदनशील खेती के लिए शुद्ध नीम से बना जैविक कीट निरोधक और एंटीफंगल उपचार।",
+    ta: "சுற்றுச்சூழல் உணர்வுள்ள விவசாயத்திற்கு தூய வேப்ப விதையிலிருந்து தயாரிக்கப்பட்ட இயற்கை பூச்சி விரட்டி.",
+    te: "పర్యావరణ సున్నితమైన వ్యవసాయం కోసం స్వచ్ఛమైన వేపగింజల నుండి తయారైన సేంద్రీయ పురుగుమందు.",
+    mr: "पर्यावरण-संवेदनशील शेतीसाठी शुद्ध कडुनिंबापासून तयार केलेले सेंद्रिय कीटक विरोधक.",
+  },
+  "High-yield hybrid variety with resistance to early blight": {
+    en: "High-yield hybrid variety with resistance to early blight and mosaic virus, optimized for tropical climates.",
+    hi: "उष्णकटिबंधीय जलवायु के लिए अनुकूलित, अर्ली ब्लाइट और मोज़ेक वायरस प्रतिरोधी उच्च उपज संकर किस्म।",
+    ta: "வெப்பமண்டல காலநிலைக்கு ஏற்றது, ஆரம்பகால நோய் மற்றும் மொசைக் வைரஸை எதிர்க்கும் அதிக விளைச்சல் கலப்பின.",
+    te: "ఉష్ణమండల వాతావరణానికి అనుకూలమైన, ప్రారంభ తెగులు మరియు మొజాయిక్ వైరస్‌కు నిరోధకతగల అధిక దిగుబడి హైబ్రిడ్.",
+    mr: "उष्णकटिबंधीय हवामानासाठी अनुकूलित, अर्ली ब्लाइट आणि मोझेक व्हायरसला प्रतिरोधक उच्च उत्पन्न संकरित जात.",
+  },
+  "Bt-enhanced variety with superior boll strength": {
+    en: "Bt-enhanced variety with superior boll strength and resistance to pink bollworm, ensuring high ginning turnout.",
+    hi: "बेहतर बॉल मज़बूती और गुलाबी सुंडी प्रतिरोध के साथ Bt-उन्नत किस्म, उच्च ओटाई उत्पादन।",
+    ta: "சிறந்த காய் வலிமை மற்றும் இளஞ்சிவப்பு காய்ப்புழுவை எதிர்க்கும் Bt-மேம்படுத்தப்பட்ட பருத்தி ரகம்.",
+    te: "గులాబీ బొల్‌వర్మ్‌కు నిరోధకత మరియు అధిక జిన్నింగ్ ఔట్‌టర్న్‌తో Bt-మెరుగైన కాటన్ రకం.",
+    mr: "गुलाबी बोंडअळीला प्रतिरोधक आणि उच्च जिनिंग उत्पादन देणारी Bt-सुधारित कापूस जात.",
+  },
+  "Dwarf variety with high protein content and drought": {
+    en: "Dwarf variety with high protein content and drought tolerance, ideal for late-sowing conditions.",
+    hi: "उच्च प्रोटीन और सूखा सहनशीलता वाली बौनी किस्म, देर से बुवाई के लिए आदर्श।",
+    ta: "அதிக புரதம் மற்றும் வறட்சி தாங்கும் குள்ள ரகம், தாமதமான விதைப்புக்கு ஏற்றது.",
+    te: "అధిక ప్రోటీన్ మరియు కరువు తట్టుకోగల మరగుజ్జు రకం, ఆలస్య విత్తనానికి అనువైనది.",
+    mr: "उच्च प्रथिने आणि दुष्काळ सहन करणारी बुटकी जात, उशिरा पेरणीसाठी आदर्श.",
+  },
+  "Ergonomic carbon steel tool with rust-resistant": {
+    en: "Ergonomic carbon steel tool with rust-resistant coating for effortless transplanting and weeding.",
+    hi: "आसान रोपाई और निराई के लिए जंग-रोधी कोटिंग वाला एर्गोनोमिक कार्बन स्टील उपकरण।",
+    ta: "எளிதான நடவு மற்றும் களை எடுப்பதற்கு துருப்பிடிக்காத கோட்டிங் உள்ள எர்கோனாமிக் கார்பன் ஸ்டீல் கருவி.",
+    te: "సులభమైన నాటడం మరియు కలుపు తీయడానికి తుప్పు నిరోధక పూతగల ఎర్గోనామిక్ కార్బన్ స్టీల్ సాధనం.",
+    mr: "सुलभ रोपण आणि खुरपणीसाठी गंजरोधी कोटिंगसह एर्गोनॉमिक कार्बन स्टील साधन.",
+  },
+  "16-liter high-pressure backpack sprayer": {
+    en: "16-liter high-pressure backpack sprayer with adjustable brass nozzles for uniform chemical application.",
+    hi: "समान रासायनिक छिड़काव के लिए एडजस्टेबल पीतल नोज़ल वाला 16-लीटर हाई-प्रेशर स्प्रेयर।",
+    ta: "சீரான ரசாயன தெளிப்புக்கு சரிசெய்யக்கூடிய பித்தளை நொசில்கள் கொண்ட 16-லிட்டர் அழுத்த தெளிப்பி.",
+    te: "సమాన రసాయన పిచికారీకి సర్దుబాటు చేయగల పితళా నాజిల్స్‌తో 16-లీటర్ హై-ప్రెషర్ స్ప్రేయర్.",
+    mr: "सम रासायनिक फवारणीसाठी समायोज्य पितळी नोझल असलेला 16-लिटर हाय-प्रेशर स्प्रेयर.",
+  },
+  "Heavy-duty agricultural attachment compatible with 15-30HP": {
+    en: "Heavy-duty agricultural attachment compatible with 15-30HP tractors for efficient soil preparation.",
+    hi: "कुशल मिट्टी तैयारी के लिए 15-30HP ट्रैक्टर के साथ संगत हेवी-ड्यूटी कृषि अटैचमेंट।",
+    ta: "திறமையான மண் தயாரிப்புக்கு 15-30HP ட்ராக்டர்களுக்கு பொருந்தக்கூடிய கனரக விவசாய இணைப்பு.",
+    te: "సమర్థవంతమైన నేల తయారీకి 15-30HP ట్రాక్టర్లకు అనుకూలమైన హెవీ-డ్యూటీ వ్యవసాయ అనుబంధం.",
+    mr: "कार्यक्षम माती तयारीसाठी 15-30HP ट्रॅक्टरशी सुसंगत हेवी-ड्युटी कृषी अटॅचमेंट.",
+  },
+  "Professional grade agricultural product": {
+    en: "Professional grade agricultural product optimized for local soil conditions and maximum yield.",
+    hi: "स्थानीय मिट्टी और अधिकतम उपज के लिए अनुकूलित पेशेवर श्रेणी का कृषि उत्पाद।",
+    ta: "உள்ளூர் மண் நிலைமைகள் மற்றும் அதிகபட்ச மகசூலுக்கு தகுந்தாற்போல் தேர்வுமிக்க விவசாய தயாரிப்பு.",
+    te: "స్థానిక నేల పరిస్థితులు మరియు గరిష్ట దిగుబడికి ఆప్టిమైజ్ చేసిన ప్రొఫెషనల్ గ్రేడ్ వ్యవసాయ ఉత్పత్తి.",
+    mr: "स्थानिक मातीच्या परिस्थिती आणि कमाल उत्पन्नासाठी अनुकूलित व्यावसायिक दर्जाचे कृषी उत्पादन.",
+  },
+};
+
+export function translateProductDescription(description: string, language: string): string {
+  if (!description || language === 'en') return description;
+  for (const [key, map] of Object.entries(productDescriptionTranslations)) {
+    if (description.startsWith(key) || description.includes(key)) {
+      return map[language] || description;
+    }
+  }
+  return description;
+}
+
+export function translateStoreCategory(category: string, language: string): string {
+  if (language === 'en') return category;
+  const map: Record<string, Record<string, string>> = {
+    'All': { hi: 'सभी', ta: 'எல்லாம்', te: 'అన్నీ', mr: 'सर्व' },
+    'Fertilizers': { hi: 'खाद', ta: 'உரங்கள்', te: 'ఎరువులు', mr: 'खते' },
+    'Pesticides': { hi: 'कीटनाशक', ta: 'பூச்சிக்கொல்லிகள்', te: 'పురుగుమందులు', mr: 'कीटकनाशके' },
+    'Seeds': { hi: 'बीज', ta: 'விதைகள்', te: 'విత్తనాలు', mr: 'बियाणे' },
+    'Farming Tools': { hi: 'कृषि उपकरण', ta: 'விவசாய கருவிகள்', te: 'వ్యవసాయ పనిముట్లు', mr: 'शेती साधने' },
+    'Machinery': { hi: 'मशीनरी', ta: 'இயந்திரங்கள்', te: 'యంత్రాలు', mr: 'यंत्रसामग्री' },
+  };
+  return map[category]?.[language] || category;
+}
 
 export function translateCommodity(name: string, language: string): string {
   if (!name || language === 'en') return name;
-  const map = commodityTranslations[name.trim()];
-  if (!map) return name;
-  return map[language] || name;
+  const trimmed = name.trim();
+
+  // Direct match
+  const direct = commodityTranslations[trimmed];
+  if (direct) return direct[language] || trimmed;
+
+  // Partial match — handle variants like "Cucumbar(kheera)", "Raddish", "Maize(white)"
+  const lower = trimmed.toLowerCase();
+  for (const [key, map] of Object.entries(commodityTranslations)) {
+    if (lower.includes(key.toLowerCase()) || key.toLowerCase().includes(lower)) {
+      return map[language] || trimmed;
+    }
+  }
+
+  return trimmed;
 }

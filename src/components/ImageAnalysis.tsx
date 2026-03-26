@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { X, Camera, Upload, Volume2, VolumeX, CheckCircle, AlertCircle, Loader2, RotateCcw, BookmarkPlus, Share2, Search, Languages, ShoppingCart, Bird, Leaf, ArrowLeft, Terminal } from "lucide-react";
+import { X, Camera, Upload, Volume2, VolumeX, CheckCircle, AlertCircle, Loader2, RotateCcw, BookmarkPlus, Share2, Search, ShoppingCart, Bird, Leaf, ArrowLeft, Terminal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { analyzeImage, detectBirds, DiseaseAnalysis, BirdDetectionResult } from "@/lib/visionAnalysis";
 import { getNvidiaTts } from "@/lib/apiClient";
 import { useLibrary } from "@/hooks/useLibrary";
+import { useOrders } from "@/hooks/useOrders";
 import { toast } from "sonner";
 import { getTranslation, type SupportedLanguage } from "@/lib/translations";
 import { getRecommendations } from "@/data/products";
@@ -42,6 +43,7 @@ export function ImageAnalysis({ isOpen, onClose, language, onShareChat, variant 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const lastDetectedRef = useRef(false);
   const { addItem } = useLibrary();
+  const { addOrder } = useOrders();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -109,8 +111,6 @@ export function ImageAnalysis({ isOpen, onClose, language, onShareChat, variant 
     }
   };
   const isHindi = language === "hi";
-  const [isTranslating, setIsTranslating] = useState(false);
-  const [isTranslated, setIsTranslated] = useState(false);
 
   const t = getTranslation('image', language);
   const tCommon = getTranslation('common', language);
@@ -483,71 +483,6 @@ export function ImageAnalysis({ isOpen, onClose, language, onShareChat, variant 
     return titles[section]?.[language] || section;
   };
 
-  const handleTranslate = async () => {
-    if (!analysisResult || isTranslating) return;
-
-    setIsTranslating(true);
-    try {
-      // Build the content to translate
-      const contentToTranslate = {
-        disease_name: analysisResult.disease_name,
-        description: analysisResult.description,
-        symptoms: analysisResult.symptoms,
-        treatment_steps: analysisResult.treatment_steps,
-        prevention_tips: analysisResult.prevention_tips,
-        organic_options: analysisResult.organic_options
-      };
-
-      // Map language codes to names
-      const langNames: Record<string, string> = {
-        en: "English",
-        hi: "Hindi",
-        ta: "Tamil",
-        te: "Telugu",
-        mr: "Marathi"
-      };
-
-      const targetLang = langNames[language] || "English";
-
-      // Call OpenRouter API for translation
-      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          model: "meta-llama/llama-3.3-70b-instruct",
-          messages: [
-            {
-              role: "user",
-              content: `Translate the following plant disease analysis to ${targetLang}. Maintain the same structure and return ONLY a JSON object with the translated content:\n\n${JSON.stringify(contentToTranslate, null, 2)}`
-            }
-          ]
-        })
-      });
-
-      if (!response.ok) throw new Error("Translation failed");
-
-      const data = await response.json();
-      const translatedContent = JSON.parse(data.choices[0].message.content);
-
-      // Update analysis result with translated content
-      setAnalysisResult({
-        ...analysisResult,
-        ...translatedContent
-      });
-
-      setIsTranslated(true);
-      toast.success(language === "hi" ? "अनुवाद पूर्ण!" : "Translation complete!");
-    } catch (error) {
-      console.error("Translation error:", error);
-      toast.error(language === "hi" ? "अनुवाद विफल" : "Translation failed");
-    } finally {
-      setIsTranslating(false);
-    }
-  };
-
   if (!isOpen && variant === "overlay") return null;
 
   const handleMutedChange = (newMuted: boolean) => {
@@ -590,7 +525,7 @@ export function ImageAnalysis({ isOpen, onClose, language, onShareChat, variant 
             )}
           >
             <Leaf size={15} />
-            Plant Scan
+            {(t as any).plantScan || 'Plant Scan'}
           </button>
           <button
             onClick={() => { setAnalysisMode("bird"); resetAnalysis(); stopCamera(); }}
@@ -602,7 +537,7 @@ export function ImageAnalysis({ isOpen, onClose, language, onShareChat, variant 
             )}
           >
             <Bird size={15} />
-            Bird Detect
+            {(t as any).birdDetect || 'Bird Detect'}
           </button>
         </div>
       </div>
@@ -1090,7 +1025,7 @@ export function ImageAnalysis({ isOpen, onClose, language, onShareChat, variant 
                 <div className="bg-background/90 backdrop-blur-md px-4 py-1.5 rounded-full border border-border flex items-center gap-2 shadow-apple-sm">
                   <div className="text-[11px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                     <img src="/logo.svg" alt="AI Analyzed" className="w-3.5 h-3.5" />
-                    AI Analyzed Image
+                    {(t as any).aiAnalyzedImage || 'AI Analyzed Image'}
                   </div>
                 </div>
               </div>
@@ -1168,7 +1103,7 @@ export function ImageAnalysis({ isOpen, onClose, language, onShareChat, variant 
                 {/* 3. How it was formed (Description) */}
                 <div className="space-y-3 pb-2">
                   <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] px-1">
-                    {getSectionTitle("How it was formed")}
+                    {(t as any).howItFormed || getSectionTitle("How it was formed")}
                   </p>
                   <div className="p-5 bg-muted/30 rounded-apple-lg border border-border">
                     <p className="text-subhead text-muted-foreground leading-relaxed">
@@ -1200,7 +1135,7 @@ export function ImageAnalysis({ isOpen, onClose, language, onShareChat, variant 
                 {analysisResult.treatment_steps && analysisResult.treatment_steps.length > 0 && (
                   <div className="space-y-3 pb-2">
                     <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] px-1">
-                      {getSectionTitle("Treatment Plan")}
+                      {t.treatment}
                     </p>
                     <div className="bg-slate-900 p-6 rounded-apple-xl space-y-5 shadow-xl">
                       {(getContent('treatment_steps') as string[]).map((step, i) => (
@@ -1238,7 +1173,7 @@ export function ImageAnalysis({ isOpen, onClose, language, onShareChat, variant 
                 {analysisResult.prevention_tips && analysisResult.prevention_tips.length > 0 && (
                   <div className="space-y-3 pb-2">
                     <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] px-1">
-                      {getSectionTitle("Prevention Tips")}
+                      {t.prevention}
                     </p>
                     <div className="p-4 bg-muted/30 rounded-apple-lg border border-border space-y-3">
                       {(getContent('prevention_tips') as string[]).map((tip, i) => (
@@ -1257,9 +1192,9 @@ export function ImageAnalysis({ isOpen, onClose, language, onShareChat, variant 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <ShoppingCart size={18} className="text-primary" />
-                        <h4 className="text-[11px] font-black uppercase tracking-widest text-foreground">Recommended Products</h4>
+                        <h4 className="text-[11px] font-black uppercase tracking-widest text-foreground">{(tCommon as any).recommendedProducts}</h4>
                       </div>
-                      <span className="text-[9px] font-black text-muted-foreground uppercase bg-muted px-2 py-0.5 rounded-sm">AgroStore Affiliate</span>
+                      <span className="text-[9px] font-black text-muted-foreground uppercase bg-muted px-2 py-0.5 rounded-sm">{(t as any).agroStoreAffiliate}</span>
                     </div>
 
                     <div className="grid grid-cols-1 gap-4">
@@ -1290,11 +1225,24 @@ export function ImageAnalysis({ isOpen, onClose, language, onShareChat, variant 
                               <p className="text-body font-black text-foreground mt-1">₹{product.price}</p>
                             </div>
                             <div className="flex gap-2 mt-3">
-                              <button 
-                                onClick={() => window.open(`https://wa.me/919999999999?text=I want to order ${product.name} for my affected ${analysisResult.crop_identified}`, '_blank')} 
-                                className="flex-1 bg-green-500 hover:bg-green-600 active:scale-95 text-white text-[11px] font-black uppercase tracking-wide py-2.5 rounded-xl flex justify-center items-center gap-2 transition-all shadow-green-sm"
+                              <button
+                                onClick={() => {
+                                  addOrder({
+                                    id: `ord_${Date.now()}`,
+                                    crop: product.name,
+                                    quantity: "1 Unit",
+                                    location: "Home Delivery",
+                                    price_estimate: `₹${product.price}`,
+                                    status: "Processing Order",
+                                    buyer_name: "AgroTalk Supply",
+                                    timestamp: Date.now()
+                                  });
+                                  toast.success("Order Placed!", { description: "View in Library → Agent Orders" });
+                                }}
+                                className="flex-1 bg-primary hover:bg-primary/90 active:scale-95 text-white text-[11px] font-black uppercase tracking-wide py-2.5 rounded-xl flex justify-center items-center gap-2 transition-all"
                               >
-                                Buy Now
+                                <ShoppingCart size={12} />
+                                {(tCommon as any).buyNow}
                               </button>
                             </div>
                           </div>
@@ -1306,26 +1254,6 @@ export function ImageAnalysis({ isOpen, onClose, language, onShareChat, variant 
 
                 {/* Action Buttons */}
                 <div className="flex gap-3 pt-2">
-                  {language !== "en" && !isTranslated && (
-                    <Button
-                      variant="outline"
-                      className="flex-1 h-12 rounded-apple border-2 gap-2 active:scale-[0.98]"
-                      onClick={handleTranslate}
-                      disabled={isTranslating}
-                    >
-                      {isTranslating ? (
-                        <>
-                          <Loader2 size={18} className="animate-spin" />
-                          {language === "hi" ? "अनु" : "..."}
-                        </>
-                      ) : (
-                        <>
-                          <Languages size={18} />
-                          {language === "hi" ? "अनुवाद" : language === "ta" ? "மொழிபெயர்" : language === "te" ? "అనువాదం" : language === "mr" ? "மொழிபெயர்ப்பு" : "Translate"}
-                        </>
-                      )}
-                    </Button>
-                  )}
                   <Button
                     variant="outline"
                     className="flex-1 h-12 rounded-apple border-2 gap-2 active:scale-[0.98]"
